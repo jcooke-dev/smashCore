@@ -22,6 +22,9 @@ pygame.init()
 sc = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
+# Hide the mouse cursor
+pygame.mouse.set_visible(False)
+
 while True:
     # fill the screen with black.
     sc.fill((0, 0, 0))
@@ -31,7 +34,7 @@ while True:
             exit()
 
     # drawing
-    pygame.draw.rect(sc, pygame.Color('dark-blue'), paddle)
+    pygame.draw.rect(sc, pygame.Color('blue'), paddle)
     pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
 
     # ball movement
