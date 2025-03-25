@@ -1,3 +1,6 @@
+"""
+    SmashCore is a breakout style game
+"""
 import pygame
 import settings
 from paddle import Paddle

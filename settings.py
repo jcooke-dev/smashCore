@@ -1,3 +1,6 @@
+"""
+    Constants to be used throughout the application
+"""
 GAME_NAME = "SmashCore"
 
 # width and height of game board
@@ -19,4 +22,3 @@ YELLOW = (255, 255, 0)
 
 START_SCORE = 0
 LIVES = 3
-
