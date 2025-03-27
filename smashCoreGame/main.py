@@ -64,14 +64,14 @@ game_over = False
 pause = False
 
 # Displays the pause menu where user can continue, restart, or quit the game
-def draw_pause():
-    pygame.draw.rect(surface, (255, 255, 255, 64), [0, 0, settings.WIDTH, settings.HEIGHT])
-    pygame.draw.rect(surface, settings.DARKBLUE, [(settings.WIDTH // 2) - 300, 250, 600, 75])
-    reset = pygame.draw.rect(surface, settings.DARKBLUE, [(settings.WIDTH // 2) - 200, 350, 400, 75])
-    quit = pygame.draw.rect(surface, settings.DARKBLUE, [(settings.WIDTH // 2) - 200, 450, 400, 75])
-    surface.blit(font_buttons.render('Game Paused: ESC to Resume', True, settings.WHITE), ((settings.WIDTH // 2) - 290, 270))
-    surface.blit(font_buttons.render('Restart Game', True, settings.WHITE), ((settings.WIDTH // 2) - 190, 370))
-    surface.blit(font_buttons.render('Quit Game', True, settings.WHITE), ((settings.WIDTH // 2) - 190, 470))
+def draw_pause_menu():
+    pygame.draw.rect(surface, (0, 0, 0, 100), [0, 0, settings.WIDTH, settings.HEIGHT])
+    #pygame.draw.rect(surface, settings.DARKBLUE, [(settings.WIDTH // 2) - 300, 250, 600, 75])
+    reset = pygame.draw.rect(surface, (0, 255, 0), [(settings.WIDTH // 2) - 200, 350, 400, 75])
+    quit = pygame.draw.rect(surface, (0, 255, 0), [(settings.WIDTH // 2) - 200, 450, 400, 75])
+    surface.blit(font_game_over.render('Game Paused: ESC to Resume', True, settings.DARKBLUE), (90, 270))
+    surface.blit(font_buttons.render('Restart Game', True, settings.BLACK), ((settings.WIDTH // 2) - 190, 370))
+    surface.blit(font_buttons.render('Quit Game', True, settings.BLACK), ((settings.WIDTH // 2) - 190, 470))
     sc.blit(surface, (0, 0))
     return reset, quit
 
@@ -134,11 +134,71 @@ def reset_game():
     game_over = False
     pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
+#draws the game over screen on a surface and displays it if game is lost    
+def draw_game_over_menu():
+    pygame.mouse.set_visible(True)  # Show the cursor in game over screen
+    pygame.draw.rect(surface, (0, 0, 0, 160), [0, 0, settings.WIDTH, settings.HEIGHT])
+    # Game over screen
+    text_game_over = font_game_over.render("YOU GOT SMASHED!", True, pygame.Color('red'))
+    text_rect = text_game_over.get_rect(center=(settings.WIDTH // 2, settings.HEIGHT // 3))
+    surface.blit(text_game_over, text_rect)
+
+    # Draw buttons
+    draw_button(surface, "Play Again", settings.WIDTH // 4, settings.HEIGHT // 2, 200, 75, (0, 255, 0), (0, 200, 0), reset_game)
+    draw_button(surface, "Quit", settings.WIDTH * 3 // 4 - 100, settings.HEIGHT // 2, 200, 75, (255, 0, 0), (200, 0, 0), exit)
+    sc.blit(surface, (0, 0))
 
 while running:
-    
+
     # fill the screen with black.
     sc.fill(settings.BLACK)
+
+    # draws game objects
+    [pygame.draw.rect(sc, block_colors[color], block) for color, block in enumerate(block_layout)]
+    pygame.draw.rect(sc, pygame.Color('red'), paddle.rect)
+    pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
+
+    if game_over:
+        draw_game_over_menu()
+
+    if pause:
+        restart_game, quit_game = draw_pause_menu()
+
+    if not pause and not game_over: 
+        # Move the ball
+        ball.x += ball_speed * dx
+        ball.y += ball_speed * dy
+
+        # paddle control (mouse)
+        mouse_pos = pygame.mouse.get_pos()
+        paddle.move_by_mouse(mouse_pos[0])
+
+    # ball collision wall left/right
+    if ball.centerx < ball_radius or ball.centerx > settings.WIDTH - ball_radius:
+        dx = -dx
+    # ball collision wall top
+    if ball.centery < ball_radius:
+        dy = -dy
+    # ball collision paddle
+    if ball.colliderect(paddle.rect) and dy > 0:
+        dx, dy = detect_collision(dx, dy, ball, paddle.rect)
+
+    # collision blocks
+    block_collision = ball.collidelist(block_layout)
+    if block_collision != -1:
+
+        hitbox = block_layout.pop(block_collision)
+        hit_color = block_colors.pop(block_collision)
+        dx, dy = detect_collision(dx, dy, ball, hitbox)
+
+        # special effect
+        hitbox.inflate_ip(ball.width * 3, ball.height * 3)
+        pygame.draw.rect(sc, hit_color, hitbox)
+        fps += 2
+
+    # win, game over
+    if ball.top > settings.HEIGHT:
+        game_over = True
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -158,69 +218,6 @@ while running:
                 pause = False
             if quit_game.collidepoint(event.pos):
                 exit()
-        
-    if pause:
-        restart_game, quit_game = draw_pause()
-                        
-    if game_over:
-
-        pygame.mouse.set_visible(True)  # Show the cursor in game over screen
-
-        # Game over screen
-        text_game_over = font_game_over.render("YOU GOT SMASHED!", True, pygame.Color('red'))
-        text_rect = text_game_over.get_rect(center=(settings.WIDTH // 2, settings.HEIGHT // 3))
-        sc.blit(text_game_over, text_rect)
-
-        # Draw buttons
-        draw_button(sc, "Play Again", settings.WIDTH // 4, settings.HEIGHT // 2, 200, 75, (0, 255, 0), (0, 200, 0), reset_game)
-        draw_button(sc, "Quit", settings.WIDTH * 3 // 4 - 100, settings.HEIGHT // 2, 200, 75, (255, 0, 0), (200, 0, 0), exit)
-
-    else:
-           
-        # draws game objects
-        [pygame.draw.rect(sc, block_colors[color], block) for color, block in enumerate(block_layout)]
-        pygame.draw.rect(sc, pygame.Color('red'), paddle.rect)
-        pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
-        
-        if not pause: 
-            # Move the ball
-            ball.x += ball_speed * dx
-            ball.y += ball_speed * dy
-            
-            # paddle control (mouse)
-            mouse_pos = pygame.mouse.get_pos()
-            paddle.move_by_mouse(mouse_pos[0])
-
-        # ball collision wall left/right
-        if ball.centerx < ball_radius or ball.centerx > settings.WIDTH - ball_radius:
-            dx = -dx
-        # ball collision wall top
-        if ball.centery < ball_radius:
-            dy = -dy
-        # ball collision paddle
-        if ball.colliderect(paddle.rect) and dy > 0:
-            dx, dy = detect_collision(dx, dy, ball, paddle.rect)
-
-        # collision blocks
-        block_collision = ball.collidelist(block_layout)
-        if block_collision != -1:
-
-            hitbox = block_layout.pop(block_collision)
-            hit_color = block_colors.pop(block_collision)
-            dx, dy = detect_collision(dx, dy, ball, hitbox)
-
-            # special effect
-            hitbox.inflate_ip(ball.width * 3, ball.height * 3)
-            pygame.draw.rect(sc, hit_color, hitbox)
-            fps += 2
-        
-        # win, game over
-        if ball.top > settings.HEIGHT:
-            game_over = True
-
-
-
-
 
     # all_sprites_list.update()
 
