@@ -47,6 +47,7 @@ block_colors = [
 
 pygame.init()
 sc = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
+surface = pygame.Surface((settings.WIDTH, settings.HEIGHT), pygame.SRCALPHA)
 clock = pygame.time.Clock()
 
 # Hide the mouse cursor
@@ -58,7 +59,21 @@ font_game_over = pygame.font.Font(None, 100)
 font_buttons = pygame.font.Font(None, 50)
 
 # Game state
+running = True
 game_over = False
+pause = False
+
+# Displays the pause menu where user can continue, restart, or quit the game
+def draw_pause():
+    pygame.draw.rect(surface, (255, 255, 255, 64), [0, 0, settings.WIDTH, settings.HEIGHT])
+    pygame.draw.rect(surface, settings.DARKBLUE, [(settings.WIDTH // 2) - 300, 250, 600, 75])
+    reset = pygame.draw.rect(surface, settings.DARKBLUE, [(settings.WIDTH // 2) - 200, 350, 400, 75])
+    quit = pygame.draw.rect(surface, settings.DARKBLUE, [(settings.WIDTH // 2) - 200, 450, 400, 75])
+    surface.blit(font_buttons.render('Game Paused: ESC to Resume', True, settings.WHITE), ((settings.WIDTH // 2) - 290, 270))
+    surface.blit(font_buttons.render('Restart Game', True, settings.WHITE), ((settings.WIDTH // 2) - 190, 370))
+    surface.blit(font_buttons.render('Quit Game', True, settings.WHITE), ((settings.WIDTH // 2) - 190, 470))
+    sc.blit(surface, (0, 0))
+    return reset, quit
 
 # Function to detect collisions
 def detect_collision(horizontal, vertical, ball, hitbox):
@@ -120,15 +135,33 @@ def reset_game():
     pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
 
-while True:
+while running:
+    
     # fill the screen with black.
     sc.fill(settings.BLACK)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
-
-
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                if pause:
+                    pause = False
+                    pygame.mouse.set_pos(mouse_pos)
+                    pygame.mouse.set_visible(False)
+                else:
+                    pause = True
+                    pygame.mouse.set_visible(True)
+        if event.type == pygame.MOUSEBUTTONDOWN and pause:
+            if restart_game.collidepoint(event.pos):
+                reset_game()
+                pause = False
+            if quit_game.collidepoint(event.pos):
+                exit()
+        
+    if pause:
+        restart_game, quit_game = draw_pause()
+                        
     if game_over:
 
         pygame.mouse.set_visible(True)  # Show the cursor in game over screen
@@ -143,15 +176,20 @@ while True:
         draw_button(sc, "Quit", settings.WIDTH * 3 // 4 - 100, settings.HEIGHT // 2, 200, 75, (255, 0, 0), (200, 0, 0), exit)
 
     else:
-
+           
         # draws game objects
         [pygame.draw.rect(sc, block_colors[color], block) for color, block in enumerate(block_layout)]
         pygame.draw.rect(sc, pygame.Color('red'), paddle.rect)
         pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
-
-        # Move the ball
-        ball.x += ball_speed * dx
-        ball.y += ball_speed * dy
+        
+        if not pause: 
+            # Move the ball
+            ball.x += ball_speed * dx
+            ball.y += ball_speed * dy
+            
+            # paddle control (mouse)
+            mouse_pos = pygame.mouse.get_pos()
+            paddle.move_by_mouse(mouse_pos[0])
 
         # ball collision wall left/right
         if ball.centerx < ball_radius or ball.centerx > settings.WIDTH - ball_radius:
@@ -175,14 +213,12 @@ while True:
             hitbox.inflate_ip(ball.width * 3, ball.height * 3)
             pygame.draw.rect(sc, hit_color, hitbox)
             fps += 2
-
+        
         # win, game over
         if ball.top > settings.HEIGHT:
             game_over = True
 
-        # paddle control (mouse)
-        mouse_pos = pygame.mouse.get_pos()
-        paddle.move_by_mouse(mouse_pos[0])
+
 
 
 
