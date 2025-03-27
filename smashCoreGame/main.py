@@ -149,45 +149,26 @@ def draw_game_over_menu():
     sc.blit(surface, (0, 0))
 
 while running:
-    
+
     # fill the screen with black.
     sc.fill(settings.BLACK)
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                if pause:
-                    pause = False
-                    pygame.mouse.set_pos(mouse_pos)
-                    pygame.mouse.set_visible(False)
-                else:
-                    pause = True
-                    pygame.mouse.set_visible(True)
-        if event.type == pygame.MOUSEBUTTONDOWN and pause:
-            if restart_game.collidepoint(event.pos):
-                reset_game()
-                pause = False
-            if quit_game.collidepoint(event.pos):
-                exit()
-        
     # draws game objects
     [pygame.draw.rect(sc, block_colors[color], block) for color, block in enumerate(block_layout)]
     pygame.draw.rect(sc, pygame.Color('red'), paddle.rect)
     pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
-                        
+
     if game_over:
         draw_game_over_menu()
 
     if pause:
         restart_game, quit_game = draw_pause_menu()
-        
+
     if not pause and not game_over: 
         # Move the ball
         ball.x += ball_speed * dx
         ball.y += ball_speed * dy
-        
+
         # paddle control (mouse)
         mouse_pos = pygame.mouse.get_pos()
         paddle.move_by_mouse(mouse_pos[0])
@@ -214,10 +195,29 @@ while running:
         hitbox.inflate_ip(ball.width * 3, ball.height * 3)
         pygame.draw.rect(sc, hit_color, hitbox)
         fps += 2
-        
+
     # win, game over
     if ball.top > settings.HEIGHT:
         game_over = True
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                if pause:
+                    pause = False
+                    pygame.mouse.set_pos(mouse_pos)
+                    pygame.mouse.set_visible(False)
+                else:
+                    pause = True
+                    pygame.mouse.set_visible(True)
+        if event.type == pygame.MOUSEBUTTONDOWN and pause:
+            if restart_game.collidepoint(event.pos):
+                reset_game()
+                pause = False
+            if quit_game.collidepoint(event.pos):
+                exit()
 
     # all_sprites_list.update()
 
