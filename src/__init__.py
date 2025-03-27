@@ -13,10 +13,8 @@ fps = settings.INITIAL_FPS
 # # List of all the sprites used
 # all_sprites_list = pygame.sprite.Group()
 
-# Create the Paddle
+# Create the Paddle and start location
 paddle = Paddle(pygame.Color('red'), settings.PAD_WIDTH, settings.PAD_HEIGHT)
-paddle.rect.x = (settings.WIDTH - settings.PAD_WIDTH) // 2
-paddle.rect.y = settings.HEIGHT - settings.PAD_HEIGHT - 10
 
 # # Add the paddle to the list of sprites
 # all_sprites_list.add(paddle)
@@ -42,7 +40,6 @@ block_colors = [
     for i in range(10)
     for j in range(4)
 ]
-
 
 
 pygame.init()
@@ -97,6 +94,7 @@ def detect_collision(horizontal, vertical, ball, hitbox):
 
     return horizontal, vertical
 
+
 # Button function
 def draw_button(screen, text, x, y, width, height, color, hover_color, action=None):
     mouse = pygame.mouse.get_pos()
@@ -113,6 +111,7 @@ def draw_button(screen, text, x, y, width, height, color, hover_color, action=No
     text_surface = font_buttons.render(text, True, (0, 0, 0))
     text_rect = text_surface.get_rect(center=rect.center)
     screen.blit(text_surface, text_rect)
+
 
 def reset_game():
     global ball_x, ball_y, block_layout, block_colors, dx, dy, fps, game_over, ball
