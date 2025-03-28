@@ -1,37 +1,60 @@
-import pygame
-from settings import BALL_RADIUS, BALL_SPEED, WHITE, WIDTH, HEIGHT
+"""
+    The Ball type of WorldObject that customizes the behavior.
+"""
 
-class Ball(pygame.sprite.Sprite):
+import pygame
+
+import constants
+from src.worldobject import WorldObject
+
+
+class Ball(WorldObject, pygame.sprite.Sprite):
+
     def __init__(self, x, y):
-        self.radius = BALL_RADIUS
-        self.speed = BALL_SPEED
+
+        super().__init__()
+
+        # general world object properties
+        self.can_react = True # can this object react to collisions with other objects?
+
+        # ball settings
+        self.radius = constants.BALL_RADIUS
+        self.speed = constants.BALL_SPEED
         self.x = x - self.radius
         self.y = y
         self.ball_rect = int(self.radius * 2 ** 0.5)
         self.dx, self.dy = 1, -1
-        
         self.rect = pygame.Rect(self.x, self.y, self.ball_rect, self.ball_rect)
-    
-    # moves and updates the ball position    
-    def move_ball(self):
-        self.x += self.speed * self.dx
-        self.y += self.speed * self.dy
-        
-        self.rect.x = self.x
-        self.rect.y = self.y
-    
-    # draws the ball on the screen
-    def draw(self, screen):
-        pygame.draw.circle(screen, WHITE, self.rect.center, self.radius)
-    
-    #defines collision behavior with the edges of the screen
-    def wall_collisions(self):
-         # ball collision wall left/right
-        if self.rect.centerx < self.radius or self.rect.centerx > WIDTH - self.radius:
+        self.mouse_position = 0 # unused with this ball
+
+    # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
+    def update_wo(self, gs):
+
+        # ball collision wall left/right
+        if self.rect.centerx < self.radius or self.rect.centerx > constants.WIDTH - self.radius:
             self.dx = -self.dx
         # ball collision wall top
         if self.rect.centery < self.radius:
             self.dy = -self.dy
+
+        # # DEBUG and bounce off just below the bottom
+        # if self.rect.centery > constants.HEIGHT + (8 * self.ball_radius):
+        #     self.dy = -self.dy
+
+        self.rect.x += self.speed * self.dx
+        self.rect.y += self.speed * self.dy
+
+        self.x = self.rect.x
+        self.y = self.rect.y
+
+        # win, game over
+        if self.rect.top > constants.HEIGHT: # + (10 * self.ball_radius):
+        # if self.rect.top < 0:
+            gs.game_over = True
+
+    # draw the WorldObject to the screen
+    def draw_wo(self, screen):
+        pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
     
     #Function to detect collisions      
     def detect_collision(self, hitbox):
@@ -52,3 +75,5 @@ class Ball(pygame.sprite.Sprite):
             self.dy = -self.dy
         elif y_delta > x_delta:  # horizontal collision
             self.dx = -self.dx
+
+

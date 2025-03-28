@@ -1,180 +1,23 @@
 """
     SmashCore is a breakout style game
 """
+
 import pygame
-import settings
-from paddle import Paddle
-from ball import Ball
-from random import randrange as rnd
 
+from src.gamestate import GameState
+from src.userinterface import UserInterface
+from src.gameworld import GameWorld
+from src.gameengine import GameEngine
 
-pygame.display.set_caption(settings.GAME_NAME)
-fps = settings.INITIAL_FPS
-
-# List of all the sprites used
-
-# Create the Paddle and start location
-paddle = Paddle(pygame.Color('red'), settings.PAD_WIDTH, settings.PAD_HEIGHT)
-ball = Ball(paddle.rect.x + (settings.PAD_WIDTH // 2), paddle.rect.y - settings.PAD_HEIGHT)
-
-# Block configuration
-block_layout = [
-    pygame.Rect(10 + 120 * i, 10 + 70 * j, 100, 50)
-    for i in range(10)
-    for j in range(4)
-]
-
-block_colors = [
-    (rnd(30, 256), rnd(30, 256), rnd(30, 256))
-    for i in range(10)
-    for j in range(4)
-]
 
 pygame.init()
-sc = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
-surface = pygame.Surface((settings.WIDTH, settings.HEIGHT), pygame.SRCALPHA)
-clock = pygame.time.Clock()
 
-# Hide the mouse cursor
-pygame.mouse.set_visible(False)
+# setup various game objects
+ui = UserInterface()
+gs = GameState()
+gw = GameWorld()
+ge = GameEngine(gw, gs, ui)
 
-# Font setup
-font_game_over = pygame.font.Font(None, 100)
-font_buttons = pygame.font.Font(None, 50)
+# run the main game loop -- this returns when done
+ge.run_loop()
 
-# Game state
-running = True
-game_over = False
-pause = False
-
-# Displays the pause menu where user can continue, restart, or quit the game
-def draw_pause_menu():
-    pygame.draw.rect(surface, (0, 0, 0, 100), [0, 0, settings.WIDTH, settings.HEIGHT])
-    #pygame.draw.rect(surface, settings.DARKBLUE, [(settings.WIDTH // 2) - 300, 250, 600, 75])
-    reset = pygame.draw.rect(surface, (0, 255, 0), [(settings.WIDTH // 2) - 200, 350, 400, 75])
-    quit = pygame.draw.rect(surface, (0, 255, 0), [(settings.WIDTH // 2) - 200, 450, 400, 75])
-    surface.blit(font_game_over.render('Game Paused: ESC to Resume', True, settings.DARKBLUE), (90, 270))
-    surface.blit(font_buttons.render('Restart Game', True, settings.BLACK), ((settings.WIDTH // 2) - 190, 370))
-    surface.blit(font_buttons.render('Quit Game', True, settings.BLACK), ((settings.WIDTH // 2) - 190, 470))
-    sc.blit(surface, (0, 0))
-    return reset, quit
-
-# Button function
-def draw_button(screen, text, x, y, width, height, color, hover_color, action=None):
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    rect = pygame.Rect(x, y, width, height)
-
-    if rect.collidepoint(mouse):
-        pygame.draw.rect(screen, hover_color, rect)
-        if click[0] == 1 and action is not None:
-            action()
-    else:
-        pygame.draw.rect(screen, color, rect)
-
-    text_surface = font_buttons.render(text, True, (0, 0, 0))
-    text_rect = text_surface.get_rect(center=rect.center)
-    screen.blit(text_surface, text_rect)
-
-def reset_game():
-    global block_layout, block_colors, fps, game_over, ball
-    ball = Ball(paddle.rect.x + (settings.PAD_WIDTH // 2), paddle.rect.y - settings.PAD_HEIGHT)
-    block_layout = [
-        pygame.Rect(10 + 120 * i, 10 + 70 * j, 100, 50)
-        for i in range(10)
-        for j in range(4)
-    ]
-    block_colors = [
-        (rnd(30, 256), rnd(30, 256), rnd(30, 256))
-        for i in range(10)
-        for j in range(4)
-    ]
-    ball.dx, ball.dy = 1, -1
-    fps = settings.INITIAL_FPS
-    game_over = False
-    pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
-
-# draws the game over screen on a surface and displays it if game is lost    
-def draw_game_over_menu():
-    pygame.mouse.set_visible(True)  # Show the cursor in game over screen
-    pygame.draw.rect(surface, (0, 0, 0, 160), [0, 0, settings.WIDTH, settings.HEIGHT])
-    
-    # Game over screen
-    text_game_over = font_game_over.render("YOU GOT SMASHED!", True, pygame.Color('red'))
-    text_rect = text_game_over.get_rect(center=(settings.WIDTH // 2, settings.HEIGHT // 3))
-    surface.blit(text_game_over, text_rect)
-
-    # Draw buttons
-    draw_button(surface, "Play Again", settings.WIDTH // 4, settings.HEIGHT // 2, 200, 75, (0, 255, 0), (0, 200, 0), reset_game)
-    draw_button(surface, "Quit", settings.WIDTH * 3 // 4 - 100, settings.HEIGHT // 2, 200, 75, (255, 0, 0), (200, 0, 0), exit)
-    sc.blit(surface, (0, 0))
-
-while running:
-
-    # fill the screen with black.
-    sc.fill(settings.BLACK)
-
-    # draws game objects
-    [pygame.draw.rect(sc, block_colors[color], block) for color, block in enumerate(block_layout)]
-    paddle.draw(sc)
-    ball.draw(sc)
-
-    if game_over:
-        draw_game_over_menu()
-
-    if pause:
-        restart_game, quit_game = draw_pause_menu()
-
-    if not pause and not game_over: 
-        # Move the ball
-        ball.move_ball()
-
-        # paddle control (mouse)
-        mouse_pos = pygame.mouse.get_pos()
-        paddle.move_by_mouse(mouse_pos[0])
-    
-    ball.wall_collisions()
-    
-    # ball collision paddle
-    if ball.rect.colliderect(paddle.rect) and ball.dy > 0:
-        ball.detect_collision(paddle.rect)
-
-    # collision blocks
-    block_collision = ball.rect.collidelist(block_layout)
-    if block_collision != -1:
-
-        hitbox = block_layout.pop(block_collision)
-        hit_color = block_colors.pop(block_collision)
-        ball.detect_collision(hitbox)
-
-        # special effect
-        hitbox.inflate_ip(ball.rect.width * 3, ball.rect.height * 3)
-        pygame.draw.rect(sc, hit_color, hitbox)
-        fps += 2
-
-    # win, game over
-    if ball.rect.top > settings.HEIGHT:
-        game_over = True
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                if pause:
-                    pause = False
-                    pygame.mouse.set_pos(mouse_pos)
-                    pygame.mouse.set_visible(False)
-                else:
-                    pause = True
-                    pygame.mouse.set_visible(True)
-        if event.type == pygame.MOUSEBUTTONDOWN and pause:
-            if restart_game.collidepoint(event.pos):
-                reset_game()
-                pause = False
-            if quit_game.collidepoint(event.pos):
-                exit()
-
-    # update screen
-    pygame.display.flip()
-    clock.tick(fps)
