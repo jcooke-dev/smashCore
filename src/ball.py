@@ -11,16 +11,20 @@ class Ball(pygame.sprite.Sprite):
         self.dx, self.dy = 1, -1
         
         self.rect = pygame.Rect(self.x, self.y, self.ball_rect, self.ball_rect)
-        
+    
+    # moves and updates the ball position    
     def move_ball(self):
         self.x += self.speed * self.dx
         self.y += self.speed * self.dy
+        
         self.rect.x = self.x
         self.rect.y = self.y
-     
+    
+    # draws the ball on the screen
     def draw(self, screen):
         pygame.draw.circle(screen, WHITE, self.rect.center, self.radius)
-   
+    
+    #defines collision behavior with the edges of the screen
     def wall_collisions(self):
          # ball collision wall left/right
         if self.rect.centerx < self.radius or self.rect.centerx > WIDTH - self.radius:
@@ -29,9 +33,7 @@ class Ball(pygame.sprite.Sprite):
         if self.rect.centery < self.radius:
             self.dy = -self.dy
     
-    #self.dx - horizontal
-    #self.dy - vertical
-    #ball - self.rect        
+    #Function to detect collisions      
     def detect_collision(self, hitbox):
         if self.dx > 0:  # checks for horizontal ball collision
             x_delta = self.rect.right - hitbox.left

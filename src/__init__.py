@@ -11,24 +11,11 @@ from random import randrange as rnd
 pygame.display.set_caption(settings.GAME_NAME)
 fps = settings.INITIAL_FPS
 
-# # List of all the sprites used
-# all_sprites_list = pygame.sprite.Group()
+# List of all the sprites used
 
 # Create the Paddle and start location
 paddle = Paddle(pygame.Color('red'), settings.PAD_WIDTH, settings.PAD_HEIGHT)
 ball = Ball(paddle.rect.x + (settings.PAD_WIDTH // 2), paddle.rect.y - settings.PAD_HEIGHT)
-
-# # Add the paddle to the list of sprites
-# all_sprites_list.add(paddle)
-
-# ball settings
-# ball_radius = 15
-# ball_speed = 6
-# ball_rect = int(ball_radius * 2 ** 0.5)
-# ball_x = rnd(ball_rect, settings.WIDTH - ball_rect)
-# ball_y = settings.HEIGHT // 2
-# ball = pygame.Rect(ball_x, ball_y, ball_rect, ball_rect)
-# dx, dy = 1, -1
 
 # Block configuration
 block_layout = [
@@ -43,7 +30,6 @@ block_colors = [
     for j in range(4)
 ]
 
-
 pygame.init()
 sc = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
 surface = pygame.Surface((settings.WIDTH, settings.HEIGHT), pygame.SRCALPHA)
@@ -51,7 +37,6 @@ clock = pygame.time.Clock()
 
 # Hide the mouse cursor
 pygame.mouse.set_visible(False)
-
 
 # Font setup
 font_game_over = pygame.font.Font(None, 100)
@@ -74,29 +59,6 @@ def draw_pause_menu():
     sc.blit(surface, (0, 0))
     return reset, quit
 
-# Function to detect collisions
-# def detect_collision(horizontal, vertical, ball, hitbox):
-#     if horizontal > 0:  # checks for horizontal ball collision
-#         x_delta = ball.right - hitbox.left
-#     else:
-#         x_delta = hitbox.right - ball.left
-
-#     if vertical > 0:  # checks for vertical ball collision
-#         y_delta = ball.bottom - hitbox.top
-#     else:
-#         y_delta = hitbox.bottom - ball.top
-
-#     # Collision type
-#     if abs(x_delta - y_delta) < 10:
-#         horizontal, vertical = -horizontal, -vertical
-#     elif x_delta > y_delta:  # vertical collision
-#         vertical = -vertical
-#     elif y_delta > x_delta:  # horizontal collision
-#         horizontal = -horizontal
-
-#     return horizontal, vertical
-
-
 # Button function
 def draw_button(screen, text, x, y, width, height, color, hover_color, action=None):
     mouse = pygame.mouse.get_pos()
@@ -114,12 +76,8 @@ def draw_button(screen, text, x, y, width, height, color, hover_color, action=No
     text_rect = text_surface.get_rect(center=rect.center)
     screen.blit(text_surface, text_rect)
 
-
 def reset_game():
-    global ball_x, ball_y, block_layout, block_colors, dx, dy, fps, game_over, ball
-    # ball_x = rnd(ball_rect, settings.WIDTH - ball_rect)
-    # ball_y = settings.HEIGHT // 2
-    # ball.x, ball.y = ball_x, ball_y
+    global block_layout, block_colors, fps, game_over, ball
     ball = Ball(paddle.rect.x + (settings.PAD_WIDTH // 2), paddle.rect.y - settings.PAD_HEIGHT)
     block_layout = [
         pygame.Rect(10 + 120 * i, 10 + 70 * j, 100, 50)
@@ -136,10 +94,11 @@ def reset_game():
     game_over = False
     pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
-#draws the game over screen on a surface and displays it if game is lost    
+# draws the game over screen on a surface and displays it if game is lost    
 def draw_game_over_menu():
     pygame.mouse.set_visible(True)  # Show the cursor in game over screen
     pygame.draw.rect(surface, (0, 0, 0, 160), [0, 0, settings.WIDTH, settings.HEIGHT])
+    
     # Game over screen
     text_game_over = font_game_over.render("YOU GOT SMASHED!", True, pygame.Color('red'))
     text_rect = text_game_over.get_rect(center=(settings.WIDTH // 2, settings.HEIGHT // 3))
@@ -159,7 +118,6 @@ while running:
     [pygame.draw.rect(sc, block_colors[color], block) for color, block in enumerate(block_layout)]
     paddle.draw(sc)
     ball.draw(sc)
-    # pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
 
     if game_over:
         draw_game_over_menu()
@@ -174,13 +132,6 @@ while running:
         # paddle control (mouse)
         mouse_pos = pygame.mouse.get_pos()
         paddle.move_by_mouse(mouse_pos[0])
-
-    # # ball collision wall left/right
-    # if ball.rect.centerx < ball.radius or ball.rect.centerx > settings.WIDTH - ball.radius:
-    #     ball.dx = -ball.dx
-    # # ball collision wall top
-    # if ball.rect.centery < ball.radius:
-    #     ball.dy = -ball.dy
     
     ball.wall_collisions()
     
@@ -223,8 +174,6 @@ while running:
                 pause = False
             if quit_game.collidepoint(event.pos):
                 exit()
-
-    # all_sprites_list.update()
 
     # update screen
     pygame.display.flip()
