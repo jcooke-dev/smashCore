@@ -154,7 +154,7 @@ while running:
 
     # draws game objects
     [pygame.draw.rect(sc, block_colors[color], block) for color, block in enumerate(block_layout)]
-    pygame.draw.rect(sc, pygame.Color('red'), paddle.rect)
+    pygame.draw.rect(sc, pygame.Color('red'), paddle.rect, 0, 7)
     pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
 
     if game_over:
