@@ -108,6 +108,27 @@ def draw_game_over_menu():
     draw_button(surface, "Play Again", settings.WIDTH // 4, settings.HEIGHT // 2, 200, 75, (0, 255, 0), (0, 200, 0), reset_game)
     draw_button(surface, "Quit", settings.WIDTH * 3 // 4 - 100, settings.HEIGHT // 2, 200, 75, (255, 0, 0), (200, 0, 0), exit)
     sc.blit(surface, (0, 0))
+    
+#Function to detect collisions      
+def detect_collision(horizontal, vertical, striker, hitbox):
+    if horizontal > 0:  # checks for horizontal ball collision
+        x_delta = striker.right - hitbox.left
+    else:
+        x_delta = hitbox.right - striker.left
+
+    if vertical > 0:  # checks for vertical ball collision
+        y_delta = striker.bottom - hitbox.top
+    else:
+        y_delta = hitbox.bottom - striker.top
+
+    # Collision type
+    if abs(x_delta - y_delta) < 10:
+        horizontal, vertical = -horizontal, -vertical
+    elif x_delta > y_delta:  # vertical collision
+        vertical = -vertical
+    elif y_delta > x_delta:  # horizontal collision
+        horizontal = -horizontal
+    return horizontal, vertical
 
 while running:
 
@@ -137,7 +158,7 @@ while running:
     
     # ball collision paddle
     if ball.rect.colliderect(paddle.rect) and ball.dy > 0:
-        ball.detect_collision(paddle.rect)
+        ball.dx, ball.dy = detect_collision(ball.dx, ball.dy, ball.rect, paddle.rect)
 
     # collision blocks
     block_collision = ball.rect.collidelist(block_layout)
@@ -145,7 +166,7 @@ while running:
 
         hitbox = block_layout.pop(block_collision)
         hit_color = block_colors.pop(block_collision)
-        ball.detect_collision(hitbox)
+        ball.dx, ball.dy = detect_collision(ball.dx, ball.dy, ball.rect, hitbox)
 
         # special effect
         hitbox.inflate_ip(ball.rect.width * 3, ball.rect.height * 3)

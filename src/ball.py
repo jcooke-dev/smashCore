@@ -32,23 +32,3 @@ class Ball(pygame.sprite.Sprite):
         # ball collision wall top
         if self.rect.centery < self.radius:
             self.dy = -self.dy
-    
-    #Function to detect collisions      
-    def detect_collision(self, hitbox):
-        if self.dx > 0:  # checks for horizontal ball collision
-            x_delta = self.rect.right - hitbox.left
-        else:
-            x_delta = hitbox.right - self.rect.left
-
-        if self.dy > 0:  # checks for vertical ball collision
-            y_delta = self.rect.bottom - hitbox.top
-        else:
-            y_delta = hitbox.bottom - self.rect.top
-
-        # Collision type
-        if abs(x_delta - y_delta) < 10:
-            self.dx, self.dy = -self.dx, -self.dy
-        elif x_delta > y_delta:  # vertical collision
-            self.dy = -self.dy
-        elif y_delta > x_delta:  # horizontal collision
-            self.dx = -self.dx
