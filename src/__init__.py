@@ -4,6 +4,7 @@
 import pygame
 import settings
 from paddle import Paddle
+from ball import Ball
 from random import randrange as rnd
 
 
@@ -15,18 +16,19 @@ fps = settings.INITIAL_FPS
 
 # Create the Paddle and start location
 paddle = Paddle(pygame.Color('red'), settings.PAD_WIDTH, settings.PAD_HEIGHT)
+ball = Ball(paddle.rect.x + (settings.PAD_WIDTH // 2), paddle.rect.y - settings.PAD_HEIGHT)
 
 # # Add the paddle to the list of sprites
 # all_sprites_list.add(paddle)
 
 # ball settings
-ball_radius = 15
-ball_speed = 6
-ball_rect = int(ball_radius * 2 ** 0.5)
-ball_x = rnd(ball_rect, settings.WIDTH - ball_rect)
-ball_y = settings.HEIGHT // 2
-ball = pygame.Rect(ball_x, ball_y, ball_rect, ball_rect)
-dx, dy = 1, -1
+# ball_radius = 15
+# ball_speed = 6
+# ball_rect = int(ball_radius * 2 ** 0.5)
+# ball_x = rnd(ball_rect, settings.WIDTH - ball_rect)
+# ball_y = settings.HEIGHT // 2
+# ball = pygame.Rect(ball_x, ball_y, ball_rect, ball_rect)
+# dx, dy = 1, -1
 
 # Block configuration
 block_layout = [
@@ -115,9 +117,10 @@ def draw_button(screen, text, x, y, width, height, color, hover_color, action=No
 
 def reset_game():
     global ball_x, ball_y, block_layout, block_colors, dx, dy, fps, game_over, ball
-    ball_x = rnd(ball_rect, settings.WIDTH - ball_rect)
-    ball_y = settings.HEIGHT // 2
-    ball.x, ball.y = ball_x, ball_y
+    # ball_x = rnd(ball_rect, settings.WIDTH - ball_rect)
+    # ball_y = settings.HEIGHT // 2
+    # ball.x, ball.y = ball_x, ball_y
+    ball = Ball(paddle.rect.x + (settings.PAD_WIDTH // 2), paddle.rect.y - settings.PAD_HEIGHT)
     block_layout = [
         pygame.Rect(10 + 120 * i, 10 + 70 * j, 100, 50)
         for i in range(10)
@@ -128,7 +131,7 @@ def reset_game():
         for i in range(10)
         for j in range(4)
     ]
-    dx, dy = 1, -1
+    ball.dx, ball.dy = 1, -1
     fps = settings.INITIAL_FPS
     game_over = False
     pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
@@ -154,8 +157,9 @@ while running:
 
     # draws game objects
     [pygame.draw.rect(sc, block_colors[color], block) for color, block in enumerate(block_layout)]
-    pygame.draw.rect(sc, pygame.Color('red'), paddle.rect, 0, 7)
-    pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
+    paddle.draw(sc)
+    ball.draw(sc)
+    # pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
 
     if game_over:
         draw_game_over_menu()
@@ -165,38 +169,37 @@ while running:
 
     if not pause and not game_over: 
         # Move the ball
-        ball.x += ball_speed * dx
-        ball.y += ball_speed * dy
+        ball.move_ball()
 
         # paddle control (mouse)
         mouse_pos = pygame.mouse.get_pos()
         paddle.move_by_mouse(mouse_pos[0])
 
     # ball collision wall left/right
-    if ball.centerx < ball_radius or ball.centerx > settings.WIDTH - ball_radius:
-        dx = -dx
+    if ball.rect.centerx < ball.radius or ball.rect.centerx > settings.WIDTH - ball.radius:
+        ball.dx = -ball.dx
     # ball collision wall top
-    if ball.centery < ball_radius:
-        dy = -dy
+    if ball.rect.centery < ball.radius:
+        ball.dy = -ball.dy
     # ball collision paddle
-    if ball.colliderect(paddle.rect) and dy > 0:
-        dx, dy = detect_collision(dx, dy, ball, paddle.rect)
+    if ball.rect.colliderect(paddle.rect) and ball.dy > 0:
+        ball.dx, ball.dy = detect_collision(ball.dx, ball.dy, ball.rect, paddle.rect)
 
     # collision blocks
-    block_collision = ball.collidelist(block_layout)
+    block_collision = ball.rect.collidelist(block_layout)
     if block_collision != -1:
 
         hitbox = block_layout.pop(block_collision)
         hit_color = block_colors.pop(block_collision)
-        dx, dy = detect_collision(dx, dy, ball, hitbox)
+        ball.dx, ball.dy = detect_collision(ball.dx, ball.dy, ball.rect, hitbox)
 
         # special effect
-        hitbox.inflate_ip(ball.width * 3, ball.height * 3)
+        hitbox.inflate_ip(ball.rect.width * 3, ball.rect.height * 3)
         pygame.draw.rect(sc, hit_color, hitbox)
         fps += 2
 
     # win, game over
-    if ball.top > settings.HEIGHT:
+    if ball.rect.top > settings.HEIGHT:
         game_over = True
 
     for event in pygame.event.get():
