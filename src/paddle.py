@@ -2,9 +2,8 @@
     This handles all the paddle settings and behavior
 """
 import pygame
-from settings import BLACK
-from settings import WIDTH, HEIGHT, PAD_WIDTH, PAD_HEIGHT, \
-    PADDLE_START_POSITION_OFFSET
+from settings import BLACK, WIDTH, HEIGHT, PAD_WIDTH, PAD_HEIGHT, \
+    PADDLE_START_POSITION_OFFSET, RED
 
 
 class Paddle(pygame.sprite.Sprite):
@@ -52,3 +51,6 @@ class Paddle(pygame.sprite.Sprite):
             self.rect.left = 0
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
+            
+    def draw(self, screen):
+        pygame.draw.rect(screen, RED, self.rect, 0, 7)
