@@ -40,12 +40,14 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # # DEBUG and bounce off just below the bottom
         # if self.rect.centery > constants.HEIGHT + (8 * self.ball_radius):
         #     self.dy = -self.dy
+        if gs.game_start:
+            self.rect.x += self.speed * self.dx
+            self.rect.y += self.speed * self.dy
 
-        self.rect.x += self.speed * self.dx
-        self.rect.y += self.speed * self.dy
-
-        self.x = self.rect.x
-        self.y = self.rect.y
+            self.x = self.rect.x
+            self.y = self.rect.y
+        else:    
+            self.move_by_mouse(self.mouse_position)
 
         # win, game over
         if self.rect.top > constants.HEIGHT: # + (10 * self.ball_radius):
@@ -76,4 +78,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         elif y_delta > x_delta:  # horizontal collision
             self.dx = -self.dx
 
-
+    def move_by_mouse(self, mouse_position):
+        """ Move ball_x to mouse_position """
+        self.rect.centerx = mouse_position
+        # Check that the paddle is not going too far (off the screen)
+        if self.rect.left < (constants.PAD_WIDTH // 2) - self.radius:
+            self.rect.left = (constants.PAD_WIDTH // 2) - self.radius
+        if self.rect.right > constants.WIDTH - (constants.PAD_WIDTH // 2) + self.radius:
+            self.rect.right = constants.WIDTH - (constants.PAD_WIDTH // 2) + self.radius

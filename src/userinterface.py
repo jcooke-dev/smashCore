@@ -73,6 +73,11 @@ class UserInterface:
         self.screen.blit(self.surface, (0, 0))
 
         return reset, quit
+    
+    def draw_game_intro(self):
+        self.screen.blit(self.font_buttons.render("Press SPACEBAR to start", True, constants.WHITE), \
+            ((constants.WIDTH //4) + 50, constants.HEIGHT - (constants.HEIGHT // 6)))
+        #self.screen.blit(self.surface, (0, 0))
 
 
 
