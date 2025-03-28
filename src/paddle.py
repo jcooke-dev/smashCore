@@ -39,7 +39,7 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
-        pygame.draw.rect(screen, pygame.Color('red'), self.rect)
+        pygame.draw.rect(screen, constants.RED, self.rect, 0, 7)
 
     # incremental Paddle movement (likely used for KB control)
     def move_left(self, pixels):

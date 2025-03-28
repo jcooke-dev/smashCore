@@ -17,6 +17,10 @@ class WorldObject:
     def draw_wo(self, screen):
         pass
 
+    # Function to detect collisions
+    def detect_collision(self, hitbox):
+        pass
+
     # record that something collided with this WorldObject
     def add_collision(self):
         pass

@@ -19,12 +19,12 @@ class GameWorld:
         self.world_objects = []
 
         # place the ball into the world
-        self.world_objects.append(Ball())
+        self.world_objects.append(Ball(((constants.WIDTH/2) - (constants.PAD_WIDTH/2)),
+            (constants.HEIGHT - constants.PAD_HEIGHT - constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))))
 
         # place the paddle into the world
         self.world_objects.append(Paddle(pygame.Color('red'), constants.PAD_WIDTH, constants.PAD_HEIGHT))
 
         # setup the initial bricks level
         Levels.build_level(self, Levels.LevelName.SMASHCORE_1 if level_name is None else level_name)
-
 

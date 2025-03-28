@@ -29,29 +29,6 @@ class GameEngine:
         # Hide the mouse cursor
         pygame.mouse.set_visible(False)
 
-
-    # Function to detect collisions
-    def detect_collision(self, horizontal, vertical, ball, hitbox):
-        if horizontal > 0:  # checks for horizontal ball collision
-            x_delta = ball.right - hitbox.left
-        else:
-            x_delta = hitbox.right - ball.left
-
-        if vertical > 0:  # checks for vertical ball collision
-            y_delta = ball.bottom - hitbox.top
-        else:
-            y_delta = hitbox.bottom - ball.top
-
-        # Collision type
-        if abs(x_delta - y_delta) < 10:
-            horizontal, vertical = -horizontal, -vertical
-        elif x_delta > y_delta:  # vertical collision
-            vertical = -vertical
-        elif y_delta > x_delta:  # horizontal collision
-            horizontal = -horizontal
-
-        return horizontal, vertical
-
     # reset game to initial state
     def reset_game(self):
 
@@ -82,7 +59,7 @@ class GameEngine:
                             if world_object is not wo:
                                 if world_object.rect.colliderect(wo.rect): # and self.dy > 0:
                                     # bounce object properly
-                                    world_object.dx, world_object.dy = self.detect_collision(world_object.dx, world_object.dy, world_object.rect, wo.rect)
+                                    world_object.detect_collision(wo.rect)
                                     wo.add_collision()
                                     if wo.should_remove():
                                         # special effect
