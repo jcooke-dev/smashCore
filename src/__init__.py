@@ -75,26 +75,26 @@ def draw_pause_menu():
     return reset, quit
 
 # Function to detect collisions
-def detect_collision(horizontal, vertical, ball, hitbox):
-    if horizontal > 0:  # checks for horizontal ball collision
-        x_delta = ball.right - hitbox.left
-    else:
-        x_delta = hitbox.right - ball.left
+# def detect_collision(horizontal, vertical, ball, hitbox):
+#     if horizontal > 0:  # checks for horizontal ball collision
+#         x_delta = ball.right - hitbox.left
+#     else:
+#         x_delta = hitbox.right - ball.left
 
-    if vertical > 0:  # checks for vertical ball collision
-        y_delta = ball.bottom - hitbox.top
-    else:
-        y_delta = hitbox.bottom - ball.top
+#     if vertical > 0:  # checks for vertical ball collision
+#         y_delta = ball.bottom - hitbox.top
+#     else:
+#         y_delta = hitbox.bottom - ball.top
 
-    # Collision type
-    if abs(x_delta - y_delta) < 10:
-        horizontal, vertical = -horizontal, -vertical
-    elif x_delta > y_delta:  # vertical collision
-        vertical = -vertical
-    elif y_delta > x_delta:  # horizontal collision
-        horizontal = -horizontal
+#     # Collision type
+#     if abs(x_delta - y_delta) < 10:
+#         horizontal, vertical = -horizontal, -vertical
+#     elif x_delta > y_delta:  # vertical collision
+#         vertical = -vertical
+#     elif y_delta > x_delta:  # horizontal collision
+#         horizontal = -horizontal
 
-    return horizontal, vertical
+#     return horizontal, vertical
 
 
 # Button function
@@ -175,15 +175,18 @@ while running:
         mouse_pos = pygame.mouse.get_pos()
         paddle.move_by_mouse(mouse_pos[0])
 
-    # ball collision wall left/right
-    if ball.rect.centerx < ball.radius or ball.rect.centerx > settings.WIDTH - ball.radius:
-        ball.dx = -ball.dx
-    # ball collision wall top
-    if ball.rect.centery < ball.radius:
-        ball.dy = -ball.dy
+    # # ball collision wall left/right
+    # if ball.rect.centerx < ball.radius or ball.rect.centerx > settings.WIDTH - ball.radius:
+    #     ball.dx = -ball.dx
+    # # ball collision wall top
+    # if ball.rect.centery < ball.radius:
+    #     ball.dy = -ball.dy
+    
+    ball.wall_collisions()
+    
     # ball collision paddle
     if ball.rect.colliderect(paddle.rect) and ball.dy > 0:
-        ball.dx, ball.dy = detect_collision(ball.dx, ball.dy, ball.rect, paddle.rect)
+        ball.detect_collision(paddle.rect)
 
     # collision blocks
     block_collision = ball.rect.collidelist(block_layout)
@@ -191,7 +194,7 @@ while running:
 
         hitbox = block_layout.pop(block_collision)
         hit_color = block_colors.pop(block_collision)
-        ball.dx, ball.dy = detect_collision(ball.dx, ball.dy, ball.rect, hitbox)
+        ball.detect_collision(hitbox)
 
         # special effect
         hitbox.inflate_ip(ball.rect.width * 3, ball.rect.height * 3)
