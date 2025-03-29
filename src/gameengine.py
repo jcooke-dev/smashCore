@@ -36,7 +36,7 @@ class GameEngine:
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = constants.INITIAL_FPS
         self.gs.game_over = False
-        self.gs.start = False
+        self.gs.game_start = False
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
     # this runs the main game loop
