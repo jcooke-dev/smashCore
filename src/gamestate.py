@@ -8,4 +8,5 @@ class GameState:
         self.running = True
         self.game_over = False
         self.pause = False
+        self.game_start = False
 
