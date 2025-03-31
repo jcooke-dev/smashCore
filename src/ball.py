@@ -62,7 +62,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
 
     def reset_position(self):
-        self.rect.center = ((constants.WIDTH // 4), constants.HEIGHT - (constants.HEIGHT // 6) + 70)
+        self.rect.center = self.mouse_position, (constants.HEIGHT - constants.PAD_HEIGHT -
+                                                 constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))
         self.dx = rnd.choice([1, -1])
         self.dy = -1
 

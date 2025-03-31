@@ -15,6 +15,7 @@ class GameEngine:
 
     def __init__(self, gw, gs, ui):
 
+        self.mouse_pos = None
         self.gw = gw
         self.gs = gs
         self.ui = ui
@@ -74,13 +75,15 @@ class GameEngine:
                                         self.fps += 2
                                         self.gw.world_objects.remove(wo)
 
-            # checks if there are lives left
+            # decrements lives everytime ball goes below the window and resets its position to
+            # above the paddle. Prompts for SPACEBAR key to continue the game
             if ball.rect.top > constants.HEIGHT:
                 constants.START_LIVES -= 1
-                self.gs.game_start = False
                 ball.reset_position()
+                self.gs.game_start = False
                 self.ui.draw_game_intro()
 
+                # Displays game_over menu if user loses all of their lives
                 if constants.START_LIVES <= 0:
                     self.gs.game_over = True
 
@@ -96,8 +99,9 @@ class GameEngine:
             if self.gs.pause:
                 self.restart_game, self.quit_game = self.ui.draw_pause_menu()
 
-            if not self.gs.game_start and (not self.gs.pause or not self.gs.game_over):
-                self.ui.draw_game_intro()
+            if not self.gs.game_start and not self.gs.pause:
+                if not self.gs.game_over:
+                    self.ui.draw_game_intro()
                 
             # event handling
             for event in pygame.event.get():
@@ -118,7 +122,8 @@ class GameEngine:
                             self.mouse_pos = pygame.mouse.get_pos()
                             pygame.mouse.set_visible(True)
                     if event.key == pygame.K_SPACE:
-                        self.gs.game_start = True
+                        if not self.gs.game_over:
+                            self.gs.game_start = True
 
                 # the actual button press checks from the returned rects above
                 if event.type == pygame.MOUSEBUTTONDOWN and (self.gs.pause or self.gs.game_over):
