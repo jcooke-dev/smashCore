@@ -75,9 +75,14 @@ class UserInterface:
         return reset, quit
     
     def draw_game_intro(self):
-        self.screen.blit(self.font_buttons.render("Press SPACEBAR to start", True, constants.WHITE), \
-            ((constants.WIDTH //4) + 50, constants.HEIGHT - (constants.HEIGHT // 6)))
+        self.screen.blit(self.font_buttons.render("Press SPACEBAR to start", True, constants.WHITE),
+                         ((constants.WIDTH //4) + 50, constants.HEIGHT - (constants.HEIGHT // 6)))
         #self.screen.blit(self.surface, (0, 0))
 
+    #draws each life in the top left corner of the screen
+    def draw_lives(self):
+        self.screen.blit(self.font_buttons.render("Lives:", True, constants.WHITE), (10, 10))
+        for i in range(constants.START_LIVES):
+            pygame.draw.circle(self.screen, constants.WHITE, (130 + 35 * i, 27), 12)
 
 

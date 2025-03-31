@@ -29,7 +29,7 @@ class Levels:
             case Levels.LevelName.SMASHCORE_1:
                 for i in range(10):
                     for j in range(4):
-                        gw.world_objects.append(Brick(pygame.Rect(10 + 120 * i, 10 + 70 * j, 100, 50),
+                        gw.world_objects.append(Brick(pygame.Rect(10 + 120 * i, 60 + 70 * j, 100, 50),
                                           (rnd(30, 256), rnd(30, 256), rnd(30, 256))))
             case _:
                 pass

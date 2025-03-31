@@ -37,6 +37,7 @@ class GameEngine:
         self.fps = constants.INITIAL_FPS
         self.gs.game_over = False
         self.gs.game_start = False
+        constants.START_LIVES = 3
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
     # this runs the main game loop
@@ -46,6 +47,10 @@ class GameEngine:
 
             # fill the screen with black.
             self.screen.fill(constants.BLACK)
+            self.ui.draw_lives()
+
+            ball = self.gw.world_objects[0]
+            paddle = self.gw.world_objects[1]
 
             if not self.gs.pause and not self.gs.game_over:
                 # update all objects in GameWorld
@@ -69,18 +74,29 @@ class GameEngine:
                                         self.fps += 2
                                         self.gw.world_objects.remove(wo)
 
+            # checks if there are lives left
+            if ball.rect.top > constants.HEIGHT:
+                constants.START_LIVES -= 1
+                self.gs.game_start = False
+                ball.reset_position()
+                self.ui.draw_game_intro()
+
+                if constants.START_LIVES <= 0:
+                    self.gs.game_over = True
+
             # draw all objects in GameWorld
             for world_object in self.gw.world_objects:
                 world_object.draw_wo(self.screen)
 
             # getting the rects for the UI buttons for later collision detection (button pressing)
             if self.gs.game_over:
+                #self.gs.game_start = True
                 self.restart_game, self.quit_game = self.ui.draw_game_over_menu()
 
             if self.gs.pause:
                 self.restart_game, self.quit_game = self.ui.draw_pause_menu()
 
-            if not self.gs.game_start and not self.gs.pause:
+            if not self.gs.game_start and (not self.gs.pause or not self.gs.game_over):
                 self.ui.draw_game_intro()
                 
             # event handling

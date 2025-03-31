@@ -5,6 +5,7 @@
 import pygame
 
 import constants
+import random as rnd
 from src.worldobject import WorldObject
 
 
@@ -15,17 +16,17 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         super().__init__()
 
         # general world object properties
-        self.can_react = True # can this object react to collisions with other objects?
-
+        self.can_react = True  # can this object react to collisions with other objects?
         # ball settings
         self.radius = constants.BALL_RADIUS
         self.speed = constants.BALL_SPEED
         self.x = x - self.radius
         self.y = y
         self.ball_rect = int(self.radius * 2 ** 0.5)
-        self.dx, self.dy = 1, -1
+        self.dx = rnd.choice([1, -1])
+        self.dy = -1
         self.rect = pygame.Rect(self.x, self.y, self.ball_rect, self.ball_rect)
-        self.mouse_position = 0 # unused with this ball
+        self.mouse_position = 0  # unused with this ball
 
     # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
     def update_wo(self, gs):
@@ -46,18 +47,25 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
             self.x = self.rect.x
             self.y = self.rect.y
-        else:    
+        else:
             self.move_by_mouse(self.mouse_position)
 
         # win, game over
-        if self.rect.top > constants.HEIGHT: # + (10 * self.ball_radius):
-        # if self.rect.top < 0:
-            gs.game_over = True
+        # if self.rect.top > constants.HEIGHT:
+        #     constants.START_LIVES -= 1
+        #     self.reset_position()
+        #     if constants.START_LIVES <= 0:
+        #         gs.game_over = True
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
         pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
-    
+
+    def reset_position(self):
+        self.rect.center = ((constants.WIDTH // 4), constants.HEIGHT - (constants.HEIGHT // 6) + 70)
+        self.dx = rnd.choice([1, -1])
+        self.dy = -1
+
     #Function to detect collisions      
     def detect_collision(self, hitbox):
         if self.dx > 0:  # checks for horizontal ball collision
