@@ -38,7 +38,7 @@ class GameEngine:
         self.fps = constants.INITIAL_FPS
         self.gs.game_over = False
         self.gs.game_start = False
-        constants.START_LIVES = 3
+        self.gs.lives = constants.START_LIVES
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
     # this runs the main game loop
@@ -48,10 +48,7 @@ class GameEngine:
 
             # fill the screen with black.
             self.screen.fill(constants.BLACK)
-            self.ui.draw_lives()
-
-            ball = self.gw.world_objects[0]
-            paddle = self.gw.world_objects[1]
+            self.ui.draw_lives(self.gs.lives)
 
             if not self.gs.pause and not self.gs.game_over:
                 # update all objects in GameWorld
@@ -74,18 +71,6 @@ class GameEngine:
                                         pygame.draw.rect(self.screen, wo.color, wo.rect)
                                         self.fps += 2
                                         self.gw.world_objects.remove(wo)
-
-            # decrements lives everytime ball goes below the window and resets its position to
-            # above the paddle. Prompts for SPACEBAR key to continue the game
-            if ball.rect.top > constants.HEIGHT:
-                constants.START_LIVES -= 1
-                ball.reset_position()
-                self.gs.game_start = False
-                self.ui.draw_game_intro()
-
-                # Displays game_over menu if user loses all of their lives
-                if constants.START_LIVES <= 0:
-                    self.gs.game_over = True
 
             # draw all objects in GameWorld
             for world_object in self.gw.world_objects:

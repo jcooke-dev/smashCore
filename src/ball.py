@@ -50,12 +50,16 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         else:
             self.move_by_mouse(self.mouse_position)
 
-        # win, game over
-        # if self.rect.top > constants.HEIGHT:
-        #     constants.START_LIVES -= 1
-        #     self.reset_position()
-        #     if constants.START_LIVES <= 0:
-        #         gs.game_over = True
+        # decrements lives everytime ball goes below the window and resets its position to
+        # above the paddle. Prompts for SPACEBAR key to continue the game
+        if self.rect.top > constants.HEIGHT:
+            gs.lives -= 1
+            self.reset_position()
+            gs.game_start = False
+
+            # Displays game_over menu if user loses all of their lives
+            if gs.lives <= 0:
+                gs.game_over = True
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
