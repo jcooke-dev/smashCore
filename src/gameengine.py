@@ -15,6 +15,7 @@ class GameEngine:
 
     def __init__(self, gw, gs, ui):
 
+        self.mouse_pos = None
         self.gw = gw
         self.gs = gs
         self.ui = ui
@@ -37,6 +38,7 @@ class GameEngine:
         self.fps = constants.INITIAL_FPS
         self.gs.game_over = False
         self.gs.game_start = False
+        self.gs.lives = constants.START_LIVES
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
     # this runs the main game loop
@@ -46,6 +48,7 @@ class GameEngine:
 
             # fill the screen with black.
             self.screen.fill(constants.BLACK)
+            self.ui.draw_lives(self.gs.lives)
 
             if not self.gs.pause and not self.gs.game_over:
                 # update all objects in GameWorld
@@ -75,13 +78,15 @@ class GameEngine:
 
             # getting the rects for the UI buttons for later collision detection (button pressing)
             if self.gs.game_over:
+                #self.gs.game_start = True
                 self.restart_game, self.quit_game = self.ui.draw_game_over_menu()
 
             if self.gs.pause:
                 self.restart_game, self.quit_game = self.ui.draw_pause_menu()
 
             if not self.gs.game_start and not self.gs.pause:
-                self.ui.draw_game_intro()
+                if not self.gs.game_over:
+                    self.ui.draw_game_intro()
                 
             # event handling
             for event in pygame.event.get():
@@ -102,7 +107,8 @@ class GameEngine:
                             self.mouse_pos = pygame.mouse.get_pos()
                             pygame.mouse.set_visible(True)
                     if event.key == pygame.K_SPACE:
-                        self.gs.game_start = True
+                        if not self.gs.game_over:
+                            self.gs.game_start = True
 
                 # the actual button press checks from the returned rects above
                 if event.type == pygame.MOUSEBUTTONDOWN and (self.gs.pause or self.gs.game_over):
