@@ -8,14 +8,16 @@ import pygame
 import constants
 from src.levels import Levels
 from src.gameworld import GameWorld
+from gamestates import GameStates
 
 
 class GameEngine:
 
 
-    def __init__(self, gw, gs, ui):
+    def __init__(self, ps, gw, gs, ui):
 
         self.mouse_pos = None
+        self.ps = ps
         self.gw = gw
         self.gs = gs
         self.ui = ui
@@ -24,6 +26,9 @@ class GameEngine:
         ui.surface = self.surface = pygame.Surface((constants.WIDTH, constants.HEIGHT), pygame.SRCALPHA)
         self.clock = pygame.time.Clock()
         self.fps = constants.INITIAL_FPS
+
+        # record the app start ticks to time the splash screen display
+        self.app_start_ticks = pygame.time.get_ticks()
 
         pygame.display.set_caption(constants.GAME_NAME)
 
@@ -36,93 +41,136 @@ class GameEngine:
         # does python run auto garbage collection so it's OK to just assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = constants.INITIAL_FPS
-        self.gs.game_over = False
-        self.gs.game_start = False
-        self.gs.lives = constants.START_LIVES
+        self.gs.cur_state = GameStates.SPLASH
+        self.ps.lives = constants.START_LIVES
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
+
+    # draw all objects in GameWorld plus status overlays
+    def drawWorldAndStatus(self):
+        # draw every game object
+        for world_object in self.gw.world_objects:
+            world_object.draw_wo(self.screen)
+        # draw any status overlays
+        self.ui.draw_lives(self.ps.lives)
+
 
     # this runs the main game loop
     def run_loop(self):
 
         while self.gs.running:
 
-            # fill the screen with black.
+            # fill the screen with black as a good default
             self.screen.fill(constants.BLACK)
-            self.ui.draw_lives(self.gs.lives)
 
-            if not self.gs.pause and not self.gs.game_over:
-                # update all objects in GameWorld
-                mouse_pos = pygame.mouse.get_pos()
-                for world_object in self.gw.world_objects:
-                    world_object.mouse_position = mouse_pos[0]
-                    world_object.update_wo(self.gs)
-                    # test for collisions between world_objects, but ignore objects that can't be affected (for performance)
-                    if world_object.can_react:
-                        for wo in self.gw.world_objects:
-                            # don't check for collisions with self
-                            if world_object is not wo:
-                                if world_object.rect.colliderect(wo.rect): # and self.dy > 0:
-                                    # bounce object properly
-                                    world_object.detect_collision(wo.rect)
-                                    wo.add_collision()
-                                    if wo.should_remove():
-                                        # special effect
-                                        wo.rect.inflate_ip(world_object.rect.width * 3, world_object.rect.height * 3)
-                                        pygame.draw.rect(self.screen, wo.color, wo.rect)
-                                        self.fps += 2
-                                        self.gw.world_objects.remove(wo)
+            match self.gs.cur_state:
 
-            # draw all objects in GameWorld
-            for world_object in self.gw.world_objects:
-                world_object.draw_wo(self.screen)
+                ##############################################################
+                # display the SPLASH screen
+                ##############################################################
+                case GameStates.SPLASH:
+                    # placeholder for the splash screen graphic
+                    self.screen.fill(constants.YELLOW)
 
-            # getting the rects for the UI buttons for later collision detection (button pressing)
-            if self.gs.game_over:
-                #self.gs.game_start = True
-                self.restart_game, self.quit_game = self.ui.draw_game_over_menu()
+                    # go beyond the splash GameState after desired time
+                    cur_ticks = pygame.time.get_ticks()
+                    if ((cur_ticks - self.app_start_ticks) / 1000) > constants.SPLASH_TIME_SECS:
+                        self.gs.cur_state = GameStates.READY_TO_LAUNCH
 
-            if self.gs.pause:
-                self.restart_game, self.quit_game = self.ui.draw_pause_menu()
+                ##############################################################
+                # display the PLAYING gameplay screen
+                ##############################################################
+                case GameStates.PLAYING | GameStates.READY_TO_LAUNCH:
+                    # update all objects in GameWorld
+                    mouse_pos = pygame.mouse.get_pos()
+                    for world_object in self.gw.world_objects:
+                        world_object.mouse_position = mouse_pos[0]
+                        world_object.update_wo(self.gs, self.ps)
+                        # test for collisions between world_objects, but ignore objects that can't be affected (for performance)
+                        if world_object.can_react:
+                            for wo in self.gw.world_objects:
+                                # don't check for collisions with self
+                                if world_object is not wo:
+                                    if world_object.rect.colliderect(wo.rect):  # and self.dy > 0:
+                                        # bounce object properly
+                                        world_object.detect_collision(wo.rect)
+                                        wo.add_collision()
+                                        if wo.should_remove():
+                                            # special effect
+                                            wo.rect.inflate_ip(world_object.rect.width * 3,
+                                                               world_object.rect.height * 3)
+                                            pygame.draw.rect(self.screen, wo.color, wo.rect)
+                                            self.fps += 2
+                                            self.gw.world_objects.remove(wo)
 
-            if not self.gs.game_start and not self.gs.pause:
-                if not self.gs.game_over:
-                    self.ui.draw_game_intro()
-                
+                    # draw all objects in GameWorld
+                    self.drawWorldAndStatus()
+
+                    # note this is the way the player enters the gameplay screen, in a pending, ready
+                    # to launch mode, with the ball stuck to the paddle
+                    if self.gs.cur_state == GameStates.READY_TO_LAUNCH:
+                        self.ui.draw_game_intro()
+
+                ##############################################################
+                # display the PAUSED popup over the frozen gameplay
+                ##############################################################
+                case GameStates.PAUSED:
+                    # draw all objects in GameWorld
+                    self.drawWorldAndStatus()
+                    # getting the rects for the UI buttons for later collision detection (button pressing)
+                    self.restart_game, self.quit_game = self.ui.draw_pause_menu()
+
+                ##############################################################
+                # display the GAME_OVER popup over the frozen gameplay
+                ##############################################################
+                case GameStates.GAME_OVER:
+                    # draw all objects in GameWorld
+                    self.drawWorldAndStatus()
+                    # getting the rects for the UI buttons for later collision detection (button pressing)
+                    self.restart_game, self.quit_game = self.ui.draw_game_over_menu()
+
+            ##############################################################
             # event handling
+            ##############################################################
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.gs.running = False
-                    self.gs.game_over = True
+                    self.gs.cur_state = GameStates.GAME_OVER
                     exit()
 
                 if event.type == pygame.KEYDOWN:
                     # toggle PAUSE GameState with ESCAPE key press
                     if event.key == pygame.K_ESCAPE:
-                        if self.gs.pause:
-                            self.gs.pause = False
+                        if self.gs.cur_state == GameStates.PAUSED:
+                            self.gs.cur_state = GameStates.PLAYING
                             pygame.mouse.set_pos(self.mouse_pos)
                             pygame.mouse.set_visible(False)
-                        else:
-                            self.gs.pause = True
+                        elif self.gs.cur_state == GameStates.PLAYING:
+                            self.gs.cur_state = GameStates.PAUSED
                             self.mouse_pos = pygame.mouse.get_pos()
                             pygame.mouse.set_visible(True)
+
                     if event.key == pygame.K_SPACE:
-                        if not self.gs.game_over:
-                            self.gs.game_start = True
+                        if self.gs.cur_state == GameStates.READY_TO_LAUNCH:
+                            self.gs.cur_state = GameStates.PLAYING
 
                 # the actual button press checks from the returned rects above
-                if event.type == pygame.MOUSEBUTTONDOWN and (self.gs.pause or self.gs.game_over):
+                if (event.type == pygame.MOUSEBUTTONDOWN and
+                        ((self.gs.cur_state == GameStates.PAUSED) or (self.gs.cur_state == GameStates.GAME_OVER))):
                     if self.restart_game.collidepoint(event.pos):
                         self.reset_game()
-                        self.gs.pause = False
+
                     if self.quit_game.collidepoint(event.pos):
                         self.gs.running = False
-                        self.gs.game_over = True
+                        self.gs.cur_state = GameStates.GAME_OVER
                         exit()
 
+            ##############################################################
             # update screen
+            ##############################################################
             pygame.display.flip()
             self.clock.tick(self.fps)
 
+        ##############################################################
         # close down cleanly
+        ##############################################################
         pygame.quit()
