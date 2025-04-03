@@ -69,7 +69,7 @@ class GameEngine:
                                     if wo.should_remove():
                                         # special effect
                                         self.score += wo.value
-                                        self.ui.draw_score(self.score)
+                                        #self.ui.draw_score(self.score)
                                         wo.rect.inflate_ip(world_object.rect.width * 3, world_object.rect.height * 3)
                                         pygame.draw.rect(self.screen, wo.color, wo.rect)
                                         self.fps += 2
