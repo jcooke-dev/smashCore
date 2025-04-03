@@ -26,7 +26,6 @@ class GameEngine:
             (WIDTH, HEIGHT), pygame.SRCALPHA)
         self.clock = pygame.time.Clock()
         self.fps = INITIAL_FPS
-        self.score = 0
 
         # record the app start ticks to time the splash screen display
         self.app_start_ticks = pygame.time.get_ticks()
@@ -44,6 +43,7 @@ class GameEngine:
         self.fps = constants.INITIAL_FPS
         self.gs.cur_state = GameStates.SPLASH
         self.ps.lives = constants.START_LIVES
+        self.ps.score = 0
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
     # draw all objects in GameWorld plus status overlays
@@ -53,7 +53,7 @@ class GameEngine:
             world_object.draw_wo(self.screen)
         # draw any status overlays
         self.ui.draw_lives(self.ps.lives)
-        self.ui.draw_score(self.score)
+        self.ui.draw_score(self.ps.score)
 
     # this runs the main game loop
     def run_loop(self):
@@ -96,7 +96,7 @@ class GameEngine:
                                         world_object.detect_collision(wo.rect)
                                         wo.add_collision()
                                         if wo.should_remove():
-                                            self.score += wo.value
+                                            self.ps.score += wo.value
                                             # special effect
                                             wo.rect.inflate_ip(world_object.rect.width * 3,
                                                                world_object.rect.height * 3)
