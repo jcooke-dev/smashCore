@@ -1,31 +1,30 @@
 """
-    This brings together the various modules that make up the game (GameWorld, GameState, UI, etc.) and runs
-    the main game loop.
+    This brings together the various modules that make up the game (GameWorld,
+    GameState, UI, etc.) and runs the main game loop.
 """
 
 import pygame
-
-import constants
+from constants import *
 from src.levels import Levels
 from src.gameworld import GameWorld
 
 
 class GameEngine:
 
-
     def __init__(self, gw, gs, ui):
-
         self.mouse_pos = None
         self.gw = gw
         self.gs = gs
         self.ui = ui
 
-        ui.screen = self.screen = pygame.display.set_mode((constants.WIDTH, constants.HEIGHT))
-        ui.surface = self.surface = pygame.Surface((constants.WIDTH, constants.HEIGHT), pygame.SRCALPHA)
+        ui.screen = self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        ui.surface = self.surface = pygame.Surface(
+            (WIDTH, HEIGHT), pygame.SRCALPHA)
         self.clock = pygame.time.Clock()
-        self.fps = constants.INITIAL_FPS
+        self.fps = INITIAL_FPS
+        self.score = 0
 
-        pygame.display.set_caption(constants.GAME_NAME)
+        pygame.display.set_caption(GAME_NAME)
 
         # Hide the mouse cursor
         pygame.mouse.set_visible(False)
@@ -35,10 +34,11 @@ class GameEngine:
 
         # does python run auto garbage collection so it's OK to just assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
-        self.fps = constants.INITIAL_FPS
+        self.fps = INITIAL_FPS
+        self.score = 0
         self.gs.game_over = False
         self.gs.game_start = False
-        self.gs.lives = constants.START_LIVES
+        self.gs.lives = START_LIVES
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
     # this runs the main game loop
@@ -47,8 +47,9 @@ class GameEngine:
         while self.gs.running:
 
             # fill the screen with black.
-            self.screen.fill(constants.BLACK)
+            self.screen.fill(BLACK)
             self.ui.draw_lives(self.gs.lives)
+            self.ui.draw_score(self.score)
 
             if not self.gs.pause and not self.gs.game_over:
                 # update all objects in GameWorld
@@ -67,6 +68,8 @@ class GameEngine:
                                     wo.add_collision()
                                     if wo.should_remove():
                                         # special effect
+                                        self.score += wo.value
+                                        #self.ui.draw_score(self.score)
                                         wo.rect.inflate_ip(world_object.rect.width * 3, world_object.rect.height * 3)
                                         pygame.draw.rect(self.screen, wo.color, wo.rect)
                                         self.fps += 2
@@ -87,7 +90,7 @@ class GameEngine:
             if not self.gs.game_start and not self.gs.pause:
                 if not self.gs.game_over:
                     self.ui.draw_game_intro()
-                
+
             # event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -123,6 +126,7 @@ class GameEngine:
             # update screen
             pygame.display.flip()
             self.clock.tick(self.fps)
+
 
         # close down cleanly
         pygame.quit()
