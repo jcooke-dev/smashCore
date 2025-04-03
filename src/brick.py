@@ -16,6 +16,7 @@ class Brick(WorldObject):
         self.strength = 1 # require this many hits before removing brick
         self.rect = pygame.Rect(rect)
         self.color = color
+        self.value = 1
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):

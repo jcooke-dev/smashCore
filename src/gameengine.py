@@ -1,11 +1,10 @@
 """
-    This brings together the various modules that make up the game (GameWorld, GameState, UI, etc.) and runs
-    the main game loop.
+    This brings together the various modules that make up the game (GameWorld,
+    GameState, UI, etc.) and runs the main game loop.
 """
 
 import pygame
-
-import constants
+from constants import *
 from src.levels import Levels
 from src.gameworld import GameWorld
 from gamestates import GameStates
@@ -13,19 +12,19 @@ from gamestates import GameStates
 
 class GameEngine:
 
-
     def __init__(self, ps, gw, gs, ui):
-
         self.mouse_pos = None
         self.ps = ps
         self.gw = gw
         self.gs = gs
         self.ui = ui
 
-        ui.screen = self.screen = pygame.display.set_mode((constants.WIDTH, constants.HEIGHT))
-        ui.surface = self.surface = pygame.Surface((constants.WIDTH, constants.HEIGHT), pygame.SRCALPHA)
+        ui.screen = self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        ui.surface = self.surface = pygame.Surface(
+            (WIDTH, HEIGHT), pygame.SRCALPHA)
         self.clock = pygame.time.Clock()
-        self.fps = constants.INITIAL_FPS
+        self.fps = INITIAL_FPS
+        self.score = 0
 
         # record the app start ticks to time the splash screen display
         self.app_start_ticks = pygame.time.get_ticks()
@@ -52,13 +51,13 @@ class GameEngine:
             world_object.draw_wo(self.screen)
         # draw any status overlays
         self.ui.draw_lives(self.ps.lives)
+        self.ui.draw_score(self.score)
 
 
     # this runs the main game loop
     def run_loop(self):
 
         while self.gs.running:
-
             # fill the screen with black as a good default
             self.screen.fill(constants.BLACK)
 
@@ -95,6 +94,7 @@ class GameEngine:
                                         world_object.detect_collision(wo.rect)
                                         wo.add_collision()
                                         if wo.should_remove():
+                                            self.score += wo.value
                                             # special effect
                                             wo.rect.inflate_ip(world_object.rect.width * 3,
                                                                world_object.rect.height * 3)
