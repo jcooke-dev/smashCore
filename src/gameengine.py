@@ -4,6 +4,8 @@
 """
 
 import pygame
+
+from src import constants
 from constants import *
 from src.levels import Levels
 from src.gameworld import GameWorld
@@ -53,7 +55,6 @@ class GameEngine:
         self.ui.draw_lives(self.ps.lives)
         self.ui.draw_score(self.score)
 
-
     # this runs the main game loop
     def run_loop(self):
 
@@ -84,7 +85,8 @@ class GameEngine:
                     for world_object in self.gw.world_objects:
                         world_object.mouse_position = mouse_pos[0]
                         world_object.update_wo(self.gs, self.ps)
-                        # test for collisions between world_objects, but ignore objects that can't be affected (for performance)
+                        # test for collisions between world_objects, but ignore objects that
+                        # can't be affected (for performance)
                         if world_object.can_react:
                             for wo in self.gw.world_objects:
                                 # don't check for collisions with self
