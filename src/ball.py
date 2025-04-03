@@ -6,7 +6,9 @@ import pygame
 
 import constants
 import random as rnd
+
 from src.worldobject import WorldObject
+from gamestates import GameStates
 
 
 class Ball(WorldObject, pygame.sprite.Sprite):
@@ -29,7 +31,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         self.mouse_position = 0  # unused with this ball
 
     # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
-    def update_wo(self, gs):
+    def update_wo(self, gs, ps):
 
         # ball collision wall left/right
         if self.rect.centerx < self.radius or self.rect.centerx > constants.WIDTH - self.radius:
@@ -41,7 +43,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # # DEBUG and bounce off just below the bottom
         # if self.rect.centery > constants.HEIGHT + (8 * self.ball_radius):
         #     self.dy = -self.dy
-        if gs.game_start:
+        if gs.cur_state == GameStates.PLAYING:
             self.rect.x += self.speed * self.dx
             self.rect.y += self.speed * self.dy
 
@@ -53,13 +55,13 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # decrements lives everytime ball goes below the window and resets its position to
         # above the paddle. Prompts for SPACEBAR key to continue the game
         if self.rect.top > constants.HEIGHT:
-            gs.lives -= 1
+            ps.lives -= 1
             self.reset_position()
-            gs.game_start = False
+            gs.cur_state = GameStates.READY_TO_LAUNCH
 
             # Displays game_over menu if user loses all of their lives
-            if gs.lives <= 0:
-                gs.game_over = True
+            if ps.lives <= 0:
+                gs.cur_state = GameStates.GAME_OVER
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):

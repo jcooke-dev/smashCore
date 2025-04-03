@@ -5,6 +5,7 @@
 import pygame
 
 from src.gamestate import GameState
+from src.playerstate import PlayerState
 from src.userinterface import UserInterface
 from src.gameworld import GameWorld
 from src.gameengine import GameEngine
@@ -16,7 +17,8 @@ pygame.init()
 ui = UserInterface()
 gs = GameState()
 gw = GameWorld()
-ge = GameEngine(gw, gs, ui)
+ps = PlayerState()
+ge = GameEngine(ps, gw, gs, ui)
 
 # run the main game loop -- this returns when done
 ge.run_loop()

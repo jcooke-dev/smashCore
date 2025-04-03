@@ -10,7 +10,7 @@ class WorldObject:
         self.can_react = False # can this object react to collisions with other objects?
 
     # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
-    def update_wo(self, gs):
+    def update_wo(self, gs, ps):
         pass
 
     # draw the WorldObject to the screen

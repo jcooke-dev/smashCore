@@ -34,7 +34,7 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         self.mouse_position = (constants.WIDTH/2) - (constants.PAD_WIDTH/2) # just ensuring we have a property for mouse pos
 
     # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
-    def update_wo(self, gs):
+    def update_wo(self, gs, ps):
         self.move_by_mouse(self.mouse_position)
 
     # draw the WorldObject to the screen
