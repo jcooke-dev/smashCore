@@ -1,6 +1,6 @@
 from paddle import Paddle
-from settings import BLACK
-from settings import PAD_WIDTH, PAD_HEIGHT, WIDTH
+from constants import BLACK
+from constants import PAD_WIDTH, PAD_HEIGHT, WIDTH
 
 
 def test_move_left():

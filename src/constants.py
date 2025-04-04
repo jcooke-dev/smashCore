@@ -2,9 +2,6 @@
     Constants to be used throughout the application
 """
 
-from src.levels import Levels
-
-
 GAME_NAME = "SmashCore"
 
 # width and height of game board
@@ -34,5 +31,3 @@ GREEN = (0, 255, 0)
 START_SCORE = 0
 START_LIVES = 3
 
-# default start level
-START_LEVEL = Levels.LevelName.SMASHCORE_1

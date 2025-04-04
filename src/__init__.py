@@ -10,7 +10,6 @@ from src.userinterface import UserInterface
 from src.gameworld import GameWorld
 from src.gameengine import GameEngine
 
-
 pygame.init()
 
 # setup various game objects
@@ -20,6 +19,6 @@ gw = GameWorld()
 ps = PlayerState()
 ge = GameEngine(ps, gw, gs, ui)
 
-# run the main game loop -- this returns when done
-ge.run_loop()
-
+if __name__ == "__main__":
+    # run the main game loop -- this returns when done
+    ge.run_loop()
