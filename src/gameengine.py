@@ -11,6 +11,8 @@ from src.levels import Levels
 from src.gameworld import GameWorld
 from gamestates import GameStates
 
+import utils
+
 
 class GameEngine:
 
@@ -155,6 +157,11 @@ class GameEngine:
                         if self.gs.cur_state == GameStates.READY_TO_LAUNCH:
                             self.gs.cur_state = GameStates.PLAYING
 
+                    # detect the CTRL+d key combo to toggle the dev overlay calculation and display
+                    if event.key == pygame.K_d:
+                        if event.mod & pygame.KMOD_CTRL:
+                            self.gs.show_dev_overlay = not self.gs.show_dev_overlay
+
                 # the actual button press checks from the returned rects above
                 if (event.type == pygame.MOUSEBUTTONDOWN and
                         ((self.gs.cur_state == GameStates.PAUSED) or (self.gs.cur_state == GameStates.GAME_OVER))):
@@ -166,11 +173,23 @@ class GameEngine:
                         self.gs.cur_state = GameStates.GAME_OVER
                         exit()
 
+            # draw the developer overlay, if requested
+            if self.gs.show_dev_overlay:
+                self.ui.draw_dev_overlay(self.gs.fps_avg, self.gs.loop_time_avg)
+
             ##############################################################
             # update screen
             ##############################################################
             pygame.display.flip()
             self.clock.tick(self.fps)
+            # removing the fps arg allows pygame to run this loop at full speed, but still need
+            # to shift the motion logic off of relying on fps for this to work
+            # self.clock.tick()
+
+            # don't bother calculating these running dev averages unless wanted
+            if self.gs.show_dev_overlay:
+                self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(), self.clock.get_time())
+
 
         ##############################################################
         # close down cleanly

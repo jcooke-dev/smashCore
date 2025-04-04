@@ -10,3 +10,6 @@ class GameState:
 
         self.running = True
         self.cur_state = GameStates.SPLASH
+        self.fps_avg = 0.0
+        self.loop_time_avg = 0
+        self.show_dev_overlay = False

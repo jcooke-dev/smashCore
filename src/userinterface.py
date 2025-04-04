@@ -12,6 +12,9 @@ class UserInterface:
         # Font setup
         self.font_game_over = pygame.font.Font(None, 100)
         self.font_buttons = pygame.font.Font(None, 50)
+        # not certain this will reliably get a font (especially on diff OSes), but it's supposed to
+        # fallback to a default pygame font
+        self.font_fixed_small = pygame.font.SysFont("Courier", 16, True)
         self.surface = None
         self.screen = None
 
@@ -88,5 +91,9 @@ class UserInterface:
         score_display = self.font_buttons.render(f"Score: {score}", True, constants.WHITE)
         self.screen.blit(score_display, (constants.WIDTH - score_display.get_width() - 100, 10))
 
+    # show the developer overlay
+    def draw_dev_overlay(self, fps, loop_time):
+        dev_overlay = self.font_fixed_small.render(f"FPS: {fps:.1f}    LoopTime(ms): {loop_time:.1f}", True, constants.GREEN)
+        self.screen.blit(dev_overlay, ((constants.WIDTH - dev_overlay.get_width()) / 2, 5))
 
 
