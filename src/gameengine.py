@@ -5,11 +5,13 @@
 
 import pygame
 
+import src.ball
 from src import constants
 from constants import *
 from src.levels import Levels
 from src.gameworld import GameWorld
 from gamestates import GameStates
+from motionmodels import MotionModels
 
 import utils
 
@@ -27,7 +29,7 @@ class GameEngine:
         ui.surface = self.surface = pygame.Surface(
             (WIDTH, HEIGHT), pygame.SRCALPHA)
         self.clock = pygame.time.Clock()
-        self.fps = INITIAL_FPS
+        self.fps = INITIAL_FPS_SIMPLE
 
         # record the app start ticks to time the splash screen display
         self.app_start_ticks = pygame.time.get_ticks()
@@ -42,14 +44,14 @@ class GameEngine:
 
         # does python run auto garbage collection so it's OK to just assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
-        self.fps = constants.INITIAL_FPS
+        self.fps = constants.INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameStates.SPLASH
         self.ps.lives = constants.START_LIVES
         self.ps.score = 0
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
     # draw all objects in GameWorld plus status overlays
-    def drawWorldAndStatus(self):
+    def draw_world_and_status(self):
         # draw every game object
         for world_object in self.gw.world_objects:
             world_object.draw_wo(self.screen)
@@ -93,21 +95,40 @@ class GameEngine:
                             for wo in self.gw.world_objects:
                                 # don't check for collisions with self
                                 if world_object is not wo:
-                                    if world_object.rect.colliderect(wo.rect):  # and self.dy > 0:
-                                        # bounce object properly
-                                        world_object.detect_collision(wo.rect)
-                                        wo.add_collision()
-                                        if wo.should_remove():
-                                            self.ps.score += wo.value
-                                            # special effect
-                                            wo.rect.inflate_ip(world_object.rect.width * 3,
-                                                               world_object.rect.height * 3)
-                                            pygame.draw.rect(self.screen, wo.color, wo.rect)
-                                            self.fps += 2
-                                            self.gw.world_objects.remove(wo)
+                                    if world_object.rect.colliderect(wo.rect):
+                                        # a collision was detected - should we react to it?  this matters because two objects
+                                        # can overlap/collide across multiple looping collision checks - if we don't deactivate
+                                        # the collision detection, the object can bounce back and forth, getting trapped
+                                        if wo.allow_collision():
+                                            # bounce object properly - determining in which direction to bounce, based on approach
+                                            world_object.detect_collision(wo, self.gs)
+                                            wo.add_collision()
+                                            if wo.should_remove():
+                                                self.ps.score += wo.value
+                                                # special effect
+                                                # TODO probably need to store this brick rect and set it to be displayed
+                                                # for some duration because we sometimes don't see the inflation effect, likely
+                                                # because it's removed before being drawn
+                                                wo.rect.inflate_ip(world_object.rect.width * 3,
+                                                                   world_object.rect.height * 3)
+                                                pygame.draw.rect(self.screen, wo.color, wo.rect)
+                                                self.fps += 2
+
+                                                # adding to the ball speed, but diff logic for the VECTOR models
+                                                if isinstance(world_object, src.ball.Ball):
+                                                    world_object.speedV += BALL_SPEED_INCREMENT_VECTOR
+                                                    world_object.vVel = world_object.vVelUnit * world_object.speedV
+
+                                                self.gw.world_objects.remove(wo)
+
+                                    else:
+                                        # this is the other side of the allow_collision logic above, since not colliding
+                                        # now, it resets the latch or 'primed for collision' flag
+                                        wo.prime_for_collision()
+
 
                     # draw all objects in GameWorld
-                    self.drawWorldAndStatus()
+                    self.draw_world_and_status()
 
                     # note this is the way the player enters the gameplay screen, in a pending, ready
                     # to launch mode, with the ball stuck to the paddle
@@ -119,7 +140,7 @@ class GameEngine:
                 ##############################################################
                 case GameStates.PAUSED:
                     # draw all objects in GameWorld
-                    self.drawWorldAndStatus()
+                    self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision detection (button pressing)
                     self.restart_game, self.quit_game = self.ui.draw_pause_menu()
 
@@ -128,7 +149,7 @@ class GameEngine:
                 ##############################################################
                 case GameStates.GAME_OVER:
                     # draw all objects in GameWorld
-                    self.drawWorldAndStatus()
+                    self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision detection (button pressing)
                     self.restart_game, self.quit_game = self.ui.draw_game_over_menu()
 
@@ -162,6 +183,18 @@ class GameEngine:
                         if event.mod & pygame.KMOD_CTRL:
                             self.gs.show_dev_overlay = not self.gs.show_dev_overlay
 
+                    # detect the CTRL+m key combo to cycle through the various motion models
+                    if event.key == pygame.K_m:
+                        if event.mod & pygame.KMOD_CTRL:
+                            match self.gs.motion_model:
+                                case MotionModels.SIMPLE_1:
+                                    self.gs.motion_model = MotionModels.VECTOR_1
+                                case MotionModels.VECTOR_1:
+                                    self.gs.motion_model = MotionModels.VECTOR_2
+                                case MotionModels.VECTOR_2:
+                                    self.gs.motion_model = MotionModels.SIMPLE_1
+
+
                 # the actual button press checks from the returned rects above
                 if (event.type == pygame.MOUSEBUTTONDOWN and
                         ((self.gs.cur_state == GameStates.PAUSED) or (self.gs.cur_state == GameStates.GAME_OVER))):
@@ -175,16 +208,22 @@ class GameEngine:
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:
-                self.ui.draw_dev_overlay(self.gs.fps_avg, self.gs.loop_time_avg)
+                self.ui.draw_dev_overlay(self.gs.fps_avg, self.gs.loop_time_avg, self.gs.motion_model)
 
             ##############################################################
             # update screen
             ##############################################################
             pygame.display.flip()
-            self.clock.tick(self.fps)
-            # removing the fps arg allows pygame to run this loop at full speed, but still need
-            # to shift the motion logic off of relying on fps for this to work
-            # self.clock.tick()
+
+            # choose from the available motion models; note that SIMPLE models use clock.tick(fps) to force the
+            # motion update logic to the frame rate - VECTOR models decouple the frame rate from the dT motion logic
+            if self.gs.motion_model == MotionModels.SIMPLE_1:
+                self.gs.tick_time = self.clock.tick(self.fps)
+            elif (self.gs.motion_model == MotionModels.VECTOR_1) or (self.gs.motion_model == MotionModels.VECTOR_2):
+                # removing the fps arg (rather, setting it to 0) allows pygame to run this loop at full speed
+                # self.gs.tick_time = self.clock.tick(MAX_FPS_VECTOR)
+                self.gs.tick_time = self.clock.tick_busy_loop(MAX_FPS_VECTOR)
+
 
             # don't bother calculating these running dev averages unless wanted
             if self.gs.show_dev_overlay:

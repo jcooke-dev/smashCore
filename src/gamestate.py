@@ -3,6 +3,7 @@
 """
 
 from gamestates import GameStates
+from motionmodels import MotionModels
 
 class GameState:
 
@@ -13,3 +14,5 @@ class GameState:
         self.fps_avg = 0.0
         self.loop_time_avg = 0
         self.show_dev_overlay = False
+        self.motion_model = MotionModels.VECTOR_1
+        self.tick_time = 0

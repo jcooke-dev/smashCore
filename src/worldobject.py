@@ -8,6 +8,7 @@ class WorldObject:
     def __init__(self):
 
         self.can_react = False # can this object react to collisions with other objects?
+        self.primed_collision = True
 
     # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
     def update_wo(self, gs, ps):
@@ -18,7 +19,7 @@ class WorldObject:
         pass
 
     # Function to detect collisions
-    def detect_collision(self, hitbox):
+    def detect_collision(self, hitbox, gs):
         pass
 
     # record that something collided with this WorldObject
@@ -28,3 +29,15 @@ class WorldObject:
     # inform caller that this WorldObject should be removed from the GameWorld
     def should_remove(self):
         return False
+
+    # determines if this object can participate in a collision
+    def allow_collision(self):
+        if self.primed_collision:
+            self.primed_collision = False
+            return True
+        else:
+            return False
+
+    # reset the latch to allow for future collisions
+    def prime_for_collision(self):
+        self.primed_collision = True
