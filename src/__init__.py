@@ -10,6 +10,7 @@ from src.userinterface import UserInterface
 from src.gameworld import GameWorld
 from src.gameengine import GameEngine
 
+
 pygame.init()
 
 # setup various game objects
