@@ -112,7 +112,7 @@ class GameEngine:
                                                 wo.rect.inflate_ip(world_object.rect.width * 3,
                                                                    world_object.rect.height * 3)
                                                 pygame.draw.rect(self.screen, wo.color, wo.rect)
-                                                self.fps += 2
+                                                world_object.speed += .20
 
                                                 # adding to the ball speed, but diff logic for the VECTOR models
                                                 if isinstance(world_object, src.ball.Ball):
