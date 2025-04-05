@@ -1,7 +1,9 @@
 """
     Constants to be used throughout the application
 """
+import os
 
+import pygame
 
 GAME_NAME = "SmashCore"
 
@@ -19,15 +21,41 @@ PAD_MOVE_LEFT = 25
 PAD_MOVE_RIGHT = 25
 
 BALL_RADIUS = 15
-BALL_SPEED_SIMPLE = 6 # initial speed for SIMPLE_1 model
-BALL_SPEED_VECTOR = 0.55 # initial speed for VECTOR_1 model
+BALL_SPEED_SIMPLE = 6
+BALL_SPEED_VECTOR = 0.55
+BALL_SPEED_INCREMENT_VECTOR = 0.013
+WORLD_GRAVITY_ACC = 0.00020
+PADDLE_IMPULSE = 0.04
 
-BALL_SPEED_STEP = 0.012 # the speed added to the ball for brick breaks
-BALL_SPEED_STEP_INCREMENT = 0.006 # the BALL_SPEED_STEP increment controlled and shown via dev overlay and keys
-WORLD_GRAVITY_ACC = 0.0 # the magnitude of gravityAcc vector
-WORLD_GRAVITY_ACC_INCREMENT = 0.00005 # the WORLD_GRAVITY_ACC increment controlled and shown via dev overlay and keys
-PADDLE_IMPULSE = 0.0 # the magnitude of the vertical 'push' vel vector the paddle imparts to the ball
-PADDLE_IMPULSE_INCREMENT = 0.02 # the PADDLE_IMPULSE increment controlled and shown via dev overlay and keys
+art_dir = 'assets/art/'
+sound_dir = 'assets/sound/'
+background_img_path = 'background.png'
+yellow_img_path = 'yellow_brick.png'
+blue_img_path = 'blue_brick.png'
+green_img_path = 'green_brick.png'
+red_img_path = 'red_brick.png'
+pink_img_path = 'pink_brick.png'
+orange_img_path = 'orange_brick.png'
+lt_blue_img_path = 'lt_blue_brick.png'
+purple_img_path = 'purple_brick.png'
+teal_img_path = 'teal_brick.png'
+lavender_img_path = 'lavender_brick.png'
+ball_img_path = 'ball.png'
+paddle_img_path = 'paddle.png'
+
+background_img = pygame.image.load(os.path.join(art_dir, background_img_path))
+yellow = pygame.image.load(os.path.join(art_dir, yellow_img_path))
+blue = pygame.image.load(os.path.join(art_dir, blue_img_path))
+green = pygame.image.load(os.path.join(art_dir, green_img_path))
+red = pygame.image.load(os.path.join(art_dir, red_img_path))
+pink = pygame.image.load(os.path.join(art_dir, pink_img_path))
+orange = pygame.image.load(os.path.join(art_dir, orange_img_path))
+lt_blue = pygame.image.load(os.path.join(art_dir, lt_blue_img_path))
+purple = pygame.image.load(os.path.join(art_dir, purple_img_path))
+teal = pygame.image.load(os.path.join(art_dir, teal_img_path))
+lavender = pygame.image.load(os.path.join(art_dir, lavender_img_path))
+ball = pygame.image.load(os.path.join(art_dir, ball_img_path))
+paddle = pygame.image.load(os.path.join(art_dir, paddle_img_path))
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)

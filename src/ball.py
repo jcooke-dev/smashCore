@@ -35,20 +35,22 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         self.rect = pygame.Rect(self.x, self.y, self.ball_rect, self.ball_rect)
 
         # VECTOR motion models defaults
-        self.v_pos = Vector2(x - self.radius, y)
-        self.v_vel_unit = Vector2(1.0, 0.0)
-        self.v_vel_unit = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
-        self.speed_v = constants.BALL_SPEED_VECTOR
-        self.v_vel = self.v_vel_unit * self.speed_v
+        self.vPos = Vector2(x - self.radius, y)
+        self.vVelUnit = Vector2(1.0, 0.0)
+        self.vVelUnit = self.vVelUnit.rotate(rnd.choice([-45.0, -135.0]))
+        self.speedV = constants.BALL_SPEED_VECTOR
+        self.vVel = self.vVelUnit * self.speedV
+        self.vAccUnit = Vector2(0.0, 1.0)
+        self.vAcc = self.vAccUnit * constants.WORLD_GRAVITY_ACC
 
-        self.rect = pygame.Rect(self.v_pos.x, self.v_pos.y, self.ball_rect, self.ball_rect)
+        self.rect = pygame.Rect(self.vPos.x, self.vPos.y, self.ball_rect, self.ball_rect)
 
         # these flags act as indicators that the ball is primed for collision with the specific item
         self.primed_collision_wall_left = True
         self.primed_collision_wall_right = True
         self.primed_collision_wall_top = True
 
-        self.commanded_pos_x = 0
+        self.mouse_position = 0  # unused with this ball
 
     # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
     def update_wo(self, gs, ps):
@@ -78,52 +80,50 @@ class Ball(WorldObject, pygame.sprite.Sprite):
             # perform the wall collision detection and overall position
             # update for the VECTOR models
             ##############################################################
-            elif gs.motion_model == MotionModels.VECTOR_1:
+            elif (gs.motion_model == MotionModels.VECTOR_1) or (gs.motion_model == MotionModels.VECTOR_2):
 
                 # ball collision wall left
-                if self.primed_collision_wall_left and (self.v_pos.x < self.radius):
+                if self.primed_collision_wall_left and (self.vPos.x < self.radius):
                     self.primed_collision_wall_left = False
-                    self.v_vel_unit.x = -self.v_vel_unit.x
-                    self.v_vel.x = -self.v_vel.x
+                    self.vVelUnit.x = -self.vVelUnit.x
+                    self.vVel.x = -self.vVel.x
                 # reset the latch allowing collision detection since the ball has moved fully away
-                if self.v_pos.x >= self.radius:
+                if self.vPos.x >= self.radius:
                     self.primed_collision_wall_left = True
 
                 # ball collision wall right
-                if self.primed_collision_wall_right and (self.v_pos.x > (constants.WIDTH - self.radius)):
+                if self.primed_collision_wall_right and (self.vPos.x > (constants.WIDTH - self.radius)):
                     self.primed_collision_wall_right = False
-                    self.v_vel_unit.x = -self.v_vel_unit.x
-                    self.v_vel.x = -self.v_vel.x
+                    self.vVelUnit.x = -self.vVelUnit.x
+                    self.vVel.x = -self.vVel.x
                 # reset the latch allowing collision detection since the ball has moved fully away
-                if self.v_pos.x <= (constants.WIDTH - self.radius):
+                if self.vPos.x <= (constants.WIDTH - self.radius):
                     self.primed_collision_wall_right = True
 
                 # ball collision wall top
-                if self.primed_collision_wall_top and (self.v_pos.y < self.radius):
+                if self.primed_collision_wall_top and (self.vPos.y < self.radius):
                     self.primed_collision_wall_top = False
-                    self.v_vel_unit.y = -self.v_vel_unit.y
-                    self.v_vel.y = -self.v_vel.y
+                    self.vVelUnit.y = -self.vVelUnit.y
+                    self.vVel.y = -self.vVel.y
                 # reset the latch allowing collision detection since the ball has moved fully away
-                if self.v_pos.y >= self.radius:
+                if self.vPos.y >= self.radius:
                     self.primed_collision_wall_top = True
 
-                # WORLD_GRAVITY_ACC: apply gravity, if any
-                if gs.gravity_acc_length > 0.0:
-                    self.v_vel += gs.v_gravity_acc * gs.tick_time * 1.0
-                    self.v_vel_unit = self.v_vel.normalize()
+                # apply gravity, if selected
+                if gs.motion_model == MotionModels.VECTOR_2:
+                    self.vVel += self.vAcc * gs.tick_time * 1.0
+                    self.vVelUnit = self.vVel.normalize()
 
-                self.v_pos += self.v_vel * gs.tick_time * 1.0
+                self.vPos += self.vVel * gs.tick_time * 1.0
 
-                self.rect.x = self.v_pos.x
-                self.rect.y = self.v_pos.y
+                self.rect.x = self.vPos.x
+                self.rect.y = self.vPos.y
 
                 self.x = self.rect.x
                 self.y = self.rect.y
 
         else:
-            self.move_to_x(self.commanded_pos_x)
-
-        gs.cur_ball_x = self.x
+            self.move_by_mouse(self.mouse_position)
 
         # decrements lives everytime ball goes below the window and resets its position to
         # above the paddle. Prompts for SPACEBAR key to continue the game
@@ -138,24 +138,27 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
-        pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
+        pygame.draw.circle(screen, constants.BLACK, self.rect.center, self.radius)
+        screen.blit(constants.ball.convert_alpha(), (self.rect.x - 4, self.rect.y - 3.15))
 
     def reset_position(self):
 
         # SIMPLE_1 motion model defaults
-        self.rect.center = self.commanded_pos_x, (constants.HEIGHT - constants.PAD_HEIGHT -
+        self.rect.center = self.mouse_position, (constants.HEIGHT - constants.PAD_HEIGHT -
                                                  constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))
         self.dx = rnd.choice([1, -1])
         self.dy = -1
 
         # VECTOR motion models defaults
-        self.v_pos = Vector2(self.commanded_pos_x, (constants.HEIGHT - constants.PAD_HEIGHT -
-                                                    constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)))
-        self.rect.center = (self.v_pos.x, self.v_pos.y)
+        self.vPos = Vector2(self.mouse_position, (constants.HEIGHT - constants.PAD_HEIGHT -
+                                                 constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)))
+        self.rect.center = (self.vPos.x, self.vPos.y)
 
-        self.v_vel_unit = Vector2(1.0, 0.0)
-        self.v_vel_unit = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
-        self.v_vel = self.v_vel_unit * self.speed_v
+        self.vVelUnit = Vector2(1.0, 0.0)
+        self.vVelUnit = self.vVelUnit.rotate(rnd.choice([-45.0, -135.0]))
+        self.vVel = self.vVelUnit * self.speedV
+        self.vAccUnit = Vector2(0.0, 1.0)
+        self.vAcc = self.vAccUnit * constants.WORLD_GRAVITY_ACC
 
     #Function to detect collisions
     def detect_collision(self, wo, gs):
@@ -187,53 +190,48 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # determine how/which direction to bounce after collision under
         # the VECTOR models
         ##############################################################
-        elif gs.motion_model == MotionModels.VECTOR_1:
+        elif (gs.motion_model == MotionModels.VECTOR_1) or (gs.motion_model == MotionModels.VECTOR_2):
 
-            if self.v_vel_unit.x > 0:  # checks for horizontal ball collision
+            if self.vVelUnit.x > 0:  # checks for horizontal ball collision
                 x_delta = self.rect.right - wo.rect.left
             else:
                 x_delta = wo.rect.right - self.rect.left
 
-            if self.v_vel_unit.y > 0:  # checks for vertical ball collision
+            if self.vVelUnit.y > 0:  # checks for vertical ball collision
                 y_delta = self.rect.bottom - wo.rect.top
             else:
                 y_delta = wo.rect.bottom - self.rect.top
 
             if abs(x_delta - y_delta) < 10:
-                self.v_vel_unit.x = -self.v_vel_unit.x
-                self.v_vel.x = -self.v_vel.x
-                self.v_vel_unit.y = -self.v_vel_unit.y
-                self.v_vel.y = -self.v_vel.y
+                self.vVelUnit.x = -self.vVelUnit.x
+                self.vVel.x = -self.vVel.x
+                self.vVelUnit.y = -self.vVelUnit.y
+                self.vVel.y = -self.vVel.y
             # TODO check - this logic seems backwards, but works?
             elif x_delta > y_delta:  # vertical collision
             # elif y_delta > x_delta:  # vertical collision
-                self.v_vel_unit.y = -self.v_vel_unit.y
-                self.v_vel.y = -self.v_vel.y
+                self.vVelUnit.y = -self.vVelUnit.y
+                self.vVel.y = -self.vVel.y
             # TODO check - this logic seems backwards, but works?
             elif y_delta > x_delta:  # horizontal collision
             # elif x_delta > y_delta:  # horizontal collision
-                self.v_vel_unit.x = -self.v_vel_unit.x
-                self.v_vel.x = -self.v_vel.x
+                self.vVelUnit.x = -self.vVelUnit.x
+                self.vVel.x = -self.vVel.x
 
-            # PADDLE_IMPULSE: add an impulse to the ball's velocity when striking the paddle, similar to brick breaking
-            if isinstance(wo, src.paddle.Paddle) and (gs.paddle_impulse_vel_length > 0.0):
-                # add a 'push' straight up
-                v_impulse = Vector2(0.0, -gs.paddle_impulse_vel_length)
-                self.v_vel += v_impulse
-                self.speed_v = self.v_vel.magnitude()
-                self.v_vel_unit = self.v_vel.normalize()
+            # add an impulse to the ball's velocity when striking the paddle, just like with brick breaking
+            if isinstance(wo, src.paddle.Paddle) and (gs.motion_model == MotionModels.VECTOR_2):
+                self.speedV += constants.PADDLE_IMPULSE
+                self.vVel = self.vVelUnit * self.speedV
 
 
-    def move_to_x(self, posx):
+    def move_by_mouse(self, mouse_position):
         """ Move ball_x to mouse_position """
-        self.rect.x = posx
+        self.rect.centerx = mouse_position
+        self.vPos.x = self.rect.centerx
+        self.vPos.y = self.rect.centery
 
         # Check that the paddle is not going too far (off the screen)
         if self.rect.left < (constants.PAD_WIDTH // 2) - self.radius:
             self.rect.left = (constants.PAD_WIDTH // 2) - self.radius
         if self.rect.right > constants.WIDTH - (constants.PAD_WIDTH // 2) + self.radius:
             self.rect.right = constants.WIDTH - (constants.PAD_WIDTH // 2) + self.radius
-
-        self.v_pos.x = self.rect.x
-        self.x = self.rect.x
-

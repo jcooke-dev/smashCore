@@ -92,19 +92,8 @@ class UserInterface:
         self.screen.blit(score_display, (constants.WIDTH - score_display.get_width() - 100, 10))
 
     # show the developer overlay
-    def draw_dev_overlay(self, gs):
-        str_build = (f"FPS: {gs.fps_avg:>6.1f}  "
-                     f"LoopTime(ms): {gs.loop_time_avg:>4.1f}  "
-                     f"MotionModel: {gs.motion_model.name}  "
-                     f"Auto-Play: {gs.auto_play}")
-        dev_overlay1 = self.font_fixed_small.render(str_build, True, constants.GREEN)
-
-        str_build = (f"PaddleImpulse: {gs.paddle_impulse_vel_length:>4.2f}  "
-                     f"Gravity: {gs.gravity_acc_length:>7.5f}  "
-                     f"SpeedStep: {gs.ball_speed_step:>6.3f}")
-        dev_overlay2 = self.font_fixed_small.render(str_build, True, constants.GREEN)
-
-        self.screen.blit(dev_overlay1, ((constants.WIDTH - dev_overlay1.get_width()) / 2, 5))
-        self.screen.blit(dev_overlay2, ((constants.WIDTH - dev_overlay2.get_width()) / 2, 24))
+    def draw_dev_overlay(self, fps, loop_time, motion_model):
+        dev_overlay = self.font_fixed_small.render(f"FPS: {fps:>6.1f}  LoopTime(ms): {loop_time:>4.1f}  MotionModel: {motion_model.name}", True, constants.GREEN)
+        self.screen.blit(dev_overlay, ((constants.WIDTH - dev_overlay.get_width()) / 2, 5))
 
 
