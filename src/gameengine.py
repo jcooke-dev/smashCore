@@ -46,6 +46,7 @@ class GameEngine:
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = constants.INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameStates.SPLASH
+        self.gs.cur_ball_x = (constants.WIDTH / 2) - (constants.PAD_WIDTH / 2)
         self.ps.lives = constants.START_LIVES
         self.ps.score = 0
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
@@ -87,7 +88,8 @@ class GameEngine:
                     # update all objects in GameWorld
                     mouse_pos = pygame.mouse.get_pos()
                     for world_object in self.gw.world_objects:
-                        world_object.mouse_position = mouse_pos[0]
+                        # this controls whether the AutoPlay system or the player's mouse input is driving the paddle
+                        world_object.commanded_pos_x = self.gs.cur_ball_x if self.gs.auto_play else mouse_pos[0]
                         world_object.update_wo(self.gs, self.ps)
                         # test for collisions between world_objects, but ignore objects that
                         # can't be affected (for performance)
@@ -114,10 +116,10 @@ class GameEngine:
                                                 pygame.draw.rect(self.screen, wo.color, wo.rect)
                                                 self.fps += 2
 
-                                                # adding to the ball speed, but diff logic for the VECTOR models
+                                                # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the VECTOR models
                                                 if isinstance(world_object, src.ball.Ball):
-                                                    world_object.speedV += BALL_SPEED_INCREMENT_VECTOR
-                                                    world_object.vVel = world_object.vVelUnit * world_object.speedV
+                                                    world_object.speed_v += self.gs.ball_speed_step
+                                                    world_object.v_vel = world_object.v_vel_unit * world_object.speed_v
 
                                                 self.gw.world_objects.remove(wo)
 
@@ -183,6 +185,41 @@ class GameEngine:
                         if event.mod & pygame.KMOD_CTRL:
                             self.gs.show_dev_overlay = not self.gs.show_dev_overlay
 
+                    # detect the CTRL+a key combo to toggle the AUTO-PLAY mode on and off
+                    if event.key == pygame.K_a:
+                        if event.mod & pygame.KMOD_CTRL:
+                            self.gs.auto_play = not self.gs.auto_play
+
+                    # detect the CTRL+p and CTRL+SHIFT+p key combos to increase/decrease the PADDLE_IMPULSE
+                    if event.key == pygame.K_p:
+                        if (event.mod & pygame.KMOD_CTRL):
+                            if (event.mod & pygame.KMOD_SHIFT):
+                                self.gs.paddle_impulse_vel_length -= constants.PADDLE_IMPULSE_INCREMENT
+                                if self.gs.paddle_impulse_vel_length < 0.0:
+                                    self.gs.paddle_impulse_vel_length = 0.0
+                            else:
+                                self.gs.paddle_impulse_vel_length += constants.PADDLE_IMPULSE_INCREMENT
+
+                    # detect the CTRL+g and CTRL+SHIFT+g key combos to increase/decrease the WORLD_GRAVITY_ACC
+                    if event.key == pygame.K_g:
+                        if (event.mod & pygame.KMOD_CTRL):
+                            if (event.mod & pygame.KMOD_SHIFT):
+                                self.gs.gravity_acc_length -= constants.WORLD_GRAVITY_ACC_INCREMENT
+                                if self.gs.gravity_acc_length < 0.0:
+                                    self.gs.gravity_acc_length = 0.0
+                                self.gs.v_gravity_acc = self.gs.v_gravity_unit * self.gs.gravity_acc_length
+                            else:
+                                self.gs.gravity_acc_length += constants.WORLD_GRAVITY_ACC_INCREMENT
+                                self.gs.v_gravity_acc = self.gs.v_gravity_unit * self.gs.gravity_acc_length
+
+                    # detect the CTRL+s and CTRL+SHIFT+s key combos to increase/decrease the BALL_SPEED_STEP
+                    if event.key == pygame.K_s:
+                        if (event.mod & pygame.KMOD_CTRL):
+                            if (event.mod & pygame.KMOD_SHIFT):
+                                self.gs.ball_speed_step -= constants.BALL_SPEED_STEP_INCREMENT
+                            else:
+                                self.gs.ball_speed_step += constants.BALL_SPEED_STEP_INCREMENT
+
                     # detect the CTRL+m key combo to cycle through the various motion models
                     if event.key == pygame.K_m:
                         if event.mod & pygame.KMOD_CTRL:
@@ -190,10 +227,7 @@ class GameEngine:
                                 case MotionModels.SIMPLE_1:
                                     self.gs.motion_model = MotionModels.VECTOR_1
                                 case MotionModels.VECTOR_1:
-                                    self.gs.motion_model = MotionModels.VECTOR_2
-                                case MotionModels.VECTOR_2:
                                     self.gs.motion_model = MotionModels.SIMPLE_1
-
 
                 # the actual button press checks from the returned rects above
                 if (event.type == pygame.MOUSEBUTTONDOWN and
@@ -208,7 +242,7 @@ class GameEngine:
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:
-                self.ui.draw_dev_overlay(self.gs.fps_avg, self.gs.loop_time_avg, self.gs.motion_model)
+                self.ui.draw_dev_overlay(self.gs)
 
             ##############################################################
             # update screen
@@ -219,11 +253,10 @@ class GameEngine:
             # motion update logic to the frame rate - VECTOR models decouple the frame rate from the dT motion logic
             if self.gs.motion_model == MotionModels.SIMPLE_1:
                 self.gs.tick_time = self.clock.tick(self.fps)
-            elif (self.gs.motion_model == MotionModels.VECTOR_1) or (self.gs.motion_model == MotionModels.VECTOR_2):
+            elif self.gs.motion_model == MotionModels.VECTOR_1:
                 # removing the fps arg (rather, setting it to 0) allows pygame to run this loop at full speed
                 # self.gs.tick_time = self.clock.tick(MAX_FPS_VECTOR)
                 self.gs.tick_time = self.clock.tick_busy_loop(MAX_FPS_VECTOR)
-
 
             # don't bother calculating these running dev averages unless wanted
             if self.gs.show_dev_overlay:
