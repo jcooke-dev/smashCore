@@ -31,15 +31,17 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         self.rect.x = (constants.WIDTH/2) - (constants.PAD_WIDTH/2)
         self.rect.y = constants.HEIGHT - constants.PAD_HEIGHT - constants.PADDLE_START_POSITION_OFFSET
 
-        self.commanded_pos_x = 0
+        self.mouse_position = (constants.WIDTH/2) - (constants.PAD_WIDTH/2) # just ensuring we have a property for mouse pos
 
     # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
     def update_wo(self, gs, ps):
-        self.move_to_x(self.commanded_pos_x)
+        self.move_by_mouse(self.mouse_position)
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
-        pygame.draw.rect(screen, constants.RED, self.rect, 0, 7)
+        pygame.draw.rect(screen, constants.BLACK, self.rect, 0, 7)
+        paddle_scale =pygame.transform.scale(constants.paddle, [constants.PAD_WIDTH + 5, constants.PAD_HEIGHT + 5])
+        screen.blit(paddle_scale.convert_alpha(), (self.rect.x - 2.2, self.rect.y - 1.1))
 
     # incremental Paddle movement (likely used for KB control)
     def move_left(self, pixels):
@@ -58,9 +60,9 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
             self.rect.x = constants.WIDTH - constants.PAD_WIDTH
 
     # absolute Paddle position setting (based on mouse position)
-    def move_to_x(self, posx):
+    def move_by_mouse(self, mouse_position):
         """ Move paddle to mouse_position """
-        self.rect.centerx = posx
+        self.rect.centerx = mouse_position
         # Check that the paddle is not going too far (off the screen)
         if self.rect.left < 0:
             self.rect.left = 0
