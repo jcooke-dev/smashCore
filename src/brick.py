@@ -8,7 +8,7 @@ from src.worldobject import WorldObject
 
 class Brick(WorldObject):
 
-    def __init__(self, rect, color, value):
+    def __init__(self, rect, color, value=1):
         """
         Initializes a Brick object.
 
