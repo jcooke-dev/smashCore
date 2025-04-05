@@ -5,6 +5,7 @@
 
 import pygame
 
+from src.constants import *
 from src.ball import Ball
 from src.brick import Brick
 from src.constants import *
@@ -46,6 +47,8 @@ class GameEngine:
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameStates.SPLASH
+        self.ps.lives = START_LIVES
+        self.ps.score = 0
         self.ps.lives = START_LIVES
         self.ps.score = START_SCORE
         self.ps.level = 1
@@ -92,46 +95,47 @@ class GameEngine:
                 case GameStates.PLAYING | GameStates.READY_TO_LAUNCH:
                     # update all objects in GameWorld
                     mouse_pos = pygame.mouse.get_pos()
-                    for world_object in self.gw.world_objects:
-                        world_object.mouse_position = mouse_pos[0]
-                        world_object.update_wo(self.gs, self.ps)
+                    for current_wo in self.gw.world_objects:
+                        current_wo.mouse_position = mouse_pos[0]
+                        current_wo.update_wo(self.gs, self.ps)
                         # test for collisions between world_objects, but ignore objects that
                         # can't be affected (for performance)
-                        if world_object.can_react:
-                            for wo in self.gw.world_objects:
+                        if current_wo.can_react:
+                            for other_wo in self.gw.world_objects:
                                 # don't check for collisions with self
-                                if world_object is not wo:
-                                    if world_object.rect.colliderect(wo.rect):
-                                        # a collision was detected - should we react to it?  this matters because two objects
-                                        # can overlap/collide across multiple looping collision checks - if we don't deactivate
-                                        # the collision detection, the object can bounce back and forth, getting trapped
-                                        if wo.allow_collision():
-                                            # bounce object properly - determining in which direction to bounce, based on approach
-                                            world_object.detect_collision(wo, self.gs)
-                                            wo.add_collision()
-                                            if wo.should_remove():
-                                                self.ps.score += wo.value
+                                if current_wo is not other_wo:
+                                    if current_wo.rect.colliderect(other_wo.rect):
+                                        # a collision was detected - should we react to it?  this matters because two
+                                        # objects can overlap/collide across multiple looping collision checks - if
+                                        # we don't deactivate the collision detection, the object can bounce back and
+                                        # forth, getting trapped
+                                        if other_wo.allow_collision():
+                                            # bounce object properly - determining in which direction to bounce,
+                                            # based on approach
+                                            current_wo.detect_collision(other_wo, self.gs)
+                                            other_wo.add_collision()
+                                            if other_wo.should_remove():
+                                                self.ps.score += other_wo.value
                                                 # special effect
-                                                # TODO probably need to store this brick rect and set it to be displayed
-                                                # for some duration because we sometimes don't see the inflation effect, likely
-                                                # because it's removed before being drawn
-                                                wo.rect.inflate_ip(world_object.rect.width * 3,
-                                                                   world_object.rect.height * 3)
-                                                pygame.draw.rect(self.screen, wo.color, wo.rect)
-                                                self.fps += 2
+                                                #  TODO probably need to store this brick rect and set
+                                                #  it to be displayed for some duration because we sometimes don't see
+                                                #  the inflation effect, likely because it's removed before being drawn
+                                                other_wo.rect.inflate_ip(current_wo.rect.width * 3,
+                                                                         current_wo.rect.height * 3)
+                                                pygame.draw.rect(self.screen, other_wo.color, other_wo.rect)
+                                                current_wo.speed += .20
 
                                                 # adding to the ball speed, but diff logic for the VECTOR models
-                                                if isinstance(world_object, Ball):
-                                                    world_object.speedV += BALL_SPEED_INCREMENT_VECTOR
-                                                    world_object.vVel = world_object.vVelUnit * world_object.speedV
+                                                if isinstance(current_wo, Ball):
+                                                    current_wo.speedV += BALL_SPEED_INCREMENT_VECTOR
+                                                    current_wo.vVel = current_wo.vVelUnit * current_wo.speedV
 
-                                                self.gw.world_objects.remove(wo)
+                                                self.gw.world_objects.remove(other_wo)
 
                                     else:
                                         # this is the other side of the allow_collision logic above, since not colliding
                                         # now, it resets the latch or 'primed for collision' flag
-                                        wo.prime_for_collision()
-
+                                        other_wo.prime_for_collision()
 
                     # draw all objects in GameWorld
                     self.draw_world_and_status()
@@ -204,7 +208,6 @@ class GameEngine:
                                 case MotionModels.VECTOR_2:
                                     self.gs.motion_model = MotionModels.SIMPLE_1
 
-
                 # the actual button press checks from the returned rects above
                 if (event.type == pygame.MOUSEBUTTONDOWN and
                         ((self.gs.cur_state == GameStates.PAUSED) or (self.gs.cur_state == GameStates.GAME_OVER))):
@@ -234,11 +237,10 @@ class GameEngine:
                 # self.gs.tick_time = self.clock.tick(MAX_FPS_VECTOR)
                 self.gs.tick_time = self.clock.tick_busy_loop(MAX_FPS_VECTOR)
 
-
             # don't bother calculating these running dev averages unless wanted
             if self.gs.show_dev_overlay:
-                self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(), self.clock.get_time())
-
+                self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(),
+                                                                                         self.clock.get_time())
 
         ##############################################################
         # close down cleanly
