@@ -38,8 +38,6 @@ class UserInterface:
     # Displays the pause menu where user can continue, restart, or quit the game
     def draw_pause_menu(self):
         pygame.draw.rect(self.surface, (0, 0, 0, 100), [0, 0, constants.WIDTH, constants.HEIGHT])
-
-        # pygame.draw.rect(surface, constants.DARKBLUE, [(constants.WIDTH // 2) - 300, 250, 600, 75])
         reset = pygame.draw.rect(self.surface, (0, 255, 0), [(constants.WIDTH // 2) - 200, 350, 400, 75])
         quit = pygame.draw.rect(self.surface, (0, 255, 0), [(constants.WIDTH // 2) - 200, 450, 400, 75])
         self.surface.blit(self.font_game_over.render('Game Paused: ESC to Resume', True, constants.DARKBLUE),
@@ -79,7 +77,6 @@ class UserInterface:
     def draw_game_intro(self):
         self.screen.blit(self.font_buttons.render("Press SPACEBAR to start", True, constants.WHITE),
                          ((constants.WIDTH //4) + 50, constants.HEIGHT - (constants.HEIGHT // 6)))
-        # self.screen.blit(self.surface, (0, 0))
 
     # draws each life in the top left corner of the screen
     # draws the score in the top right corner of the screen
@@ -108,7 +105,9 @@ class UserInterface:
                      f"SpeedStep: {gs.ball_speed_step:>6.3f}")
         dev_overlay2 = self.font_fixed_small.render(str_build, True, constants.GREEN)
 
-        self.screen.blit(dev_overlay1, ((constants.WIDTH - dev_overlay1.get_width()) / 2, 5))
-        self.screen.blit(dev_overlay2, ((constants.WIDTH - dev_overlay2.get_width()) / 2, 24))
+        self.screen.blit(dev_overlay1, ((constants.WIDTH - dev_overlay1.get_width()) / 2,
+                                        constants.HEIGHT - dev_overlay1.get_height() - 5))
+        self.screen.blit(dev_overlay2, ((constants.WIDTH - dev_overlay2.get_width()) / 2,
+                                        constants.HEIGHT - dev_overlay2.get_height() - 24))
 
 

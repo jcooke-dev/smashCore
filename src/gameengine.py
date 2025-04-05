@@ -5,7 +5,6 @@
 
 import pygame
 
-from src.constants import *
 from src.ball import Ball
 from src.brick import Brick
 from src.constants import *
@@ -55,10 +54,18 @@ class GameEngine:
         self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
+    # builds the next level, resets the ball position and initial speed
+    # slight increase in initial ball speed to add difficulty
     def next_level(self):
-        self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
+        Levels.build_level(self.gw, Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
-        self.gs.cur_state = GameStates.SPLASH
+        self.gs.cur_state = GameStates.READY_TO_LAUNCH
+        #self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
+        for wo in self.gw.world_objects:
+            if isinstance(wo, Ball):
+                wo.reset_position()
+                wo.speed_v = BALL_SPEED_VECTOR + (self.ps.level * .20)
+                wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * .20)
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
     # draw all objects in GameWorld plus status overlays
@@ -126,8 +133,8 @@ class GameEngine:
                                                                          current_wo.rect.height * 3)
                                                 pygame.draw.rect(self.screen, other_wo.color, other_wo.rect)
                                                 current_wo.speed += .20
-
-                                                # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the VECTOR models
+                                                # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
+                                                # VECTOR models
                                                 if isinstance(current_wo, Ball):
                                                     current_wo.speed_v += self.gs.ball_speed_step
                                                     current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
