@@ -31,11 +31,11 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         self.rect.x = (constants.WIDTH/2) - (constants.PAD_WIDTH/2)
         self.rect.y = constants.HEIGHT - constants.PAD_HEIGHT - constants.PADDLE_START_POSITION_OFFSET
 
-        self.mouse_position = (constants.WIDTH/2) - (constants.PAD_WIDTH/2) # just ensuring we have a property for mouse pos
+        self.commanded_pos_x = 0
 
     # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
     def update_wo(self, gs, ps):
-        self.move_by_mouse(self.mouse_position)
+        self.move_to_x(self.commanded_pos_x)
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
@@ -58,9 +58,9 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
             self.rect.x = constants.WIDTH - constants.PAD_WIDTH
 
     # absolute Paddle position setting (based on mouse position)
-    def move_by_mouse(self, mouse_position):
+    def move_to_x(self, posx):
         """ Move paddle to mouse_position """
-        self.rect.centerx = mouse_position
+        self.rect.centerx = posx
         # Check that the paddle is not going too far (off the screen)
         if self.rect.left < 0:
             self.rect.left = 0

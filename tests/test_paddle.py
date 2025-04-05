@@ -18,12 +18,12 @@ def test_move_right():
 
 def test_move_by_mouse_left():
     paddle = Paddle(BLACK, PAD_WIDTH, PAD_HEIGHT)
-    paddle.move_by_mouse(-5)
+    paddle.move_to_x(-5)
     assert paddle.rect.x >= 0
 
 
 def test_move_by_mouse_right():
     paddle = Paddle(BLACK, PAD_WIDTH, PAD_HEIGHT)
-    paddle.move_by_mouse(WIDTH+500)
+    paddle.move_to_x(WIDTH + 500)
     assert paddle.rect.x <= WIDTH - PAD_WIDTH
     assert paddle.rect.x >= 0
