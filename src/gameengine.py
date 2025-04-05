@@ -5,9 +5,8 @@
 
 import pygame
 
-import src.ball
-from src import constants
-from constants import *
+from src.ball import Ball
+from src.constants import *
 from src.levels import Levels
 from src.gameworld import GameWorld
 from gamestates import GameStates
@@ -34,7 +33,7 @@ class GameEngine:
         # record the app start ticks to time the splash screen display
         self.app_start_ticks = pygame.time.get_ticks()
 
-        pygame.display.set_caption(constants.GAME_NAME)
+        pygame.display.set_caption(GAME_NAME)
 
         # Hide the mouse cursor
         pygame.mouse.set_visible(False)
@@ -44,10 +43,10 @@ class GameEngine:
 
         # does python run auto garbage collection so it's OK to just assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
-        self.fps = constants.INITIAL_FPS_SIMPLE
+        self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameStates.SPLASH
-        self.gs.cur_ball_x = (constants.WIDTH / 2) - (constants.PAD_WIDTH / 2)
-        self.ps.lives = constants.START_LIVES
+        self.gs.cur_ball_x = (WIDTH / 2) - (PAD_WIDTH / 2)
+        self.ps.lives = START_LIVES
         self.ps.score = 0
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
@@ -65,7 +64,7 @@ class GameEngine:
 
         while self.gs.running:
             # fill the screen with black as a good default
-            self.screen.fill(constants.BLACK)
+            self.screen.fill(BLACK)
 
             match self.gs.cur_state:
 
@@ -74,11 +73,11 @@ class GameEngine:
                 ##############################################################
                 case GameStates.SPLASH:
                     # placeholder for the splash screen graphic
-                    self.screen.fill(constants.YELLOW)
+                    self.screen.fill(YELLOW)
 
                     # go beyond the splash GameState after desired time
                     cur_ticks = pygame.time.get_ticks()
-                    if ((cur_ticks - self.app_start_ticks) / 1000) > constants.SPLASH_TIME_SECS:
+                    if ((cur_ticks - self.app_start_ticks) / 1000) > SPLASH_TIME_SECS:
                         self.gs.cur_state = GameStates.READY_TO_LAUNCH
 
                 ##############################################################
@@ -87,47 +86,48 @@ class GameEngine:
                 case GameStates.PLAYING | GameStates.READY_TO_LAUNCH:
                     # update all objects in GameWorld
                     mouse_pos = pygame.mouse.get_pos()
-                    for world_object in self.gw.world_objects:
+                    for current_wo in self.gw.world_objects:
                         # this controls whether the AutoPlay system or the player's mouse input is driving the paddle
-                        world_object.commanded_pos_x = self.gs.cur_ball_x if self.gs.auto_play else mouse_pos[0]
-                        world_object.update_wo(self.gs, self.ps)
+                        current_wo.commanded_pos_x = self.gs.cur_ball_x if self.gs.auto_play else mouse_pos[0]
+                        current_wo.update_wo(self.gs, self.ps)
                         # test for collisions between world_objects, but ignore objects that
                         # can't be affected (for performance)
-                        if world_object.can_react:
-                            for wo in self.gw.world_objects:
+                        if current_wo.can_react:
+                            for other_wo in self.gw.world_objects:
                                 # don't check for collisions with self
-                                if world_object is not wo:
-                                    if world_object.rect.colliderect(wo.rect):
-                                        # a collision was detected - should we react to it?  this matters because two objects
-                                        # can overlap/collide across multiple looping collision checks - if we don't deactivate
-                                        # the collision detection, the object can bounce back and forth, getting trapped
-                                        if wo.allow_collision():
-                                            # bounce object properly - determining in which direction to bounce, based on approach
-                                            world_object.detect_collision(wo, self.gs)
-                                            wo.add_collision()
-                                            if wo.should_remove():
-                                                self.ps.score += wo.value
+                                if current_wo is not other_wo:
+                                    if current_wo.rect.colliderect(other_wo.rect):
+                                        # a collision was detected - should we react to it?  this matters because two
+                                        # objects can overlap/collide across multiple looping collision checks - if
+                                        # we don't deactivate the collision detection, the object can bounce back and
+                                        # forth, getting trapped
+                                        if other_wo.allow_collision():
+                                            # bounce object properly - determining in which direction to bounce,
+                                            # based on approach
+                                            current_wo.detect_collision(other_wo, self.gs)
+                                            other_wo.add_collision()
+                                            if other_wo.should_remove():
+                                                self.ps.score += other_wo.value
                                                 # special effect
-                                                # TODO probably need to store this brick rect and set it to be displayed
-                                                # for some duration because we sometimes don't see the inflation effect, likely
-                                                # because it's removed before being drawn
-                                                wo.rect.inflate_ip(world_object.rect.width * 3,
-                                                                   world_object.rect.height * 3)
-                                                pygame.draw.rect(self.screen, wo.color, wo.rect)
-                                                self.fps += 2
+                                                #  TODO probably need to store this brick rect and set
+                                                #  it to be displayed for some duration because we sometimes don't see
+                                                #  the inflation effect, likely because it's removed before being drawn
+                                                other_wo.rect.inflate_ip(current_wo.rect.width * 3,
+                                                                         current_wo.rect.height * 3)
+                                                pygame.draw.rect(self.screen, other_wo.color, other_wo.rect)
+                                                current_wo.speed += .20
 
                                                 # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the VECTOR models
-                                                if isinstance(world_object, src.ball.Ball):
-                                                    world_object.speed_v += self.gs.ball_speed_step
-                                                    world_object.v_vel = world_object.v_vel_unit * world_object.speed_v
+                                                if isinstance(current_wo, Ball):
+                                                    current_wo.speed_v += self.gs.ball_speed_step
+                                                    current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
 
-                                                self.gw.world_objects.remove(wo)
+                                                self.gw.world_objects.remove(other_wo)
 
                                     else:
                                         # this is the other side of the allow_collision logic above, since not colliding
                                         # now, it resets the latch or 'primed for collision' flag
-                                        wo.prime_for_collision()
-
+                                        other_wo.prime_for_collision()
 
                     # draw all objects in GameWorld
                     self.draw_world_and_status()
@@ -194,31 +194,31 @@ class GameEngine:
                     if event.key == pygame.K_p:
                         if (event.mod & pygame.KMOD_CTRL):
                             if (event.mod & pygame.KMOD_SHIFT):
-                                self.gs.paddle_impulse_vel_length -= constants.PADDLE_IMPULSE_INCREMENT
+                                self.gs.paddle_impulse_vel_length -= PADDLE_IMPULSE_INCREMENT
                                 if self.gs.paddle_impulse_vel_length < 0.0:
                                     self.gs.paddle_impulse_vel_length = 0.0
                             else:
-                                self.gs.paddle_impulse_vel_length += constants.PADDLE_IMPULSE_INCREMENT
+                                self.gs.paddle_impulse_vel_length += PADDLE_IMPULSE_INCREMENT
 
                     # detect the CTRL+g and CTRL+SHIFT+g key combos to increase/decrease the WORLD_GRAVITY_ACC
                     if event.key == pygame.K_g:
                         if (event.mod & pygame.KMOD_CTRL):
                             if (event.mod & pygame.KMOD_SHIFT):
-                                self.gs.gravity_acc_length -= constants.WORLD_GRAVITY_ACC_INCREMENT
+                                self.gs.gravity_acc_length -= WORLD_GRAVITY_ACC_INCREMENT
                                 if self.gs.gravity_acc_length < 0.0:
                                     self.gs.gravity_acc_length = 0.0
                                 self.gs.v_gravity_acc = self.gs.v_gravity_unit * self.gs.gravity_acc_length
                             else:
-                                self.gs.gravity_acc_length += constants.WORLD_GRAVITY_ACC_INCREMENT
+                                self.gs.gravity_acc_length += WORLD_GRAVITY_ACC_INCREMENT
                                 self.gs.v_gravity_acc = self.gs.v_gravity_unit * self.gs.gravity_acc_length
 
                     # detect the CTRL+s and CTRL+SHIFT+s key combos to increase/decrease the BALL_SPEED_STEP
                     if event.key == pygame.K_s:
                         if (event.mod & pygame.KMOD_CTRL):
                             if (event.mod & pygame.KMOD_SHIFT):
-                                self.gs.ball_speed_step -= constants.BALL_SPEED_STEP_INCREMENT
+                                self.gs.ball_speed_step -= BALL_SPEED_STEP_INCREMENT
                             else:
-                                self.gs.ball_speed_step += constants.BALL_SPEED_STEP_INCREMENT
+                                self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
 
                     # detect the CTRL+m key combo to cycle through the various motion models
                     if event.key == pygame.K_m:
@@ -260,8 +260,8 @@ class GameEngine:
 
             # don't bother calculating these running dev averages unless wanted
             if self.gs.show_dev_overlay:
-                self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(), self.clock.get_time())
-
+                self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(),
+                                                                                         self.clock.get_time())
 
         ##############################################################
         # close down cleanly
