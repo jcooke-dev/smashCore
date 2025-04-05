@@ -82,18 +82,23 @@ class UserInterface:
         # self.screen.blit(self.surface, (0, 0))
 
     # draws each life in the top left corner of the screen
-    def draw_lives(self, lives):
+    # draws the score in the top right corner of the screen
+    # draws the level name in the top middle of the screen
+    def draw_status(self, lives, score, level):
         self.screen.blit(self.font_buttons.render("Lives:", True, constants.WHITE), (10, 10))
         for i in range(lives):
             pygame.draw.circle(self.screen, constants.WHITE, (130 + 35 * i, 27), 12)
 
-    def draw_score(self, score):
         score_display = self.font_buttons.render(f"Score: {score}", True, constants.WHITE)
         self.screen.blit(score_display, (constants.WIDTH - score_display.get_width() - 100, 10))
+
+        level_display = self.font_buttons.render(f"Level: {level}", True, constants.WHITE)
+        self.screen.blit(level_display, ((constants.WIDTH - level_display.get_width()) / 2, 10))
 
     # show the developer overlay
     def draw_dev_overlay(self, fps, loop_time, motion_model):
         dev_overlay = self.font_fixed_small.render(f"FPS: {fps:>6.1f}  LoopTime(ms): {loop_time:>4.1f}  MotionModel: {motion_model.name}", True, constants.GREEN)
-        self.screen.blit(dev_overlay, ((constants.WIDTH - dev_overlay.get_width()) / 2, 5))
+        self.screen.blit(dev_overlay, ((constants.WIDTH - dev_overlay.get_width()) / 2,
+                                       constants.HEIGHT - dev_overlay.get_height() -5))
 
 

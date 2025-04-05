@@ -5,9 +5,9 @@
 
 import pygame
 
-import src.ball
-from src import constants
-from constants import *
+from src.ball import Ball
+from src.brick import Brick
+from src.constants import *
 from src.levels import Levels
 from src.gameworld import GameWorld
 from gamestates import GameStates
@@ -34,7 +34,7 @@ class GameEngine:
         # record the app start ticks to time the splash screen display
         self.app_start_ticks = pygame.time.get_ticks()
 
-        pygame.display.set_caption(constants.GAME_NAME)
+        pygame.display.set_caption(GAME_NAME)
 
         # Hide the mouse cursor
         pygame.mouse.set_visible(False)
@@ -44,10 +44,17 @@ class GameEngine:
 
         # does python run auto garbage collection so it's OK to just assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
-        self.fps = constants.INITIAL_FPS_SIMPLE
+        self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameStates.SPLASH
-        self.ps.lives = constants.START_LIVES
-        self.ps.score = 0
+        self.ps.lives = START_LIVES
+        self.ps.score = START_SCORE
+        self.ps.level = 1
+        pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
+
+    def next_level(self):
+        self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
+        self.fps = INITIAL_FPS_SIMPLE
+        self.gs.cur_state = GameStates.SPLASH
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
     # draw all objects in GameWorld plus status overlays
@@ -56,15 +63,14 @@ class GameEngine:
         for world_object in self.gw.world_objects:
             world_object.draw_wo(self.screen)
         # draw any status overlays
-        self.ui.draw_lives(self.ps.lives)
-        self.ui.draw_score(self.ps.score)
+        self.ui.draw_status(self.ps.lives, self.ps.score, self.ps.level)
 
     # this runs the main game loop
     def run_loop(self):
 
         while self.gs.running:
             # fill the screen with black as a good default
-            self.screen.fill(constants.BLACK)
+            self.screen.fill(BLACK)
 
             match self.gs.cur_state:
 
@@ -73,11 +79,11 @@ class GameEngine:
                 ##############################################################
                 case GameStates.SPLASH:
                     # placeholder for the splash screen graphic
-                    self.screen.fill(constants.YELLOW)
+                    self.screen.fill(YELLOW)
 
                     # go beyond the splash GameState after desired time
                     cur_ticks = pygame.time.get_ticks()
-                    if ((cur_ticks - self.app_start_ticks) / 1000) > constants.SPLASH_TIME_SECS:
+                    if ((cur_ticks - self.app_start_ticks) / 1000) > SPLASH_TIME_SECS:
                         self.gs.cur_state = GameStates.READY_TO_LAUNCH
 
                 ##############################################################
@@ -115,7 +121,7 @@ class GameEngine:
                                                 self.fps += 2
 
                                                 # adding to the ball speed, but diff logic for the VECTOR models
-                                                if isinstance(world_object, src.ball.Ball):
+                                                if isinstance(world_object, Ball):
                                                     world_object.speedV += BALL_SPEED_INCREMENT_VECTOR
                                                     world_object.vVel = world_object.vVelUnit * world_object.speedV
 
@@ -134,6 +140,10 @@ class GameEngine:
                     # to launch mode, with the ball stuck to the paddle
                     if self.gs.cur_state == GameStates.READY_TO_LAUNCH:
                         self.ui.draw_game_intro()
+
+                    if not any(isinstance(wo, Brick) for wo in self.gw.world_objects):
+                        self.next_level()
+                        self.ps.level += 1
 
                 ##############################################################
                 # display the PAUSED popup over the frozen gameplay
