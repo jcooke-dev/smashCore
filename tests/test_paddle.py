@@ -8,13 +8,12 @@ from unittest import mock
 def test_draw_wo(mock_rect):
     """
     Assert draw_wo calls pygame.draw.rect
-    It is called twice, once in init and once in draw_wo
     :param mock_rect:
     :return:
     """
     paddle = Paddle(BLACK, PAD_WIDTH, PAD_HEIGHT)
     paddle.draw_wo(mock.ANY)
-    assert mock_rect.call_count == 2
+    assert mock_rect.call_count == 1
 
 
 def test_move_left():

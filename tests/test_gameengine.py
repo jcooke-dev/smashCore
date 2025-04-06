@@ -1,21 +1,26 @@
 import pygame.mouse
 import pytest
-
 import constants
-from src.userinterface import UserInterface
-from src.gamestate import GameState
-from src.gameworld import GameWorld
-from src.playerstate import PlayerState
+from unittest import mock
 from src.gameengine import GameEngine
-from src.gamestates import GameStates
+from gamestates import GameStates
+from gamestate import GameState
+from playerstate import PlayerState
+
 
 
 @pytest.fixture
-def starting_ge():
-    ui = UserInterface()
+@mock.patch("src.assets.pygame.image.load")
+def starting_ge(mock_image_load):
+    mock_image = mock.Mock()
+    mock_image_load.return_value = mock_image
+
+    ui = mock.Mock()
     gs = GameState()
-    gw = GameWorld()
+    #gs = mock.Mock()
+    gw = mock.Mock()
     ps = PlayerState()
+    #ps = mock.Mock()
     ge = GameEngine(ps, gw, gs, ui)
     return ge
 
@@ -33,7 +38,9 @@ def test_gamestate_reset(starting_ge):
     starting_ge.ps.lives = 0
     starting_ge.ps.score = 90
     pygame.mouse.set_visible(True)
+
     starting_ge.reset_game()
+
     assert starting_ge.fps == constants.INITIAL_FPS_SIMPLE
     # enums should be compared by identity
     # assert starting_ge.gs.cur_state is GameStates.SPLASH
@@ -42,9 +49,5 @@ def test_gamestate_reset(starting_ge):
     assert starting_ge.ps.lives == constants.START_LIVES
     assert starting_ge.ps.score == 0
     assert not pygame.mouse.get_visible()
-
-
-
-
 
 

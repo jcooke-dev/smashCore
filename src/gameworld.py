@@ -3,14 +3,11 @@
     objects, objects that can participate in collisions, and objects that react to collisions.
 """
 
-import pygame
-
 import constants
-from assets import BALL_IMG, PADDLE_IMG
+import assets
 from src.ball import Ball
 from src.paddle import Paddle
 from src.levels import Levels
-
 
 
 class GameWorld:
@@ -23,10 +20,10 @@ class GameWorld:
         # place the ball into the world
         self.world_objects.append(Ball(((constants.WIDTH/2) - (constants.PAD_WIDTH/2)),
             (constants.HEIGHT - constants.PAD_HEIGHT - constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)),
-            image=BALL_IMG))
+            image=assets.BALL_IMG))
 
         # place the paddle into the world
-        self.world_objects.append(Paddle(constants.RED, constants.PAD_WIDTH, constants.PAD_HEIGHT, image=PADDLE_IMG))
+        self.world_objects.append(Paddle(constants.RED, constants.PAD_WIDTH, constants.PAD_HEIGHT, image=assets.PADDLE_IMG))
 
         # setup the initial bricks level
         Levels.build_level(self, Levels.LevelName.SMASHCORE_1 if level_name is None else level_name)
