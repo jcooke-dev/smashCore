@@ -3,33 +3,21 @@
 """
 
 import pygame
-
 import constants
-from src.worldobject import WorldObject
+from worldobject import WorldObject
 
 
 class Paddle(WorldObject, pygame.sprite.Sprite):
     """ Paddle is derived from a sprite """
 
-    def __init__(self, color, width, height):
+    def __init__(self, color, width, height, image = None):
         """ Initialization of paddle """
         super().__init__()
 
-        # Pass in the color of the paddle, its width and height.
-        # Set the background color and set it to be transparent
-        self.image = pygame.Surface([width, height])
-        self.image.fill(constants.BLACK)
-        self.image.set_colorkey(constants.BLACK)
-
-        # Draw the paddle as a rectangle.
-        pygame.draw.rect(self.image, color, [0, 0, width, height])
-
-        # Fetch the rectangle object that has the dimensions of the image.
-        self.rect = self.image.get_rect()
-
         # Set starting location for paddle in the bottom center of screen
-        self.rect.x = (constants.WIDTH/2) - (constants.PAD_WIDTH/2)
-        self.rect.y = constants.HEIGHT - constants.PAD_HEIGHT - constants.PADDLE_START_POSITION_OFFSET
+        self.rect = pygame.Rect([((constants.WIDTH/2) - (width/2)), (constants.HEIGHT - height - constants.PADDLE_START_POSITION_OFFSET), width, height])
+        self.color = color
+        self.image = image
 
         self.commanded_pos_x = 0
 
@@ -39,7 +27,15 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
-        pygame.draw.rect(screen, constants.RED, self.rect, 0, 7)
+        if self.image is None:
+            pygame.draw.rect(screen, self.color, self.rect, 0, 7)
+        else:
+            paddle_scale = pygame.transform.scale(self.image,
+                                                  [constants.PAD_WIDTH + 5,
+                                                   constants.PAD_HEIGHT + 5])
+            screen.blit(paddle_scale.convert_alpha(),
+                        (self.rect.x - 2.2, self.rect.y - 1.1))
+
 
     # incremental Paddle movement (likely used for KB control)
     def move_left(self, pixels):
