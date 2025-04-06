@@ -54,7 +54,7 @@ class UserInterface:
 
     # draws the game over screen on a surface and displays it if game is lost
     def draw_game_over_menu(self):
-        pygame.mouse.set_visible(True)  # Show the cursor in game over screen
+        pygame.mouse.set_visible(True)
         pygame.draw.rect(self.surface, (0, 0, 0, 160), [0, 0, constants.WIDTH, constants.HEIGHT])
 
         # Game over screen
@@ -147,4 +147,61 @@ class UserInterface:
                                                 (logo_x + 150, logo_y + 150))
         self.screen.blit(text_arcade, text_arcade_rect)
 
+    def draw_start_screen(self):
+        self.surface.fill(constants.BLACK)
+        font = pygame.font.Font(None, 48)
+        text = font.render("Click to Play", True, constants.BLACK)
+        button_width = text.get_width() + 40
+        button_height = text.get_height() + 20
+        button_rect = pygame.Rect((constants.WIDTH - button_width) // 2,(constants.HEIGHT - button_height)
+                                  // 2 + 50, button_width, button_height)
+        pygame.draw.rect(self.surface, constants.WHITE, button_rect)
+        text_rect = text.get_rect(center=button_rect.center)
+        self.surface.blit(text, text_rect)
+        self.start_button_rect = button_rect
+        self.screen.blit(self.surface, (0, 0))
+
+        credits_width = 100
+        credits_height = 40
+        credits_x = 20  # a little to the right
+        credits_y = constants.HEIGHT - credits_height - 30  # a little higher
+        credits_rect = pygame.Rect(credits_x, credits_y, credits_width, credits_height)
+        credits_font = pygame.font.Font(None, 36)  # same size as the rest of the buttons.
+        credits_text = credits_font.render("Credits", True, constants.BLACK)  # same color as the rest of the buttons
+        credits_text_rect = credits_text.get_rect(center=credits_rect.center)
+
+        pygame.draw.rect(self.surface, (150, 150, 150), credits_rect)
+        self.surface.blit(credits_text, credits_text_rect)
+
+        self.credits_button_rect = credits_rect
+
+        self.screen.blit(self.surface, (0, 0))
+
+    def draw_credits_screen(self):
+        self.surface.fill(constants.BLACK)
+        font_credits = pygame.font.Font(None, 40)
+
+        developers = ["DEVELOPERS", "", "Justin Cooke", "Ann Rauscher", "Camila Roxo", "Justin Smith", "Rex Vargas"]
+
+        y_offset = constants.HEIGHT // 3
+        for dev_name in developers:
+            credits_text = font_credits.render("  " + dev_name, True, constants.WHITE)
+            credits_rect = credits_text.get_rect(center=(constants.WIDTH // 2, y_offset))
+            self.surface.blit(credits_text, credits_rect)
+            y_offset += 50
+
+        # Draws back button
+        back_width = 100
+        back_height = 40
+        back_x = 10
+        back_y = constants.HEIGHT - back_height - 10
+        back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
+        back_font = pygame.font.Font(None, 36)
+        back_text = back_font.render("Back", True, constants.BLACK)
+        back_text_rect = back_text.get_rect(center=back_rect.center)
+
+        pygame.draw.rect(self.surface, (150, 150, 150), back_rect)
+        self.surface.blit(back_text, back_text_rect)
+        self.back_button_rect = back_rect
+        self.screen.blit(self.surface, (0, 0))
 
