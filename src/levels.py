@@ -8,20 +8,18 @@ from random import randrange as rnd
 from enum import Enum, auto
 
 from src.brick import Brick
+import constants
 
 
 class Levels:
 
-    # enum to hold all level names
     class LevelName(Enum):
-        SMASHCORE_1 = auto() # first SMASHCORE level
-
-
+        SMASHCORE_1 = auto()
+        SMASHCORE_SOLID_ROWS_1 = auto()
 
     def __init__(self):
         pass
 
-    # this adds the specified level to the passed GameWorld
     @staticmethod
     def build_level(gw, level_name):
 
@@ -29,8 +27,23 @@ class Levels:
             case Levels.LevelName.SMASHCORE_1:
                 for i in range(10):
                     for j in range(4):
+                        random_score = rnd(1, 11)
                         gw.world_objects.append(Brick(pygame.Rect(10 + 120 * i, 60 + 70 * j, 100, 50),
-                                          (rnd(30, 256), rnd(30, 256), rnd(30, 256))))
+                                                      (rnd(30, 256), rnd(30, 256), rnd(30, 256)),
+                                                      random_score))
+
+            case Levels.LevelName.SMASHCORE_SOLID_ROWS_1:
+                colors = [constants.RED, constants.ORANGE, constants.GREEN, constants.YELLOW, constants.LIGHTBLUE]
+                values = [10, 7, 5, 3, 1]
+
+                num_columns = int((constants.WIDTH - 10) / 105)
+                horizontal = (constants.WIDTH - 10) / num_columns
+                vertical = 55
+
+                for i in range(num_columns):
+                    for j in range(5):
+                        gw.world_objects.append(Brick(pygame.Rect(10 + horizontal * i, 60 + vertical * j, 100, 50),
+                                                      colors[j], values[j]))
             case _:
                 pass
 
