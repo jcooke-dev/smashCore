@@ -3,9 +3,9 @@
 """
 
 import pygame
-
 import constants
-from src.worldobject import WorldObject
+from assets import PADDLE_IMG
+from worldobject import WorldObject
 
 
 class Paddle(WorldObject, pygame.sprite.Sprite):
@@ -39,7 +39,12 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
-        pygame.draw.rect(screen, constants.RED, self.rect, 0, 7)
+        pygame.draw.rect(screen, constants.BLACK, self.rect, 0, 7)
+        paddle_scale = pygame.transform.scale(PADDLE_IMG,
+                                              [constants.PAD_WIDTH + 5,
+                                               constants.PAD_HEIGHT + 5])
+        screen.blit(paddle_scale.convert_alpha(),
+                    (self.rect.x - 2.2, self.rect.y - 1.1))
 
     # incremental Paddle movement (likely used for KB control)
     def move_left(self, pixels):

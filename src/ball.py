@@ -7,6 +7,7 @@ from pygame import Vector2
 
 import constants
 import random as rnd
+from assets import BALL_IMG
 
 import src.paddle
 from src.worldobject import WorldObject
@@ -138,7 +139,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
-        pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
+        #pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
+        screen.blit(BALL_IMG.convert_alpha(), (self.rect.x - 4, self.rect.y - 3.15))
+
 
     def reset_position(self):
 

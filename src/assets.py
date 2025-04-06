@@ -1,0 +1,32 @@
+import os
+import pygame
+
+ART_DIR = 'assets/art/'
+SOUND_DIR = 'assets/sound/'
+BACKGROUND_FILENAME = 'background.png'
+BRK_YELLOW_FILENAME = 'yellow_brick.png'
+BRK_BLUE_FILENAME = 'blue_brick.png'
+BRK_GREEN_FILENAME = 'green_brick.png'
+BRK_RED_FILENAME = 'red_brick.png'
+BRK_PINK_FILENAME = 'pink_brick.png'
+BRK_ORANGE_FILENAME = 'orange_brick.png'
+BRK_LTBLUE_FILENAME = 'lt_blue_brick.png'
+BRK_PURPLE_FILENAME = 'purple_brick.png'
+BRK_TEAL_FILENAME = 'teal_brick.png'
+BRK_LAVENDER_FILENAME = 'lavender_brick.png'
+BALL_FILENAME = 'ball.png'
+PADDLE_FILENAME = 'paddle.png'
+
+BACKGROUND_IMG = pygame.image.load(os.path.join(ART_DIR, BACKGROUND_FILENAME))
+BRK_YELLOW = pygame.image.load(os.path.join(ART_DIR, BRK_YELLOW_FILENAME))
+BRK_BLUE = pygame.image.load(os.path.join(ART_DIR, BRK_BLUE_FILENAME))
+BRK_GREEN = pygame.image.load(os.path.join(ART_DIR, BRK_GREEN_FILENAME))
+BRK_RED = pygame.image.load(os.path.join(ART_DIR, BRK_RED_FILENAME))
+BRK_PINK = pygame.image.load(os.path.join(ART_DIR, BRK_PINK_FILENAME))
+BRK_ORANGE = pygame.image.load(os.path.join(ART_DIR, BRK_ORANGE_FILENAME))
+BRK_LTBLUE = pygame.image.load(os.path.join(ART_DIR, BRK_LTBLUE_FILENAME))
+BRK_PURPLE = pygame.image.load(os.path.join(ART_DIR, BRK_PURPLE_FILENAME))
+BRK_TEAL = pygame.image.load(os.path.join(ART_DIR, BRK_TEAL_FILENAME))
+BRK_LAVENDER = pygame.image.load(os.path.join(ART_DIR, BRK_LAVENDER_FILENAME))
+BALL_IMG = pygame.image.load(os.path.join(ART_DIR, BALL_FILENAME))
+PADDLE_IMG = pygame.image.load(os.path.join(ART_DIR, PADDLE_FILENAME))
