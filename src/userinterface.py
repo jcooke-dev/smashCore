@@ -50,28 +50,48 @@ class UserInterface:
 
         return reset, quit
 
-    # draws the game over screen on a surface and displays it if game is lost
     def draw_game_over_menu(self):
-        pygame.mouse.set_visible(True)  # Show the cursor in game over screen
-        pygame.draw.rect(self.surface, (0, 0, 0, 160), [0, 0, constants.WIDTH, constants.HEIGHT])
+        """
+        Draws the game over screen on a surface and displays it if game is lost
+        Buttons to give the user the option to try again or quit
+        :return:
+        """
+        pygame.mouse.set_visible(True)
+        pygame.draw.rect(self.surface,
+                         (0, 0, 0, 160),
+                         [0, 0, constants.WIDTH, constants.HEIGHT])
 
-        # Game over screen
-        text_game_over = self.font_game_over.render("YOU GOT SMASHED!", True, pygame.Color('red'))
-        text_rect = text_game_over.get_rect(center=(constants.WIDTH // 2, constants.HEIGHT // 3))
+        text_game_over = self.font_game_over.render(
+            "YOU GOT SMASHED!", True, pygame.Color('red'))
+        text_rect = text_game_over.get_rect(
+            center=(constants.WIDTH // 2, constants.HEIGHT // 3))
+
+        bg_surface = pygame.Surface(
+            (text_rect.width + 20, text_rect.height + 10), pygame.SRCALPHA)
+        bg_surface.fill((0, 0, 0, 255))
+
+        bg_rect = bg_surface.get_rect(center=text_rect.center)
+        self.surface.blit(bg_surface, bg_rect)
         self.surface.blit(text_game_over, text_rect)
 
+        button_width = 200
+        button_height = 75
+        button_x = (constants.WIDTH - button_width) // 2  # Center buttons horizontally
+        button_y_start = constants.HEIGHT // 2
+        button_spacing = 30
+
         # Draw buttons
-        reset = pygame.Rect(constants.WIDTH // 4, constants.HEIGHT // 2, 200, 75)
-        self.draw_button("Play Again", constants.WIDTH // 4, constants.HEIGHT // 2, 200, 75,
+        reset = pygame.Rect(button_x, button_y_start, button_width, button_height)
+        self.draw_button("Try Again", button_x, button_y_start, button_width, button_height,
                          (0, 255, 0),
                          (0, 200, 0))
 
-        quit = pygame.Rect(constants.WIDTH * 3 // 4 - 100, constants.HEIGHT // 2, 200, 75)
-        self.draw_button("Quit", constants.WIDTH * 3 // 4 - 100, constants.HEIGHT // 2, 200, 75,
+        quit = pygame.Rect(button_x, button_y_start + button_height + button_spacing, button_width,
+                           button_height)
+        self.draw_button("Quit", button_x, button_y_start + button_height + button_spacing, button_width, button_height,
                          (255, 0, 0),
                          (200, 0, 0))
         self.screen.blit(self.surface, (0, 0))
-
         return reset, quit
 
     def draw_game_intro(self):
