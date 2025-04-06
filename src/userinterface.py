@@ -110,4 +110,44 @@ class UserInterface:
         self.screen.blit(dev_overlay2, ((constants.WIDTH - dev_overlay2.get_width()) / 2,
                                         constants.HEIGHT - dev_overlay2.get_height() - 24))
 
+    def draw_splash_screen(self):
+        logo_color = (255, 165, 0)
+        text_color = constants.WHITE
+        shadow_color = (100, 100, 100)
+
+        logo_x, logo_y = constants.WIDTH // 2 - 150, constants.HEIGHT // 3
+        font_smash = pygame.font.Font(None, 60)
+        text_smash = font_smash.render("Smash", True, text_color)
+        text_smash_shadow = font_smash.render("Smash", True, shadow_color)
+
+        text_smash_rect = text_smash.get_rect(center=
+                                              (logo_x + 100, logo_y + 40))
+        text_smash_shadow_rect = text_smash_rect.copy()
+        text_smash_shadow_rect.move_ip(3, 3)
+
+        self.screen.blit(text_smash_shadow, text_smash_shadow_rect)
+        self.screen.blit(text_smash, text_smash_rect)
+
+        font_core = pygame.font.Font(None, 60)
+        text_core = font_core.render("Core", True, text_color)
+        text_core_shadow = font_core.render("Core", True, shadow_color)
+
+        text_core_rect = text_core.get_rect(center=(logo_x + 230, logo_y + 80))
+        text_core_shadow_rect = text_core_rect.copy()
+        text_core_shadow_rect.move_ip(3, 3)
+
+        self.screen.blit(text_core_shadow, text_core_shadow_rect)
+        self.screen.blit(text_core, text_core_rect)
+
+        pygame.draw.line(self.screen, logo_color,
+                         (logo_x, logo_y + 120), (logo_x + 300, logo_y + 120),
+                         3)
+
+        font_arcade = pygame.font.Font(None, 24)
+        text_arcade = font_arcade.render("The Retro Arcade Experience", True,
+                                         (200, 200, 200))
+        text_arcade_rect = text_arcade.get_rect(center=
+                                                (logo_x + 150, logo_y + 150))
+        self.screen.blit(text_arcade, text_arcade_rect)
+
 

@@ -90,7 +90,7 @@ class GameEngine:
                 ##############################################################
                 case GameStates.SPLASH:
                     # placeholder for the splash screen graphic
-                    self.screen.fill(YELLOW)
+                    self.ui.draw_splash_screen()
 
                     # go beyond the splash GameState after desired time
                     cur_ticks = pygame.time.get_ticks()
