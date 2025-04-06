@@ -7,7 +7,6 @@ from pygame import Vector2
 
 import constants
 import random as rnd
-from assets import BALL_IMG
 
 import src.paddle
 from src.worldobject import WorldObject
@@ -17,7 +16,7 @@ from motionmodels import MotionModels
 
 class Ball(WorldObject, pygame.sprite.Sprite):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, image = None):
 
         super().__init__()
 
@@ -26,6 +25,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # ball settings
         self.radius = constants.BALL_RADIUS
         self.ball_rect = int(self.radius * 2 ** 0.5)
+        self.image = image
 
         # SIMPLE_1 motion model defaults
         self.x = x - self.radius
@@ -139,8 +139,10 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
     # draw the WorldObject to the screen
     def draw_wo(self, screen):
-        #pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
-        screen.blit(BALL_IMG.convert_alpha(), (self.rect.x - 4, self.rect.y - 3.15))
+        if self.image is None:
+            pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
+        else:
+            screen.blit(self.image.convert_alpha(), (self.rect.x - 4, self.rect.y - 3.15))
 
 
     def reset_position(self):
