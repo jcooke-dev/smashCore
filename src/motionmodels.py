@@ -11,6 +11,3 @@ class MotionModels(Enum):
     # from the frame rate - can set a MAX_FPS_VECTOR to limit the fps a bit (rather than letting it run all out)
     VECTOR_1 = auto()
 
-    # motion calculations using the vector physics from VECTOR_1, but with added gravity and a paddle impulse
-    VECTOR_2 = auto()
-

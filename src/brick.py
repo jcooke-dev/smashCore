@@ -24,7 +24,6 @@ class Brick(WorldObject):
         self.color = color
         self.value = value
 
-
     def draw_wo(self, screen):
         """Draws the brick to the screen."""
         pygame.draw.rect(screen, self.color, self.rect)
