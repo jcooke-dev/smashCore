@@ -21,9 +21,14 @@ def starting_ge():
 
 
 def test_gamestate_reset(starting_ge):
+    """
+    Asserts the initial values are set to restart the game
+    :param starting_ge:
+    :return:
+    """
     # modify test once multiple levels have been added
     # self.gw = GameWorld(Levels.LevelName.SMASHCORE_?)
-    starting_ge.fps = 500 # any number is fine as long as it isn't an initial FPS
+    starting_ge.fps = 500 # any number is fine as long as it isn't initial FPS
     starting_ge.gs.cur_state = GameStates.GAME_OVER
     starting_ge.ps.lives = 0
     starting_ge.ps.score = 90
