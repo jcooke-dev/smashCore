@@ -52,18 +52,33 @@ class UserInterface:
 
         return reset, quit
 
-    # draws the game over screen on a surface and displays it if game is lost
     def draw_game_over_menu(self):
+        """
+        Draws the game over screen on a surface and displays it if game is lost
+        Buttons to give the user the option to try again or quit
+        :return:
+        """
         pygame.mouse.set_visible(True)
-        pygame.draw.rect(self.surface, (0, 0, 0, 255), [0, 0, constants.WIDTH, constants.HEIGHT])
+        pygame.draw.rect(self.surface,
+                         (0, 0, 0, 160),
+                         [0, 0, constants.WIDTH, constants.HEIGHT])
 
-        text_game_over = self.font_game_over.render("YOU GOT SMASHED!", True, pygame.Color('red'))
-        text_rect = text_game_over.get_rect(center=(constants.WIDTH // 2, constants.HEIGHT // 3))
+        text_game_over = self.font_game_over.render(
+            "YOU GOT SMASHED!", True, pygame.Color('red'))
+        text_rect = text_game_over.get_rect(
+            center=(constants.WIDTH // 2, constants.HEIGHT // 3))
+
+        bg_surface = pygame.Surface(
+            (text_rect.width + 20, text_rect.height + 10), pygame.SRCALPHA)
+        bg_surface.fill((0, 0, 0, 255))
+
+        bg_rect = bg_surface.get_rect(center=text_rect.center)
+        self.surface.blit(bg_surface, bg_rect)
         self.surface.blit(text_game_over, text_rect)
 
         button_width = 200
         button_height = 75
-        button_x = (constants.WIDTH - button_width) // 2  # Center the buttons horizontally
+        button_x = (constants.WIDTH - button_width) // 2  # Center buttons horizontally
         button_y_start = constants.HEIGHT // 2
         button_spacing = 30
 
