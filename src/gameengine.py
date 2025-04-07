@@ -36,7 +36,7 @@ class GameEngine:
 
         pygame.display.set_caption(GAME_NAME)
 
-        # Hide the mouse cursor
+        # Initially, hide the mouse cursor
         pygame.mouse.set_visible(False)
 
     # reset game to initial state
@@ -77,6 +77,14 @@ class GameEngine:
         # draw any status overlays
         self.ui.draw_status(self.ps.lives, self.ps.score, self.ps.level)
 
+    def menu_screen_handler(self):
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.ui.start_button_rect.collidepoint(event.pos):
+                    self.gs.cur_state = GameStates.READY_TO_LAUNCH
+                elif self.ui.credits_button_rect.collidepoint(event.pos):
+                    self.gs.cur_state = GameStates.CREDITS
+
     # this runs the main game loop
     def run_loop(self):
 
@@ -96,12 +104,48 @@ class GameEngine:
                     # go beyond the splash GameState after desired time
                     cur_ticks = pygame.time.get_ticks()
                     if ((cur_ticks - self.app_start_ticks) / 1000) > SPLASH_TIME_SECS:
-                        self.gs.cur_state = GameStates.READY_TO_LAUNCH
+                        self.gs.cur_state = GameStates.MENU_SCREEN
+
+                ##############################################################
+                # display the MENU SCREEN
+                ##############################################################
+                case GameStates.MENU_SCREEN:
+                    self.ui.draw_start_screen()
+                    pygame.mouse.set_visible(True)
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            self.gs.running = False
+                            self.gs.cur_state = GameStates.GAME_OVER
+                            pygame.quit()
+                            exit()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.start_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameStates.READY_TO_LAUNCH
+                            elif self.ui.credits_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameStates.CREDITS
+
+                ##############################################################
+                # display credits screen
+                ##############################################################
+                case GameStates.CREDITS:
+                    self.ui.draw_credits_screen()
+                    pygame.mouse.set_visible(True)
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:  # Add this line
+                            self.gs.running = False
+                            self.gs.cur_state = GameStates.GAME_OVER
+                            pygame.quit()
+                            exit()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.back_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameStates.MENU_SCREEN
 
                 ##############################################################
                 # display the PLAYING gameplay screen
                 ##############################################################
                 case GameStates.PLAYING | GameStates.READY_TO_LAUNCH:
+                    # Hide the mouse again when transitioning away from the start screen.
+                    pygame.mouse.set_visible(False)
                     # update all objects in GameWorld
                     mouse_pos = pygame.mouse.get_pos()
                     for current_wo in self.gw.world_objects:
@@ -167,6 +211,7 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision detection (button pressing)
                     self.restart_game, self.quit_game = self.ui.draw_pause_menu()
+                    pygame.mouse.set_visible(True)
 
                 ##############################################################
                 # display the GAME_OVER popup over the frozen gameplay
@@ -256,11 +301,13 @@ class GameEngine:
                         ((self.gs.cur_state == GameStates.PAUSED) or (self.gs.cur_state == GameStates.GAME_OVER))):
                     if self.restart_game.collidepoint(event.pos):
                         self.reset_game()
-
                     if self.quit_game.collidepoint(event.pos):
                         self.gs.running = False
                         self.gs.cur_state = GameStates.GAME_OVER
                         exit()
+                    if self.gs.cur_state == GameStates.GAME_OVER:
+                        if self.credits_game.collidepoint(event.pos):
+                            self.gs.cur_state = GameStates.CREDITS
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:
