@@ -48,8 +48,6 @@ class GameEngine:
         self.gs.cur_state = GameStates.SPLASH
         self.gs.cur_ball_x = (WIDTH / 2) - (PAD_WIDTH / 2)
         self.ps.lives = START_LIVES
-        self.ps.score = 0
-        self.ps.lives = START_LIVES
         self.ps.score = START_SCORE
         self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
