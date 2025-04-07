@@ -6,6 +6,7 @@
 import pygame
 
 from src.ball import Ball
+from src.brick import Brick
 from src.constants import *
 from src.levels import Levels
 from src.gameworld import GameWorld
@@ -47,8 +48,26 @@ class GameEngine:
         self.gs.cur_state = GameStates.SPLASH
         self.gs.cur_ball_x = (WIDTH / 2) - (PAD_WIDTH / 2)
         self.ps.lives = START_LIVES
-        self.ps.score = 0
+        self.ps.score = START_SCORE
+        self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
+
+    # builds the next level, resets the ball position and initial speed
+    # slight increase in initial ball speed to add difficulty
+    def next_level(self):
+        for wo in self.gw.world_objects:
+            if isinstance(wo, Ball):
+                wo.reset_position()
+                wo.speed_v = BALL_SPEED_VECTOR + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
+                wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
+        # builds level in cycles of the 2 levels
+        if self.ps.level % 2 == 0:
+            Levels.build_level(self.gw, Levels.LevelName.SMASHCORE_SOLID_ROWS_1)
+        else:
+            Levels.build_level(self.gw, Levels.LevelName.SMASHCORE_1)
+        self.fps = INITIAL_FPS_SIMPLE
+        self.gs.cur_state = GameStates.READY_TO_LAUNCH
+        #self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
 
     # draw all objects in GameWorld plus status overlays
     def draw_world_and_status(self):
@@ -56,8 +75,7 @@ class GameEngine:
         for world_object in self.gw.world_objects:
             world_object.draw_wo(self.screen)
         # draw any status overlays
-        self.ui.draw_lives(self.ps.lives)
-        self.ui.draw_score(self.ps.score)
+        self.ui.draw_status(self.ps.lives, self.ps.score, self.ps.level)
 
     # this runs the main game loop
     def run_loop(self):
@@ -116,8 +134,8 @@ class GameEngine:
                                                                          current_wo.rect.height * 3)
                                                 pygame.draw.rect(self.screen, other_wo.color, other_wo.rect)
                                                 current_wo.speed += .20
-
-                                                # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the VECTOR models
+                                                # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
+                                                # VECTOR models
                                                 if isinstance(current_wo, Ball):
                                                     current_wo.speed_v += self.gs.ball_speed_step
                                                     current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
@@ -136,6 +154,10 @@ class GameEngine:
                     # to launch mode, with the ball stuck to the paddle
                     if self.gs.cur_state == GameStates.READY_TO_LAUNCH:
                         self.ui.draw_game_intro()
+
+                    if not any(isinstance(wo, Brick) for wo in self.gw.world_objects):
+                        self.ps.level += 1
+                        self.next_level()
 
                 ##############################################################
                 # display the PAUSED popup over the frozen gameplay

@@ -22,6 +22,8 @@ BALL_RADIUS = 15
 BALL_SPEED_SIMPLE = 6 # initial speed for SIMPLE_1 model
 BALL_SPEED_VECTOR = 0.55 # initial speed for VECTOR_1 model
 
+BALL_SPEED_LEVEL_INCREMENT = 0.10 # incremental factor for initial ball speed upon level clear
+
 BALL_SPEED_STEP = 0.012 # the speed added to the ball for brick breaks
 BALL_SPEED_STEP_INCREMENT = 0.006 # the BALL_SPEED_STEP increment controlled and shown via dev overlay and keys
 WORLD_GRAVITY_ACC = 0.0 # the magnitude of gravityAcc vector

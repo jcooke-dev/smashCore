@@ -10,4 +10,5 @@ class PlayerState:
     def __init__(self):
 
         self.lives = constants.START_LIVES
-        self.score = 0
+        self.score = constants.START_SCORE
+        self.level = 1
