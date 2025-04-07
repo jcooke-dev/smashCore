@@ -2,6 +2,7 @@ import pytest
 import pygame
 from unittest import mock
 from userinterface import UserInterface
+import constants
 
 
 @pytest.fixture
@@ -46,8 +47,7 @@ def test_draw_pause_menu(mock_rect, ui):
         assert called_args_game_over[0][0] == "Game Paused: ESC to Resume"
 
     ui.font_buttons.render.assert_any_call("Restart Game", mock.ANY, mock.ANY)
-    ui.font_buttons.render.assert_any_call("Quit Game", mock.ANY,
-                                     mock.ANY)
+    ui.font_buttons.render.assert_any_call("Quit Game", mock.ANY,mock.ANY)
     assert ui.surface.blit.called
     assert ui.screen.blit.called
     assert mock_rect.call_count == 3  #rect for buttons and text
@@ -77,22 +77,18 @@ def test_draw_status(mock_circle, ui):
     :param ui:
     :return:
     """
-    mock_rendered_surface = mock.Mock()
-    mock_rendered_surface.get_width.return_value = 50
-    ui.font_buttons.render.return_value = mock_rendered_surface
-    ui.draw_status(3, "99", 1)
-    called_args = ui.font_buttons.render.call_args
-    if called_args:
-        assert called_args[0][0] == "Level: 1"
+    # draw_status expects font_buttons to have a width for status spacing
+    mock_rendered_btn = mock.Mock()
+    mock_rendered_btn.get_width.return_value = 50
+    ui.font_buttons.render.return_value = mock_rendered_btn
 
-    ui.screen.blit.assert_called_once_with(ui.font_buttons.render.return_value, (10, 10))
+    ui.draw_status(3, "99", "1")
+
+    ui.font_buttons.render.assert_any_call("Lives:", True, constants.WHITE)
+    ui.font_buttons.render.assert_any_call("Level: 1", True, constants.WHITE)
+    ui.font_buttons.render.assert_any_call("Score: 99", True, constants.WHITE)
 
     assert ui.screen.blit.called
     assert mock_circle.call_count == 3
 
-    called_args = ui.font_buttons.render.call_args
-
-    if called_args:
-        assert called_args[0][0] == "Score: 99"
-    assert ui.screen.blit.called
 
