@@ -52,28 +52,48 @@ class UserInterface:
 
         return reset, quit
 
-    # draws the game over screen on a surface and displays it if game is lost
     def draw_game_over_menu(self):
-        pygame.mouse.set_visible(True)  # Show the cursor in game over screen
-        pygame.draw.rect(self.surface, (0, 0, 0, 160), [0, 0, constants.WIDTH, constants.HEIGHT])
+        """
+        Draws the game over screen on a surface and displays it if game is lost
+        Buttons to give the user the option to try again or quit
+        :return:
+        """
+        pygame.mouse.set_visible(True)
+        pygame.draw.rect(self.surface,
+                         (0, 0, 0, 160),
+                         [0, 0, constants.WIDTH, constants.HEIGHT])
 
-        # Game over screen
-        text_game_over = self.font_game_over.render("YOU GOT SMASHED!", True, pygame.Color('red'))
-        text_rect = text_game_over.get_rect(center=(constants.WIDTH // 2, constants.HEIGHT // 3))
+        text_game_over = self.font_game_over.render(
+            "YOU GOT SMASHED!", True, pygame.Color('red'))
+        text_rect = text_game_over.get_rect(
+            center=(constants.WIDTH // 2, constants.HEIGHT // 3))
+
+        bg_surface = pygame.Surface(
+            (text_rect.width + 20, text_rect.height + 10), pygame.SRCALPHA)
+        bg_surface.fill((0, 0, 0, 255))
+
+        bg_rect = bg_surface.get_rect(center=text_rect.center)
+        self.surface.blit(bg_surface, bg_rect)
         self.surface.blit(text_game_over, text_rect)
 
+        button_width = 200
+        button_height = 75
+        button_x = (constants.WIDTH - button_width) // 2  # Center buttons horizontally
+        button_y_start = constants.HEIGHT // 2
+        button_spacing = 30
+
         # Draw buttons
-        reset = pygame.Rect(constants.WIDTH // 4, constants.HEIGHT // 2, 200, 75)
-        self.draw_button("Play Again", constants.WIDTH // 4, constants.HEIGHT // 2, 200, 75,
+        reset = pygame.Rect(button_x, button_y_start, button_width, button_height)
+        self.draw_button("Try Again", button_x, button_y_start, button_width, button_height,
                          (0, 255, 0),
                          (0, 200, 0))
 
-        quit = pygame.Rect(constants.WIDTH * 3 // 4 - 100, constants.HEIGHT // 2, 200, 75)
-        self.draw_button("Quit", constants.WIDTH * 3 // 4 - 100, constants.HEIGHT // 2, 200, 75,
+        quit = pygame.Rect(button_x, button_y_start + button_height + button_spacing, button_width,
+                           button_height)
+        self.draw_button("Quit", button_x, button_y_start + button_height + button_spacing, button_width, button_height,
                          (255, 0, 0),
                          (200, 0, 0))
         self.screen.blit(self.surface, (0, 0))
-
         return reset, quit
 
     def draw_game_intro(self):
@@ -146,5 +166,63 @@ class UserInterface:
         text_arcade_rect = text_arcade.get_rect(center=
                                                 (logo_x + 150, logo_y + 150))
         self.screen.blit(text_arcade, text_arcade_rect)
+
+    def draw_start_screen(self):
+        self.surface.fill(constants.BLACK)
+        font = pygame.font.Font(None, 48)
+        text = font.render("Click to Play", True, constants.BLACK)
+        button_width = text.get_width() + 40
+        button_height = text.get_height() + 20
+        button_rect = pygame.Rect((constants.WIDTH - button_width) // 2,(constants.HEIGHT - button_height)
+                                  // 2 + 50, button_width, button_height)
+        pygame.draw.rect(self.surface, constants.WHITE, button_rect)
+        text_rect = text.get_rect(center=button_rect.center)
+        self.surface.blit(text, text_rect)
+        self.start_button_rect = button_rect
+        self.screen.blit(self.surface, (0, 0))
+
+        credits_width = 100
+        credits_height = 40
+        credits_x = 20  # a little to the right
+        credits_y = constants.HEIGHT - credits_height - 30  # a little higher
+        credits_rect = pygame.Rect(credits_x, credits_y, credits_width, credits_height)
+        credits_font = pygame.font.Font(None, 36)  # same size as the rest of the buttons.
+        credits_text = credits_font.render("Credits", True, constants.BLACK)  # same color as the rest of the buttons
+        credits_text_rect = credits_text.get_rect(center=credits_rect.center)
+
+        pygame.draw.rect(self.surface, (150, 150, 150), credits_rect)
+        self.surface.blit(credits_text, credits_text_rect)
+
+        self.credits_button_rect = credits_rect
+
+        self.screen.blit(self.surface, (0, 0))
+
+    def draw_credits_screen(self):
+        self.surface.fill(constants.BLACK)
+        font_credits = pygame.font.Font(None, 40)
+
+        developers = ["DEVELOPERS", "", "Justin Cooke", "Ann Rauscher", "Camila Roxo", "Justin Smith", "Rex Vargas"]
+
+        y_offset = constants.HEIGHT // 3
+        for dev_name in developers:
+            credits_text = font_credits.render("  " + dev_name, True, constants.WHITE)
+            credits_rect = credits_text.get_rect(center=(constants.WIDTH // 2, y_offset))
+            self.surface.blit(credits_text, credits_rect)
+            y_offset += 50
+
+        # Draws back button
+        back_width = 100
+        back_height = 40
+        back_x = 10
+        back_y = constants.HEIGHT - back_height - 10
+        back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
+        back_font = pygame.font.Font(None, 36)
+        back_text = back_font.render("Back", True, constants.BLACK)
+        back_text_rect = back_text.get_rect(center=back_rect.center)
+
+        pygame.draw.rect(self.surface, (150, 150, 150), back_rect)
+        self.surface.blit(back_text, back_text_rect)
+        self.back_button_rect = back_rect
+        self.screen.blit(self.surface, (0, 0))
 
 

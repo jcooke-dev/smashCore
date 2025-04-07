@@ -198,8 +198,7 @@ class GameEngine:
                     # draw all objects in GameWorld
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision detection (button pressing)
-                    self.restart_game, self.quit_game, self.credits_game = self.ui.draw_game_over_menu()
-                    pygame.mouse.set_visible(True)
+                    self.restart_game, self.quit_game = self.ui.draw_game_over_menu()
 
             ##############################################################
             # event handling
