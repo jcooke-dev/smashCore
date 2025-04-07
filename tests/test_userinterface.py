@@ -69,7 +69,7 @@ def test_game_intro(ui):
 
 
 @mock.patch("pygame.draw.circle")
-def test_draw_lives(mock_circle, ui):
+def test_draw_status(mock_circle, ui):
     """
     Asserts that "Lives:" label was rendered and blitted
     Asserts that pygame.draw.circle was called 3 times
@@ -77,28 +77,19 @@ def test_draw_lives(mock_circle, ui):
     :param ui:
     :return:
     """
-    ui.draw_lives(3)
+    mock_rendered_surface = mock.Mock()
+    mock_rendered_surface.get_width.return_value = 50
+    ui.font_buttons.render.return_value = mock_rendered_surface
+    ui.draw_status(3, "99", 1)
     called_args = ui.font_buttons.render.call_args
     if called_args:
-        assert called_args[0][0] == "Lives:"
+        assert called_args[0][0] == "Level: 1"
 
     ui.screen.blit.assert_called_once_with(ui.font_buttons.render.return_value, (10, 10))
 
     assert ui.screen.blit.called
     assert mock_circle.call_count == 3
 
-
-def test_draw_score(ui):
-    """
-    Asserts "Score: 99" was rendered and blitted
-    :param ui:
-    :return:
-    """
-    mock_rendered_surface = mock.Mock()
-    mock_rendered_surface.get_width.return_value = 50
-    ui.font_buttons.render.return_value = mock_rendered_surface
-
-    ui.draw_score("99")
     called_args = ui.font_buttons.render.call_args
 
     if called_args:
