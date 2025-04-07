@@ -17,6 +17,12 @@ from motionmodels import MotionModels
 class Ball(WorldObject, pygame.sprite.Sprite):
 
     def __init__(self, x, y, image = None):
+        """
+
+        :param x: x coordinate on the board
+        :param y: y coordinate on the board
+        :param image:
+        """
 
         super().__init__()
 
