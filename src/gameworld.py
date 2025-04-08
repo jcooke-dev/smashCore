@@ -21,7 +21,11 @@ class GameWorld:
     """ The GameWorld holds all objects in the game for update() and draw() processing """
 
     def __init__(self, level_name = None):
+        """
+        Allows for setting the initial level build, but with a default if None passed
 
+        :param level_name: a LevelName value, but None works as a default
+        """
         # setup empty list to hold all world objects
         self.world_objects = []
 

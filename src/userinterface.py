@@ -26,8 +26,20 @@ class UserInterface:
         self.surface = None
         self.screen = None
 
-    # Button function
     def draw_button(self, text, x, y, width, height, color, hover_color, action=None):
+        """
+        Draw a button
+
+        :param text: button text
+        :param x: Rect x
+        :param y: Rect y
+        :param width: Rect width
+        :param height: Rect height
+        :param color: button color
+        :param hover_color: button hover color
+        :param action:
+        :return:
+        """
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         rect = pygame.Rect(x, y, width, height)
@@ -43,8 +55,12 @@ class UserInterface:
         text_rect = text_surface.get_rect(center=rect.center)
         self.surface.blit(text_surface, text_rect)
 
-    # Displays the pause menu where user can continue, restart, or quit the game
     def draw_pause_menu(self):
+        """
+        Displays the pause menu where user can continue, restart, or quit the game
+
+        :return:
+        """
         pygame.draw.rect(self.surface, (0, 0, 0, 100), [0, 0, constants.WIDTH, constants.HEIGHT])
         reset = pygame.draw.rect(self.surface, (0, 255, 0), [(constants.WIDTH // 2) - 200, 350, 400, 75])
         quit = pygame.draw.rect(self.surface, (0, 255, 0), [(constants.WIDTH // 2) - 200, 450, 400, 75])
@@ -62,6 +78,7 @@ class UserInterface:
         """
         Draws the game over screen on a surface and displays it if game is lost
         Buttons to give the user the option to try again or quit
+
         :return:
         """
         pygame.mouse.set_visible(True)
@@ -103,13 +120,25 @@ class UserInterface:
         return reset, quit
 
     def draw_game_intro(self):
+        """
+        Displays the intro screen where the player must press the spacebar to begin play
+
+        :return:
+        """
         self.screen.blit(self.font_buttons.render("Press SPACEBAR to start", True, constants.WHITE),
                          ((constants.WIDTH //4) + 50, constants.HEIGHT - (constants.HEIGHT // 6)))
 
-    # draws each life in the top left corner of the screen
-    # draws the score in the top right corner of the screen
-    # draws the level name in the top middle of the screen
     def draw_status(self, lives, score, level):
+        """
+        Draws each life in the top left corner of the screen
+        Draws the score in the top right corner of the screen
+        Draws the level name in the top middle of the screen
+
+        :param lives:
+        :param score:
+        :param level:
+        :return:
+        """
         self.screen.blit(self.font_buttons.render("Lives:", True, constants.WHITE), (10, 10))
         for i in range(lives):
             pygame.draw.circle(self.screen, constants.WHITE, (130 + 35 * i, 27), 12)
@@ -120,8 +149,13 @@ class UserInterface:
         level_display = self.font_buttons.render(f"Level: {level}", True, constants.WHITE)
         self.screen.blit(level_display, ((constants.WIDTH - level_display.get_width()) / 2, 10))
 
-    # show the developer overlay
     def draw_dev_overlay(self, gs):
+        """
+        Show the developer overlay
+
+        :param gs: GameState
+        :return:
+        """
         str_build = (f"FPS: {gs.fps_avg:>6.1f}  "
                      f"LoopTime(ms): {gs.loop_time_avg:>4.1f}  "
                      f"MotionModel: {gs.motion_model.name}  "
@@ -139,6 +173,11 @@ class UserInterface:
                                         constants.HEIGHT - dev_overlay2.get_height() - 24))
 
     def draw_splash_screen(self):
+        """
+        Show the splash screen
+
+        :return:
+        """
         logo_color = (255, 165, 0)
         text_color = constants.WHITE
         shadow_color = (100, 100, 100)
@@ -179,6 +218,11 @@ class UserInterface:
         self.screen.blit(text_arcade, text_arcade_rect)
 
     def draw_start_screen(self):
+        """
+        Show the start screen
+
+        :return:
+        """
         self.surface.fill(constants.BLACK)
         font = pygame.font.Font(None, 48)
         text = font.render("Click to Play", True, constants.BLACK)
@@ -209,6 +253,11 @@ class UserInterface:
         self.screen.blit(self.surface, (0, 0))
 
     def draw_credits_screen(self):
+        """
+        Show the credits screen
+
+        :return:
+        """
         self.surface.fill(constants.BLACK)
         font_credits = pygame.font.Font(None, 40)
 

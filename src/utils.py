@@ -20,9 +20,15 @@ import statistics
 fps_q = collections.deque(maxlen=60)
 loop_time_q = collections.deque(maxlen=60)
 
-# this just fills the queues, shifting the oldest values out as newer ones are added, and
-# calculates the running averages for display
 def calculate_timing_averages(fps, loop_time):
+    """
+    This just fills the queues, shifting the oldest values out as newer ones are added, and
+    calculates the running averages for display by the UI
+
+    :param fps: fps value to add to shifting queue
+    :param loop_time: loop time value to add to shifting queue
+    :return:
+    """
     fps_q.appendleft(fps)
     loop_time_q.appendleft(loop_time)
     return statistics.mean(fps_q), statistics.mean(loop_time_q)

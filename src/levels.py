@@ -31,6 +31,13 @@ class Levels:
 
     @staticmethod
     def build_level(gw, level_name):
+        """
+        Build the specified level.
+
+        :param gw: GameWorld
+        :param level_name: LevelName
+        :return:
+        """
 
         match level_name:
             case Levels.LevelName.SMASHCORE_1:

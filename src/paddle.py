@@ -18,7 +18,14 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
     """ The Paddle object used to keep the ball in play """
 
     def __init__(self, color, width, height, image = None):
-        """ Initialization of paddle """
+        """
+        Initialization of paddle
+
+        :param color:
+        :param width:
+        :param height:
+        :param image:
+        """
         super().__init__()
 
         # Set starting location for paddle in the bottom center of screen
@@ -28,12 +35,23 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
 
         self.commanded_pos_x = 0
 
-    # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
     def update_wo(self, gs, ps):
+        """
+        Update the Paddle's pos
+
+        :param gs: GameState
+        :param ps: PlayerState
+        :return:
+        """
         self.move_to_x(self.commanded_pos_x)
 
-    # draw the WorldObject to the screen
     def draw_wo(self, screen):
+        """
+        Draw the Paddle to the screen
+
+        :param screen:
+        :return:
+        """
         if self.image is None:
             pygame.draw.rect(screen, self.color, self.rect, 0, 7)
         else:
@@ -44,25 +62,37 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
                         (self.rect.x - 2.2, self.rect.y - 1.1))
 
 
-    # incremental Paddle movement (likely used for KB control)
     def move_left(self, pixels):
-        """ Move paddle left by pixels """
+        """
+        Incremental Paddle movement to the left (likely used for KB control)
+
+        :param pixels: how far to move
+        :return:
+        """
         self.rect.x -= pixels
         # Check that the paddle is not going too far (off the screen)
         if self.rect.x < 0:
             self.rect.x = 0
 
-    # incremental Paddle movement (likely used for KB control)
     def move_right(self, pixels):
-        """ Move paddle right by pixels """
+        """
+        Incremental Paddle movement to the right (likely used for KB control)
+
+        :param pixels: how far to move
+        :return:
+        """
         self.rect.x += pixels
         # Check that the paddle is not going too far (off the screen)
         if self.rect.x > constants.WIDTH - constants.PAD_WIDTH:
             self.rect.x = constants.WIDTH - constants.PAD_WIDTH
 
-    # absolute Paddle position setting (based on mouse position)
     def move_to_x(self, posx):
-        """ Move paddle to mouse_position """
+        """
+        Absolute Paddle position setting (based on mouse position)
+
+        :param posx: posx movement command
+        :return:
+        """
         self.rect.centerx = posx
         # Check that the paddle is not going too far (off the screen)
         if self.rect.left < 0:

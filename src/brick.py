@@ -24,10 +24,9 @@ class Brick(WorldObject):
         """
         Initializes a Brick object.
 
-        Args:
-            rect (pygame.Rect): The rectangle representing the brick's position and size.
-            color (tuple): The RGB color of the brick.
-            value (int): The score value of the brick.
+        :param rect: The rectangle representing the brick's position and size.
+        :param color: The RGB color of the brick.
+        :param value: The score value of the brick.
         """
         super().__init__()
 
@@ -37,13 +36,26 @@ class Brick(WorldObject):
         self.value = value
 
     def draw_wo(self, screen):
-        """Draws the brick to the screen."""
+        """
+        Draws the brick to the screen.
+
+        :param screen:
+        :return:
+        """
         pygame.draw.rect(screen, self.color, self.rect)
 
     def add_collision(self):
-        """Reduces the brick's strength when it's hit."""
+        """
+        Reduces the brick's strength when it's hit.
+
+        :return:
+        """
         self.strength -= 1
 
     def should_remove(self):
-        """Returns True if the brick should be removed (strength <= 0)."""
+        """
+        Returns True if the brick should be removed (strength <= 0).
+
+        :return: bool indicating whether Brick should be removed
+        """
         return self.strength <= 0

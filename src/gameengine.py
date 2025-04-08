@@ -61,9 +61,9 @@ class GameEngine:
     def reset_game(self):
         """
         Resets the game to the initial state
+
         :return:
         """
-
         # does python run auto garbage collection so it's OK to just
         # assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
@@ -80,6 +80,7 @@ class GameEngine:
         """
         Builds the next level, resets the ball position and initial speed
         Slight increase in initial ball speed to add difficulty
+
         :return:
         """
         for wo in self.gw.world_objects:
@@ -99,6 +100,7 @@ class GameEngine:
     def draw_world_and_status(self):
         """
         Draw all objects in GameWorld plus status overlays
+
         :return:
         """
         # draw every game object
@@ -109,6 +111,7 @@ class GameEngine:
 
     def menu_screen_handler(self):
         """
+        Checks for button presses and shifts to the proper GameSate
 
         :return:
         """
@@ -122,9 +125,9 @@ class GameEngine:
     def run_loop(self):
         """
         Runs the main game loop
+
         :return:
         """
-
         while self.gs.running:
             # fill the screen with black as a good default
             self.screen.fill(BLACK)
