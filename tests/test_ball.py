@@ -111,7 +111,7 @@ def test_update_wo_gravity_application_vector(ball, gamestate):
     initial_velocity = ball.v_vel.y
     ball.update_wo(gs, None)
 
-    assert ball.v_vel.y > initial_velocity  # gravity should increase y velocity
+    assert ball.v_vel.y > initial_velocity # gravity should increase y velocity
 
 
 def test_update_wo_game_state_ready_to_launch(ball, gamestate):
