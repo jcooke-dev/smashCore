@@ -2,26 +2,33 @@
     The Ball type of WorldObject that customizes the behavior.
 """
 
+import random as rnd
 import pygame
 from pygame import Vector2
-
 import constants
-import random as rnd
-
-import src.paddle
-from src.worldobject import WorldObject
+import paddle
+from worldobject import WorldObject
 from gamestates import GameStates
 from motionmodels import MotionModels
 
 
 class Ball(WorldObject, pygame.sprite.Sprite):
+    """
+    The ball object that collides with the paddle, walls, and bricks
+    """
 
-    def __init__(self, x, y, image = None):
+    def __init__(self, x, y, image=None):
+        """
+        Initialize ball with base values and primed for collisions
+        :param x: x coordinate on the board
+        :param y: y coordinate on the board
+        :param image:
+        """
 
         super().__init__()
 
         # general world object properties
-        self.can_react = True  # can this object react to collisions with other objects?
+        self.can_react = True #  allow object to react to collisions with other objects
         # ball settings
         self.radius = constants.BALL_RADIUS
         self.ball_rect = int(self.radius * 2 ** 0.5)
@@ -51,8 +58,13 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         self.commanded_pos_x = 0
 
-    # update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
     def update_wo(self, gs, ps):
+        """
+        Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
+        :param gs:
+        :param ps:
+        :return:
+        """
 
         if gs.cur_state == GameStates.PLAYING:
 
@@ -104,7 +116,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_top = False
                     self.v_vel_unit.y = -self.v_vel_unit.y
                     self.v_vel.y = -self.v_vel.y
-                # reset the latch allowing collision detection since the ball has moved fully away
+                # reset the latch allowing collision detection since the ball
+                # has moved fully away
                 if self.v_pos.y >= self.radius:
                     self.primed_collision_wall_top = True
 
@@ -126,8 +139,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         gs.cur_ball_x = self.x
 
-        # decrements lives everytime ball goes below the window and resets its position to
-        # above the paddle. Prompts for SPACEBAR key to continue the game
+        # Decrement lives everytime ball goes below the window and resets its
+        # position to above the paddle.
+        # Prompts for SPACEBAR key to continue the game
         if self.rect.top > constants.HEIGHT:
             ps.lives -= 1
             self.reset_position()
@@ -137,33 +151,46 @@ class Ball(WorldObject, pygame.sprite.Sprite):
             if ps.lives <= 0:
                 gs.cur_state = GameStates.GAME_OVER
 
-    # draw the WorldObject to the screen
     def draw_wo(self, screen):
+        """
+        Draw the WorldObject/Ball to the screen
+        :param screen:
+        :return:
+        """
         if self.image is None:
             pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
         else:
             screen.blit(self.image.convert_alpha(), (self.rect.x - 4, self.rect.y - 3.15))
 
-
     def reset_position(self):
-
+        """
+        Resets the position of the ball
+        :return:
+        """
         # SIMPLE_1 motion model defaults
-        self.rect.center = self.commanded_pos_x, (constants.HEIGHT - constants.PAD_HEIGHT -
-                                                 constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))
+        self.rect.center = self.commanded_pos_x, (
+                    constants.HEIGHT - constants.PAD_HEIGHT -
+                    constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))
         self.dx = rnd.choice([1, -1])
         self.dy = -1
 
         # VECTOR motion models defaults
-        self.v_pos = Vector2(self.commanded_pos_x, (constants.HEIGHT - constants.PAD_HEIGHT -
-                                                    constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)))
+        self.v_pos = Vector2(self.commanded_pos_x,
+                             (constants.HEIGHT - constants.PAD_HEIGHT -
+                              constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)))
         self.rect.center = (self.v_pos.x, self.v_pos.y)
 
         self.v_vel_unit = Vector2(1.0, 0.0)
         self.v_vel_unit = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
         self.v_vel = self.v_vel_unit * self.speed_v
 
-    #Function to detect collisions
     def detect_collision(self, wo, gs):
+        """
+        Detects collisions between the ball and other objects
+        :param wo:
+        :param gs:
+        :return:
+        """
 
         ##############################################################
         # determine how/which direction to bounce after collision under
@@ -211,27 +238,33 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                 self.v_vel.y = -self.v_vel.y
             # TODO check - this logic seems backwards, but works?
             elif x_delta > y_delta:  # vertical collision
-            # elif y_delta > x_delta:  # vertical collision
+                # elif y_delta > x_delta:  # vertical collision
                 self.v_vel_unit.y = -self.v_vel_unit.y
                 self.v_vel.y = -self.v_vel.y
             # TODO check - this logic seems backwards, but works?
             elif y_delta > x_delta:  # horizontal collision
-            # elif x_delta > y_delta:  # horizontal collision
+                # elif x_delta > y_delta:  # horizontal collision
                 self.v_vel_unit.x = -self.v_vel_unit.x
                 self.v_vel.x = -self.v_vel.x
 
-            # PADDLE_IMPULSE: add an impulse to the ball's velocity when striking the paddle, similar to brick breaking
-            if isinstance(wo, src.paddle.Paddle) and (gs.paddle_impulse_vel_length > 0.0):
+            # PADDLE_IMPULSE: add an impulse to the ball's velocity when
+            # striking the paddle, similar to brick breaking
+            if isinstance(wo, paddle.Paddle) and (gs.paddle_impulse_vel_length > 0.0):
                 # add a 'push' straight up
                 v_impulse = Vector2(0.0, -gs.paddle_impulse_vel_length)
                 self.v_vel += v_impulse
                 self.speed_v = self.v_vel.magnitude()
                 self.v_vel_unit = self.v_vel.normalize()
 
-
-    def move_to_x(self, posx):
-        """ Move ball_x to mouse_position """
-        self.rect.x = posx
+    def move_to_x(self, pos_x):
+        """
+        Move ball_x to mouse_position
+        Used when repositioning the ball when game is no longer in the
+        PLAYING state
+        :param pos_x:
+        :return:
+        """
+        self.rect.x = pos_x
 
         # Check that the paddle is not going too far (off the screen)
         if self.rect.left < (constants.PAD_WIDTH // 2) - self.radius:
@@ -241,4 +274,3 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         self.v_pos.x = self.rect.x
         self.x = self.rect.x
-
