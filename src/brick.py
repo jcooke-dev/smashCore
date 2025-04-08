@@ -7,6 +7,11 @@ import pygame
 from src.worldobject import WorldObject
 
 class Brick(WorldObject):
+    """
+    Brick to be lined up in rows and columns for the board
+    They disappear when hit
+    They have a size, color, and point value
+    """
 
     def __init__(self, rect, color, value=1):
         """
