@@ -28,8 +28,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         super().__init__()
 
         # general world object properties
-        # allow object react to collisions with other objects
-        self.can_react = True
+        self.can_react = True #  allow object to react to collisions with other objects
         # ball settings
         self.radius = constants.BALL_RADIUS
         self.ball_rect = int(self.radius * 2 ** 0.5)
@@ -52,8 +51,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         self.rect = pygame.Rect(self.v_pos.x, self.v_pos.y, self.ball_rect, self.ball_rect)
 
-        # these flags act as indicators that the ball is primed for
-        # collision with the specific item
+        # these flags act as indicators that the ball is primed for collision with the specific item
         self.primed_collision_wall_left = True
         self.primed_collision_wall_right = True
         self.primed_collision_wall_top = True
@@ -100,8 +98,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_left = False
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
-                # reset the latch allowing collision detection since the
-                # ball has moved fully away
+                # reset the latch allowing collision detection since the ball has moved fully away
                 if self.v_pos.x >= self.radius:
                     self.primed_collision_wall_left = True
 
@@ -110,8 +107,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_right = False
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
-                # reset the latch allowing collision detection since the ball
-                # has moved fully away
+                # reset the latch allowing collision detection since the ball has moved fully away
                 if self.v_pos.x <= (constants.WIDTH - self.radius):
                     self.primed_collision_wall_right = True
 
@@ -143,8 +139,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         gs.cur_ball_x = self.x
 
-        # Decrement lives everytime ball goes below the window and
-        # resets its position to above the paddle.
+        # Decrement lives everytime ball goes below the window and resets its
+        # position to above the paddle.
         # Prompts for SPACEBAR key to continue the game
         if self.rect.top > constants.HEIGHT:
             ps.lives -= 1
@@ -164,8 +160,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         if self.image is None:
             pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
         else:
-            screen.blit(self.image.convert_alpha(),
-                        (self.rect.x - 4, self.rect.y - 3.15))
+            screen.blit(self.image.convert_alpha(), (self.rect.x - 4, self.rect.y - 3.15))
 
     def reset_position(self):
         """
