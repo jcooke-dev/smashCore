@@ -50,8 +50,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         self.speed_v = constants.BALL_SPEED_VECTOR
         self.v_vel = self.v_vel_unit * self.speed_v
 
-        self.rect = pygame.Rect(self.v_pos.x, self.v_pos.y, self.ball_rect,
-                                self.ball_rect)
+        self.rect = pygame.Rect(self.v_pos.x, self.v_pos.y, self.ball_rect, self.ball_rect)
 
         # these flags act as indicators that the ball is primed for
         # collision with the specific item
@@ -78,9 +77,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
             if gs.motion_model == MotionModels.SIMPLE_1:
 
                 # ball collision wall left/right
-                if self.rect.centerx < self.radius or \
-                        self.rect.centerx > \
-                        constants.WIDTH - self.radius:
+                if self.rect.centerx < self.radius or self.rect.centerx > constants.WIDTH - self.radius:
                     self.dx = -self.dx
                 # ball collision wall top
                 if self.rect.centery < self.radius:
@@ -99,8 +96,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
             elif gs.motion_model == MotionModels.VECTOR_1:
 
                 # ball collision wall left
-                if self.primed_collision_wall_left and (
-                        self.v_pos.x < self.radius):
+                if self.primed_collision_wall_left and (self.v_pos.x < self.radius):
                     self.primed_collision_wall_left = False
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
@@ -110,8 +106,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_left = True
 
                 # ball collision wall right
-                if self.primed_collision_wall_right and (
-                        self.v_pos.x > (constants.WIDTH - self.radius)):
+                if self.primed_collision_wall_right and (self.v_pos.x > (constants.WIDTH - self.radius)):
                     self.primed_collision_wall_right = False
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
@@ -121,8 +116,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_right = True
 
                 # ball collision wall top
-                if self.primed_collision_wall_top and (
-                        self.v_pos.y < self.radius):
+                if self.primed_collision_wall_top and (self.v_pos.y < self.radius):
                     self.primed_collision_wall_top = False
                     self.v_vel_unit.y = -self.v_vel_unit.y
                     self.v_vel.y = -self.v_vel.y
@@ -161,7 +155,6 @@ class Ball(WorldObject, pygame.sprite.Sprite):
             if ps.lives <= 0:
                 gs.cur_state = GameStates.GAME_OVER
 
-
     def draw_wo(self, screen):
         """
         Draw the WorldObject/Ball to the screen
@@ -169,8 +162,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         :return:
         """
         if self.image is None:
-            pygame.draw.circle(screen, constants.WHITE, self.rect.center,
-                               self.radius)
+            pygame.draw.circle(screen, constants.WHITE, self.rect.center, self.radius)
         else:
             screen.blit(self.image.convert_alpha(),
                         (self.rect.x - 4, self.rect.y - 3.15))
@@ -183,16 +175,14 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # SIMPLE_1 motion model defaults
         self.rect.center = self.commanded_pos_x, (
                     constants.HEIGHT - constants.PAD_HEIGHT -
-                    constants.PADDLE_START_POSITION_OFFSET - (
-                                constants.BALL_RADIUS * 3))
+                    constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))
         self.dx = rnd.choice([1, -1])
         self.dy = -1
 
         # VECTOR motion models defaults
         self.v_pos = Vector2(self.commanded_pos_x,
                              (constants.HEIGHT - constants.PAD_HEIGHT -
-                              constants.PADDLE_START_POSITION_OFFSET - (
-                                          constants.BALL_RADIUS * 3)))
+                              constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)))
         self.rect.center = (self.v_pos.x, self.v_pos.y)
 
         self.v_vel_unit = Vector2(1.0, 0.0)
@@ -264,8 +254,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
             # PADDLE_IMPULSE: add an impulse to the ball's velocity when
             # striking the paddle, similar to brick breaking
-            if isinstance(wo, paddle.Paddle) and (
-                    gs.paddle_impulse_vel_length > 0.0):
+            if isinstance(wo, paddle.Paddle) and (gs.paddle_impulse_vel_length > 0.0):
                 # add a 'push' straight up
                 v_impulse = Vector2(0.0, -gs.paddle_impulse_vel_length)
                 self.v_vel += v_impulse
@@ -285,10 +274,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # Check that the paddle is not going too far (off the screen)
         if self.rect.left < (constants.PAD_WIDTH // 2) - self.radius:
             self.rect.left = (constants.PAD_WIDTH // 2) - self.radius
-        if self.rect.right > constants.WIDTH - (
-                constants.PAD_WIDTH // 2) + self.radius:
-            self.rect.right = constants.WIDTH - (
-                        constants.PAD_WIDTH // 2) + self.radius
+        if self.rect.right > constants.WIDTH - (constants.PAD_WIDTH // 2) + self.radius:
+            self.rect.right = constants.WIDTH - (constants.PAD_WIDTH // 2) + self.radius
 
         self.v_pos.x = self.rect.x
         self.x = self.rect.x
