@@ -8,6 +8,32 @@ Camila Roxo
 Justin Smith  
 Rex Vargas
 
+## Gameplay and Testing Considerations and Features
+**_Note:_** To play SmashCore, you must **install Python and the pygame library**.  We've installed and used many more libraries, but those are only needed when developing this game (and are described below).
+
+Player interaction with SmashCore is straightforward and requires both the mouse and keyboard at this stage of development.  In standard play, the player clicks buttons to choose from Click to Play, Restart Game, Try Again, Quit Game, etc.  The player must also launch the ball by pressing the Spacebar and can pause/unpause the game with the ESC key.  During gameplay, the paddle is controlled by horizontal mouse movement.  Keep the ball from falling below/past the paddle!
+
+We've added some features to aid our development and game balance/testing/tweaking efforts.  Primarily, this is the **Dev Overlay**.  Access this with the **CTRL+d** key combination.  This allows you to see the various toggles and motion-influencing parameters.  These include the motion calculation model, the acceleration due to gravity, and a paddle impulse that causes the paddle to strike the ball with an upwards force.  All of these parameters are adjustable with the key combinations specified, even if the Developer Overlay is hidden.
+
+### AutoPlay
+One especially helpful feature is **AutoPlay** (enabled with **CTRL+a**).  With this turned on, the paddle will automatically follow the ball.  This is great for testing the standard gameplay, but also useful if you want to see how changing the motion parameters (like gravity and paddle impulse) affect gameplay.  It also helps when you're tired of playing well, but need to keep testing!
+
+### Key Combinations
+This is a list of all parameters that can be toggled/adjusted in game, along with their key combinations.
+
+| Key Combo            | Action                                                                |
+|----------------------|-----------------------------------------------------------------------|
+| **CTRL + d**         | Toggle the Developer Overlay On/Off                                   |
+| **CTRL + a**         | Toggle AutoPlay On/Off                                                |
+| **CTRL + p**         | Increase the Paddle Impulse (vertical push against the ball)          |
+| **CTRL + SHIFT + p** | Decrease the Paddle Impulse (vertical push against the ball)          |
+| **CTRL + g**         | Increase the Gravity                                                  |
+| **CTRL + SHIFT + g** | Decrease the Gravity                                                  |
+| **CTRL + s**         | Increase the Speed Step (speed added to ball after breaking bricks)   |
+| **CTRL + SHIFT + s** | Decrease the Speed Step (speed added to ball after breaking bricks)   |
+| **CTRL + m**         | Cycles through motion calculation models (only SIMPLE_1 and VECTOR_1) |
+
+
 ## Development Environment
 We're developing SmashCore in Python, intending to target releases to Windows, macOS, and Linux platforms.  These are the specific tools and libraries we're using to create SmashCore (including the versions used during development):
 * **Python 3.13.2** (https://www.python.org/)
@@ -41,27 +67,3 @@ This GitHub site provides much of the helpful project and code management suppor
 
 ## Source Code Organization
 SmashCore's code base is organized into separate folders for source code (\\src\\), assets (\\src\\assets\\), and tests (\\tests\\). We've ensured the primary abstract objects, as well as logical/functional providers, are broken into separate Python source files or modules.  You can browse our code base here: https://github.com/jcooke-dev/smashCore/tree/main/src
-
-## Gameplay and Testing Considerations and Features
-Player interaction with SmashCore is straightforward and requires both the mouse and keyboard at this stage of development.  In standard play, the player clicks buttons to choose from Click to Play, Restart Game, Try Again, Quit Game, etc.  The player must also launch the ball by pressing the Spacebar and can pause/unpause the game with the ESC key.  During gameplay, the paddle is controlled by horizontal mouse movement.  Keep the ball from falling below/past the paddle!
-
-We've added some features to aid our development and game balance/testing/tweaking efforts.  Primarily, this is the **Dev Overlay**.  Access this with the **CTRL+d** key combination.  This allows you to see the various toggles and motion-influencing parameters.  These include the motion calculation model, the acceleration due to gravity, and a paddle impulse that causes the paddle to strike the ball with an upwards force.  All of these parameters are adjustable with the key combinations specified, even if the Developer Overlay is hidden.
-
-### AutoPlay
-One especially helpful feature is **AutoPlay** (enabled with **CTRL+a**).  With this turned on, the paddle will automatically follow the ball.  This is great for testing the standard gameplay, but also useful if you want to see how changing the motion parameters (like gravity and paddle impulse) affect gameplay.  It also helps when you're tired of playing well, but need to keep testing!
-
-### Key Combinations
-This is a list of all parameters that can be toggled/adjusted in game, along with their key combinations.
-
-| Key Combo            | Action                                                                |
-|----------------------|-----------------------------------------------------------------------|
-| **CTRL + d**         | Toggle the Developer Overlay On/Off                                   |
-| **CTRL + a**         | Toggle AutoPlay On/Off                                                |
-| **CTRL + p**         | Increase the Paddle Impulse (vertical push against the ball)          |
-| **CTRL + SHIFT + p** | Decrease the Paddle Impulse (vertical push against the ball)          |
-| **CTRL + g**         | Increase the Gravity                                                  |
-| **CTRL + SHIFT + g** | Decrease the Gravity                                                  |
-| **CTRL + s**         | Increase the Speed Step (speed added to ball after breaking bricks)   |
-| **CTRL + SHIFT + s** | Decrease the Speed Step (speed added to ball after breaking bricks)   |
-| **CTRL + m**         | Cycles through motion calculation models (only SIMPLE_1 and VECTOR_1) |
-
