@@ -1,8 +1,9 @@
 import pygame
 import pytest
+from paddle import Paddle
 from pygame import Vector2
 from ball import Ball
-from constants import BALL_RADIUS, BALL_SPEED_SIMPLE, WIDTH, HEIGHT
+from constants import BALL_RADIUS, BALL_SPEED_SIMPLE, WIDTH, HEIGHT, WHITE
 from gamestates import GameStates
 from motionmodels import MotionModels
 
@@ -15,9 +16,9 @@ def ball():
 
 @pytest.fixture
 def paddle():
-    class Paddle:
-        rect = pygame.Rect(90, 90, 10, 10)
-    return Paddle()
+    a_paddle = Paddle(WHITE, 100, 50)
+    a_paddle.rect = pygame.Rect(90, 90, 10, 10)
+    return a_paddle
 
 
 @pytest.fixture
