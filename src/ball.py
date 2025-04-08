@@ -20,9 +20,7 @@ from motionmodels import MotionModels
 
 
 class Ball(WorldObject, pygame.sprite.Sprite):
-    """
-    The ball object that collides with the paddle, walls, and bricks
-    """
+    """ The ball object that collides with the paddle, walls, and bricks """
 
     def __init__(self, x, y, image=None):
         """

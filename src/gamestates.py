@@ -13,6 +13,7 @@ from enum import Enum, auto
 
 
 class GameStates(Enum):
+    """ Enum with all possible GameState values """
     SPLASH = auto()
     MENU_SCREEN = auto()
     READY_TO_LAUNCH = auto()

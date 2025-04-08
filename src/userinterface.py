@@ -14,6 +14,7 @@ import constants
 
 
 class UserInterface:
+    """ This provides a number of different UI element drawing functions """
 
     def __init__(self):
         # Font setup

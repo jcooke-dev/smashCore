@@ -13,6 +13,7 @@ from enum import Enum, auto
 
 
 class MotionModels(Enum):
+    """ Enum with all possible MotionModel values """
 
     # initial motion code with simplified calculations and clock.tick(fps) to time the update loop
     SIMPLE_1 = auto()

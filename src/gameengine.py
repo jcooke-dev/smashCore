@@ -28,9 +28,7 @@ import utils
 
 
 class GameEngine:
-    """
-    The main engine that drives the game loop
-    """
+    """ The main engine that drives the game loop """
 
     def __init__(self, ps, gw, gs, ui):
         """

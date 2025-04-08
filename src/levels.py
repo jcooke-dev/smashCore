@@ -19,8 +19,10 @@ import constants
 
 
 class Levels:
+    """ This supplies the level building logic """
 
     class LevelName(Enum):
+        """ Enum with all possible LevelNames for later construction in build_level() """
         SMASHCORE_1 = auto()
         SMASHCORE_SOLID_ROWS_1 = auto()
 

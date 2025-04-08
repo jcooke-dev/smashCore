@@ -18,6 +18,7 @@ from src.levels import Levels
 
 
 class GameWorld:
+    """ The GameWorld holds all objects in the game for update() and draw() processing """
 
     def __init__(self, level_name = None):
 

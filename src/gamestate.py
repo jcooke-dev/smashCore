@@ -17,6 +17,7 @@ from gamestates import GameStates
 from motionmodels import MotionModels
 
 class GameState:
+    """ This maintains the current GameState """
 
     def __init__(self):
 

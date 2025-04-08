@@ -13,6 +13,7 @@ import constants
 
 
 class PlayerState:
+    """ This maintains the current PlayerState """
 
     def __init__(self):
 

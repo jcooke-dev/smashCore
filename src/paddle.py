@@ -15,7 +15,7 @@ from worldobject import WorldObject
 
 
 class Paddle(WorldObject, pygame.sprite.Sprite):
-    """ Paddle is derived from a sprite """
+    """ The Paddle object used to keep the ball in play """
 
     def __init__(self, color, width, height, image = None):
         """ Initialization of paddle """
