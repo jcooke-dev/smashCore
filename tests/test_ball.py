@@ -71,6 +71,8 @@ def test_update_wo_wall_collision_left_simple(ball, gamestate):
     gs = gamestate
     gs.motion_model = MotionModels.SIMPLE_1
 
+    ball.dx = -1 # must ensure moving to the left before collision test (since __init__ has it randomly either -1, 1)
+
     ball.rect.centerx = 0  # simulate collision with left wall
     ball.update_wo(gs, None)
 
@@ -80,6 +82,8 @@ def test_update_wo_wall_collision_left_simple(ball, gamestate):
 def test_update_wo_wall_collision_right_simple(ball, gamestate):
     gs = gamestate
     gs.motion_model = MotionModels.SIMPLE_1
+
+    ball.dx = 1  # must ensure moving to the right before collision test (since __init__ has it randomly either -1, 1)
 
     ball.rect.centerx = WIDTH  # simulate collision with right wall
     ball.update_wo(gs, None)
