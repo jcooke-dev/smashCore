@@ -1,6 +1,13 @@
 """
-    Levels is a utility class to allow for organized level-building.  Additional levels can be added to the enum
-    and then built-up in buildLevel.
+    Project: SmashCore
+    Course: UMGC CMSC 495 (7383)
+    Term: Spring 2025
+    Date: 20250401
+    Code Repository: https://github.com/jcooke-dev/smashCore
+    Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
+
+    Module Description: Levels is a utility class to allow for organized level-building.  Additional levels can be added to the enum
+                        and then built-up in buildLevel.
 """
 
 import pygame

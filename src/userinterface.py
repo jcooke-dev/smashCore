@@ -1,5 +1,12 @@
 """
-    UserInterface holds some of the UI drawing functions and could probably be expanded with more.
+    Project: SmashCore
+    Course: UMGC CMSC 495 (7383)
+    Term: Spring 2025
+    Date: 20250401
+    Code Repository: https://github.com/jcooke-dev/smashCore
+    Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
+
+    Module Description: UserInterface contains the various UI element drawing functions.
 """
 
 import pygame

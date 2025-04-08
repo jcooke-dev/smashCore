@@ -1,6 +1,13 @@
 """
-    This brings together the various modules that make up the game (GameWorld,
-    GameState, UI, etc.) and runs the main game loop.
+    Project: SmashCore
+    Course: UMGC CMSC 495 (7383)
+    Term: Spring 2025
+    Date: 20250401
+    Code Repository: https://github.com/jcooke-dev/smashCore
+    Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
+
+    Module Description: This brings together the various modules that make up the game (GameWorld,
+                        GameState, UI, etc.) and runs the main game loop.
 """
 
 import pygame

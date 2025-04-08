@@ -1,10 +1,16 @@
 """
-    This utils.py provides a kind of global/singleton module (not a class) that should
-    be available to any other module that imports it.  This can be helpful in situations
-    such as this where we want to maintain some global data and useful functions on that, but
-    without actually creating and passing around objects.
-"""
+    Project: SmashCore
+    Course: UMGC CMSC 495 (7383)
+    Term: Spring 2025
+    Date: 20250401
+    Code Repository: https://github.com/jcooke-dev/smashCore
+    Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
 
+    Module Description: This utils.py provides a kind of global/singleton module (not a class) that should
+                        be available to any other module that imports it.  This can be helpful in situations
+                        such as this where we want to maintain global data and useful functions on that data, but
+                        without actually creating and passing around objects.
+"""
 
 import collections
 import statistics
