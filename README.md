@@ -9,7 +9,8 @@ Justin Smith
 Rex Vargas
 
 ## Gameplay and Testing Considerations and Features
-**_Note:_** To play SmashCore, you must **install Python and the pygame library**.  We've installed and used many more libraries, but those are only needed when developing this game (and are described below).
+> [!NOTE]
+To play SmashCore, you must **install Python (tested with 3.13.2) and the pygame library (tested with 2.6.0)**.  We've installed and used many more libraries, but those are only needed when developing this game (and are described below).
 
 Player interaction with SmashCore is straightforward and requires both the mouse and keyboard at this stage of development.  In standard play, the player clicks buttons to choose from Click to Play, Restart Game, Try Again, Quit Game, etc.  The player must also launch the ball by pressing the Spacebar and can pause/unpause the game with the ESC key.  During gameplay, the paddle is controlled by horizontal mouse movement.  Keep the ball from falling below/past the paddle!
 
