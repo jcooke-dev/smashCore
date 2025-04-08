@@ -7,11 +7,11 @@ import pygame
 
 from src.ball import Ball
 from src.brick import Brick
-from src.constants import WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME, \
-    PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,\
-    BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS, \
-    PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT, \
-    BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR
+from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
+    PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+    BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+    PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+    BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR)
 from src.levels import Levels
 from src.gameworld import GameWorld
 from gamestates import GameStates
@@ -221,10 +221,8 @@ class GameEngine:
                                                 self.gw.world_objects.remove(other_wo)
 
                                     else:
-                                        # this is the other side of the
-                                        # allow_collision logic above, since
-                                        # not colliding now, it resets the
-                                        # latch or 'primed for collision' flag
+                                        # this is the other side of the allow_collision logic above, since
+                                        # not colliding now, it resets the latch or 'primed for collision' flag
                                         other_wo.prime_for_collision()
 
                     # draw all objects in GameWorld
@@ -331,8 +329,7 @@ class GameEngine:
                             else:
                                 self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
 
-                    # detect the CTRL+m key combo to cycle through the various
-                    # motion models
+                    # detect the CTRL+m key combo to cycle through the various motion models
                     if event.key == pygame.K_m:
                         if event.mod & pygame.KMOD_CTRL:
                             match self.gs.motion_model:
@@ -378,9 +375,7 @@ class GameEngine:
 
             # don't bother calculating these running dev averages unless wanted
             if self.gs.show_dev_overlay:
-                self.gs.fps_avg, self.gs.loop_time_avg \
-                    = utils.calculate_timing_averages(self.clock.get_fps(),
-                                                      self.clock.get_time())
+                self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(), self.clock.get_time())
 
         ##############################################################
         # close down cleanly
