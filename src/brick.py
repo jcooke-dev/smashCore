@@ -8,7 +8,7 @@ from src.worldobject import WorldObject
 
 class Brick(WorldObject):
 
-    def __init__(self, rect, color, value=1):
+    def __init__(self, rect, color, value=1, image=None):
         """
         Initializes a Brick object.
 
@@ -23,10 +23,14 @@ class Brick(WorldObject):
         self.rect = pygame.Rect(rect)
         self.color = color
         self.value = value
+        self.image = image
 
     def draw_wo(self, screen):
         """Draws the brick to the screen."""
-        pygame.draw.rect(screen, self.color, self.rect)
+        if self.image is None:
+            pygame.draw.rect(screen, self.color, self.rect)
+        else:
+            screen.blit(self.image.convert_alpha(), self.rect)
 
     def add_collision(self):
         """Reduces the brick's strength when it's hit."""
