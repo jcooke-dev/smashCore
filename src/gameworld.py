@@ -1,6 +1,13 @@
 """
-    This holds all the WorldObjects present in the game world.  These can be different types: static objects, moving
-    objects, objects that can participate in collisions, and objects that react to collisions.
+    Project: SmashCore
+    Course: UMGC CMSC 495 (7383)
+    Term: Spring 2025
+    Date: 20250401
+    Code Repository: https://github.com/jcooke-dev/smashCore
+    Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
+
+    Module Description: This holds all the WorldObjects present in the game world.  These can be different types: static objects, moving
+                        objects, objects that can participate in collisions, and objects that react to collisions.
 """
 
 import constants
@@ -11,9 +18,14 @@ from src.levels import Levels
 
 
 class GameWorld:
+    """ The GameWorld holds all objects in the game for update() and draw() processing """
 
     def __init__(self, level_name = None):
+        """
+        Allows for setting the initial level build, but with a default if None passed
 
+        :param level_name: a LevelName value, but None works as a default
+        """
         # setup empty list to hold all world objects
         self.world_objects = []
 

@@ -1,6 +1,13 @@
 """
-    This brings together the various modules that make up the game (GameWorld,
-    GameState, UI, etc.) and runs the main game loop.
+    Project: SmashCore
+    Course: UMGC CMSC 495 (7383)
+    Term: Spring 2025
+    Date: 20250401
+    Code Repository: https://github.com/jcooke-dev/smashCore
+    Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
+
+    Module Description: This brings together the various modules that make up the game (GameWorld,
+                        GameState, UI, etc.) and runs the main game loop.
 """
 
 import pygame
@@ -21,9 +28,7 @@ import utils
 
 
 class GameEngine:
-    """
-    The main engine that drives the game loop
-    """
+    """ The main engine that drives the game loop """
 
     def __init__(self, ps, gw, gs, ui):
         """
@@ -56,9 +61,9 @@ class GameEngine:
     def reset_game(self):
         """
         Resets the game to the initial state
+
         :return:
         """
-
         # does python run auto garbage collection so it's OK to just
         # assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
@@ -75,6 +80,7 @@ class GameEngine:
         """
         Builds the next level, resets the ball position and initial speed
         Slight increase in initial ball speed to add difficulty
+
         :return:
         """
         for wo in self.gw.world_objects:
@@ -94,6 +100,7 @@ class GameEngine:
     def draw_world_and_status(self):
         """
         Draw all objects in GameWorld plus status overlays
+
         :return:
         """
         # draw every game object
@@ -104,6 +111,7 @@ class GameEngine:
 
     def menu_screen_handler(self):
         """
+        Checks for button presses and shifts to the proper GameSate
 
         :return:
         """
@@ -117,9 +125,9 @@ class GameEngine:
     def run_loop(self):
         """
         Runs the main game loop
+
         :return:
         """
-
         while self.gs.running:
             # fill the screen with black as a good default
             self.screen.fill(BLACK)

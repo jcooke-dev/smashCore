@@ -1,5 +1,12 @@
 """
-    The Brick type of WorldObject that customizes the behavior.
+    Project: SmashCore
+    Course: UMGC CMSC 495 (7383)
+    Term: Spring 2025
+    Date: 20250401
+    Code Repository: https://github.com/jcooke-dev/smashCore
+    Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
+
+    Module Description: The Brick type of WorldObject, with customized behavior.
 """
 
 import pygame
@@ -17,10 +24,9 @@ class Brick(WorldObject):
         """
         Initializes a Brick object.
 
-        Args:
-            rect (pygame.Rect): The rectangle representing the brick's position and size.
-            color (tuple): The RGB color of the brick.
-            value (int): The score value of the brick.
+        :param rect: The rectangle representing the brick's position and size.
+        :param color: The RGB color of the brick.
+        :param value: The score value of the brick.
         """
         super().__init__()
 
@@ -30,13 +36,26 @@ class Brick(WorldObject):
         self.value = value
 
     def draw_wo(self, screen):
-        """Draws the brick to the screen."""
+        """
+        Draws the brick to the screen.
+
+        :param screen:
+        :return:
+        """
         pygame.draw.rect(screen, self.color, self.rect)
 
     def add_collision(self):
-        """Reduces the brick's strength when it's hit."""
+        """
+        Reduces the brick's strength when it's hit.
+
+        :return:
+        """
         self.strength -= 1
 
     def should_remove(self):
-        """Returns True if the brick should be removed (strength <= 0)."""
+        """
+        Returns True if the brick should be removed (strength <= 0).
+
+        :return: bool indicating whether Brick should be removed
+        """
         return self.strength <= 0

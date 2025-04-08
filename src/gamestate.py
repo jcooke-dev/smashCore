@@ -1,5 +1,12 @@
 """
-    Consolidate the game state flags into a single class.
+    Project: SmashCore
+    Course: UMGC CMSC 495 (7383)
+    Term: Spring 2025
+    Date: 20250401
+    Code Repository: https://github.com/jcooke-dev/smashCore
+    Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
+
+    Module Description: Consolidate the game state flags and parameters into a single class.
 """
 
 from pygame import Vector2
@@ -10,6 +17,7 @@ from gamestates import GameStates
 from motionmodels import MotionModels
 
 class GameState:
+    """ This maintains the current GameState """
 
     def __init__(self):
 

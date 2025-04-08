@@ -1,5 +1,12 @@
 """
-    The Ball type of WorldObject that customizes the behavior.
+    Project: SmashCore
+    Course: UMGC CMSC 495 (7383)
+    Term: Spring 2025
+    Date: 20250401
+    Code Repository: https://github.com/jcooke-dev/smashCore
+    Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
+
+    Module Description: The Ball type of WorldObject, with customized behavior.
 """
 
 import random as rnd
@@ -13,18 +20,16 @@ from motionmodels import MotionModels
 
 
 class Ball(WorldObject, pygame.sprite.Sprite):
-    """
-    The ball object that collides with the paddle, walls, and bricks
-    """
+    """ The ball object that collides with the paddle, walls, and bricks """
 
     def __init__(self, x, y, image=None):
         """
         Initialize ball with base values and primed for collisions
+
         :param x: x coordinate on the board
         :param y: y coordinate on the board
-        :param image:
+        :param image: if provided, draws the image, else a plain rect
         """
-
         super().__init__()
 
         # general world object properties
@@ -61,11 +66,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
     def update_wo(self, gs, ps):
         """
         Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
-        :param gs:
-        :param ps:
+
+        :param gs: GameState
+        :param ps: PlayerState
         :return:
         """
-
         if gs.cur_state == GameStates.PLAYING:
 
             ##############################################################
@@ -154,6 +159,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
     def draw_wo(self, screen):
         """
         Draw the WorldObject/Ball to the screen
+
         :param screen:
         :return:
         """
@@ -165,6 +171,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
     def reset_position(self):
         """
         Resets the position of the ball
+
         :return:
         """
         # SIMPLE_1 motion model defaults
@@ -187,11 +194,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
     def detect_collision(self, wo, gs):
         """
         Detects collisions between the ball and other objects
-        :param wo:
-        :param gs:
+
+        :param wo: another world_object
+        :param gs: GameState
         :return:
         """
-
         ##############################################################
         # determine how/which direction to bounce after collision under
         # the SIMPLE_1 model
@@ -261,7 +268,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         Move ball_x to mouse_position
         Used when repositioning the ball when game is no longer in the
         PLAYING state
-        :param pos_x:
+
+        :param pos_x: move Ball to this x position
         :return:
         """
         self.rect.x = pos_x
