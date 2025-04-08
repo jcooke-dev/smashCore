@@ -7,7 +7,11 @@ import pygame
 
 from src.ball import Ball
 from src.brick import Brick
-from src.constants import *
+from src.constants import WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME, \
+    PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,\
+    BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS, \
+    PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT, \
+    BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR
 from src.levels import Levels
 from src.gameworld import GameWorld
 from gamestates import GameStates
@@ -17,8 +21,18 @@ import utils
 
 
 class GameEngine:
+    """
+    The main engine that drives the game loop
+    """
 
     def __init__(self, ps, gw, gs, ui):
+        """
+
+        :param ps: PlayerState
+        :param gw: GameWorld
+        :param gs: GameState
+        :param ui: UserInterface
+        """
         self.mouse_pos = None
         self.ps = ps
         self.gw = gw
@@ -39,8 +53,11 @@ class GameEngine:
         # Initially, hide the mouse cursor
         pygame.mouse.set_visible(False)
 
-    # reset game to initial state
     def reset_game(self):
+        """
+        Resets the game to the initial state
+        :return:
+        """
 
         # does python run auto garbage collection so it's OK to just assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
@@ -52,9 +69,13 @@ class GameEngine:
         self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
-    # builds the next level, resets the ball position and initial speed
-    # slight increase in initial ball speed to add difficulty
+
     def next_level(self):
+        """
+        Builds the next level, resets the ball position and initial speed
+        Slight increase in initial ball speed to add difficulty
+        :return:
+        """
         for wo in self.gw.world_objects:
             if isinstance(wo, Ball):
                 wo.reset_position()
@@ -69,8 +90,12 @@ class GameEngine:
         self.gs.cur_state = GameStates.READY_TO_LAUNCH
         #self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
 
-    # draw all objects in GameWorld plus status overlays
+
     def draw_world_and_status(self):
+        """
+        Draw all objects in GameWorld plus status overlays
+        :return:
+        """
         # draw every game object
         for world_object in self.gw.world_objects:
             world_object.draw_wo(self.screen)
@@ -78,6 +103,10 @@ class GameEngine:
         self.ui.draw_status(self.ps.lives, self.ps.score, self.ps.level)
 
     def menu_screen_handler(self):
+        """
+
+        :return:
+        """
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.ui.start_button_rect.collidepoint(event.pos):
@@ -259,8 +288,8 @@ class GameEngine:
 
                     # detect the CTRL+p and CTRL+SHIFT+p key combos to increase/decrease the PADDLE_IMPULSE
                     if event.key == pygame.K_p:
-                        if (event.mod & pygame.KMOD_CTRL):
-                            if (event.mod & pygame.KMOD_SHIFT):
+                        if event.mod & pygame.KMOD_CTRL:
+                            if event.mod & pygame.KMOD_SHIFT:
                                 self.gs.paddle_impulse_vel_length -= PADDLE_IMPULSE_INCREMENT
                                 if self.gs.paddle_impulse_vel_length < 0.0:
                                     self.gs.paddle_impulse_vel_length = 0.0
@@ -269,8 +298,8 @@ class GameEngine:
 
                     # detect the CTRL+g and CTRL+SHIFT+g key combos to increase/decrease the WORLD_GRAVITY_ACC
                     if event.key == pygame.K_g:
-                        if (event.mod & pygame.KMOD_CTRL):
-                            if (event.mod & pygame.KMOD_SHIFT):
+                        if event.mod & pygame.KMOD_CTRL:
+                            if event.mod & pygame.KMOD_SHIFT:
                                 self.gs.gravity_acc_length -= WORLD_GRAVITY_ACC_INCREMENT
                                 if self.gs.gravity_acc_length < 0.0:
                                     self.gs.gravity_acc_length = 0.0
@@ -281,8 +310,8 @@ class GameEngine:
 
                     # detect the CTRL+s and CTRL+SHIFT+s key combos to increase/decrease the BALL_SPEED_STEP
                     if event.key == pygame.K_s:
-                        if (event.mod & pygame.KMOD_CTRL):
-                            if (event.mod & pygame.KMOD_SHIFT):
+                        if event.mod & pygame.KMOD_CTRL:
+                            if event.mod & pygame.KMOD_SHIFT:
                                 self.gs.ball_speed_step -= BALL_SPEED_STEP_INCREMENT
                             else:
                                 self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
