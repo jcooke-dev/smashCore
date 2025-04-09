@@ -54,9 +54,9 @@ def test_gamestate_reset(starting_ge):
 
     assert starting_ge.fps == constants.INITIAL_FPS_SIMPLE
     # enums should be compared by identity
-    # assert starting_ge.gs.cur_state is GameStates.SPLASH
+    # assert starting_ge.gs.cur_state is GameStates.READY_TO_LAUNCH
     # but it isn't working so comparing by name
-    assert starting_ge.gs.cur_state.name is GameStates.SPLASH.name
+    assert starting_ge.gs.cur_state.name is GameStates.READY_TO_LAUNCH.name
     assert starting_ge.ps.lives == constants.START_LIVES
     assert starting_ge.ps.score == 0
     assert not pygame.mouse.get_visible()

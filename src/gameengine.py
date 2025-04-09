@@ -11,26 +11,27 @@
 """
 
 import pygame
-
+import utils
 from src.ball import Ball
 from src.brick import Brick
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
-    PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
-    BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
-    PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
-    BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR)
+                           PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+                           BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+                           PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+                           BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR)
 from src.levels import Levels
 from src.gameworld import GameWorld
 from gamestates import GameStates
+from userinterface import UserInterface
+from playerstate import PlayerState
+from gamestate import GameState
 from motionmodels import MotionModels
-
-import utils
 
 
 class GameEngine:
     """ The main engine that drives the game loop """
 
-    def __init__(self, ps, gw, gs, ui):
+    def __init__(self, ps: PlayerState, gw: GameWorld, gs: GameState, ui: UserInterface) -> None:
         """
 
         :param ps: PlayerState
@@ -38,27 +39,32 @@ class GameEngine:
         :param gs: GameState
         :param ui: UserInterface
         """
+        self.quit_game_button = None
+        self.restart_game_button = None
         self.mouse_pos = None
-        self.ps = ps
-        self.gw = gw
-        self.gs = gs
-        self.ui = ui
+        self.ps: PlayerState = ps
+        self.gw: GameWorld = gw
+        self.gs: GameState = gs
+        self.ui: UserInterface = ui
 
-        ui.screen = self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        ui.surface = self.surface = pygame.Surface(
-            (WIDTH, HEIGHT), pygame.SRCALPHA)
-        self.clock = pygame.time.Clock()
-        self.fps = INITIAL_FPS_SIMPLE
+        self.screen: pygame.Surface = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.surface: pygame.Surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+
+        self.clock: pygame.time = pygame.time.Clock()
+        self.fps: float = INITIAL_FPS_SIMPLE
 
         # record the app start ticks to time the splash screen display
-        self.app_start_ticks = pygame.time.get_ticks()
+        self.app_start_ticks: float = pygame.time.get_ticks()
 
         pygame.display.set_caption(GAME_NAME)
+
+        ui.screen = self.screen
+        ui.surface = self.surface
 
         # Initially, hide the mouse cursor
         pygame.mouse.set_visible(False)
 
-    def reset_game(self):
+    def reset_game(self) -> None:
         """
         Resets the game to the initial state
 
@@ -68,15 +74,14 @@ class GameEngine:
         # assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
-        self.gs.cur_state = GameStates.SPLASH
+        self.gs.cur_state = GameStates.READY_TO_LAUNCH
         self.gs.cur_ball_x = (WIDTH / 2) - (PAD_WIDTH / 2)
         self.ps.lives = START_LIVES
         self.ps.score = START_SCORE
         self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
-
-    def next_level(self):
+    def next_level(self) -> None:
         """
         Builds the next level, resets the ball position and initial speed
         Slight increase in initial ball speed to add difficulty
@@ -97,7 +102,7 @@ class GameEngine:
         self.gs.cur_state = GameStates.READY_TO_LAUNCH
         #self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
 
-    def draw_world_and_status(self):
+    def draw_world_and_status(self) -> None:
         """
         Draw all objects in GameWorld plus status overlays
 
@@ -109,7 +114,7 @@ class GameEngine:
         # draw any status overlays
         self.ui.draw_status(self.ps.lives, self.ps.score, self.ps.level)
 
-    def menu_screen_handler(self):
+    def menu_screen_handler(self) -> None:
         """
         Checks for button presses and shifts to the proper GameSate
 
@@ -122,7 +127,7 @@ class GameEngine:
                 elif self.ui.credits_button_rect.collidepoint(event.pos):
                     self.gs.cur_state = GameStates.CREDITS
 
-    def run_loop(self):
+    def run_loop(self) -> None:
         """
         Runs the main game loop
 
@@ -254,7 +259,7 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
-                    self.restart_game, self.quit_game = self.ui.draw_pause_menu()
+                    self.restart_game_button, self.quit_game_button = self.ui.draw_pause_menu()
                     pygame.mouse.set_visible(True)
 
                 ##############################################################
@@ -265,7 +270,7 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
-                    self.restart_game, self.quit_game = self.ui.draw_game_over_menu()
+                    self.restart_game_button, self.quit_game_button = self.ui.draw_game_over_menu()
 
             ##############################################################
             # event handling
@@ -350,15 +355,14 @@ class GameEngine:
                 if (event.type == pygame.MOUSEBUTTONDOWN and
                         ((self.gs.cur_state == GameStates.PAUSED) or
                          (self.gs.cur_state == GameStates.GAME_OVER))):
-                    if self.restart_game.collidepoint(event.pos):
+                    if self.restart_game_button.collidepoint(event.pos):
                         self.reset_game()
-                    if self.quit_game.collidepoint(event.pos):
+                    if self.quit_game_button.collidepoint(event.pos):
                         self.gs.running = False
                         self.gs.cur_state = GameStates.GAME_OVER
                         exit()
                     if self.gs.cur_state == GameStates.GAME_OVER:
-                        if self.credits_game.collidepoint(event.pos):
-                            self.gs.cur_state = GameStates.CREDITS
+                        self.gs.cur_state = GameStates.CREDITS
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:
@@ -383,7 +387,8 @@ class GameEngine:
 
             # don't bother calculating these running dev averages unless wanted
             if self.gs.show_dev_overlay:
-                self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(), self.clock.get_time())
+                self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(),
+                                                                                         self.clock.get_time())
 
         ##############################################################
         # close down cleanly

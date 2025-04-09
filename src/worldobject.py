@@ -19,6 +19,9 @@ class WorldObject:
 
     def __init__(self) -> None:
 
+        self.color: pygame.color = None
+        self.value: int = 0
+        self.rect: pygame.rect = None
         self.can_react = False  # can this object react to collisions with other objects?
         self.primed_collision = True
 
