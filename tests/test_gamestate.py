@@ -11,7 +11,6 @@
 
 from pygame import Vector2
 from gamestate import GameState
-from gamestates import GameStates
 from motionmodels import MotionModels
 from constants import WIDTH, PAD_WIDTH, WORLD_GRAVITY_ACC
 from constants import PADDLE_IMPULSE, BALL_SPEED_STEP
@@ -20,7 +19,7 @@ from constants import PADDLE_IMPULSE, BALL_SPEED_STEP
 def test_gamestate_init():
     gs = GameState()
     assert gs.running is True
-    assert gs.cur_state == GameStates.SPLASH
+    assert gs.cur_state == GameState.GameStateName.SPLASH
     assert gs.fps_avg == 0.0
     assert gs.loop_time_avg == 0
     assert gs.show_dev_overlay is False

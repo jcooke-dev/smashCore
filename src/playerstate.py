@@ -15,8 +15,8 @@ import constants
 class PlayerState:
     """ This maintains the current PlayerState """
 
-    def __init__(self):
+    def __init__(self) -> None:
 
-        self.lives = constants.START_LIVES
-        self.score = constants.START_SCORE
-        self.level = 1
+        self.lives: int = constants.START_LIVES
+        self.score: int = constants.START_SCORE
+        self.level: int = 1

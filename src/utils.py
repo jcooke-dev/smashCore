@@ -20,7 +20,7 @@ import statistics
 fps_q = collections.deque(maxlen=60)
 loop_time_q = collections.deque(maxlen=60)
 
-def calculate_timing_averages(fps, loop_time):
+def calculate_timing_averages(fps: float, loop_time: float) -> tuple:
     """
     This just fills the queues, shifting the oldest values out as newer ones are added, and
     calculates the running averages for display by the UI

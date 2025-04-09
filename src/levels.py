@@ -11,11 +11,11 @@
 """
 
 import pygame
+import constants
 from random import randrange as rnd
 from enum import Enum, auto
-
 from src.brick import Brick
-import constants
+from worldobject import WorldObject
 
 
 class Levels:
@@ -23,18 +23,18 @@ class Levels:
 
     class LevelName(Enum):
         """ Enum with all possible LevelNames for later construction in build_level() """
-        SMASHCORE_1 = auto()
-        SMASHCORE_SOLID_ROWS_1 = auto()
+        SMASHCORE_1: Enum = auto()
+        SMASHCORE_SOLID_ROWS_1: Enum = auto()
 
     def __init__(self):
         pass
 
     @staticmethod
-    def build_level(gw, level_name):
+    def build_level(gw_list: list[WorldObject], level_name: LevelName) -> None:
         """
         Build the specified level.
 
-        :param gw: GameWorld
+        :param gw_list: list[WorldObject]
         :param level_name: LevelName
         :return:
         """
@@ -44,9 +44,9 @@ class Levels:
                 for i in range(10):
                     for j in range(4):
                         random_score = rnd(1, 11)
-                        gw.world_objects.append(Brick(pygame.Rect(10 + 120 * i, 60 + 70 * j, 100, 50),
-                                                      (rnd(30, 256), rnd(30, 256), rnd(30, 256)),
-                                                      random_score))
+                        gw_list.append(Brick(pygame.Rect(10 + 120 * i, 60 + 70 * j, 100, 50),
+                                             (rnd(30, 256), rnd(30, 256), rnd(30, 256)),
+                                             random_score))
 
             case Levels.LevelName.SMASHCORE_SOLID_ROWS_1:
                 colors = [constants.RED, constants.ORANGE, constants.GREEN, constants.YELLOW, constants.LIGHTBLUE]
@@ -58,8 +58,7 @@ class Levels:
 
                 for i in range(num_columns):
                     for j in range(5):
-                        gw.world_objects.append(Brick(pygame.Rect(10 + horizontal * i, 60 + vertical * j, 100, 50),
-                                                      colors[j], values[j]))
+                        gw_list.append(Brick(pygame.Rect(10 + horizontal * i, 60 + vertical * j, 100, 50),
+                                             colors[j], values[j]))
             case _:
                 pass
-

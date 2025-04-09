@@ -15,19 +15,20 @@ import assets
 from src.ball import Ball
 from src.paddle import Paddle
 from src.levels import Levels
+from worldobject import WorldObject
 
 
 class GameWorld:
     """ The GameWorld holds all objects in the game for update() and draw() processing """
 
-    def __init__(self, level_name = None):
+    def __init__(self, level_name: Levels.LevelName = None) -> None:
         """
         Allows for setting the initial level build, but with a default if None passed
 
         :param level_name: a LevelName value, but None works as a default
         """
         # setup empty list to hold all world objects
-        self.world_objects = []
+        self.world_objects: list[WorldObject] = []
 
         # place the ball into the world
         self.world_objects.append(Ball(((constants.WIDTH/2) - (constants.PAD_WIDTH/2)),
@@ -37,6 +38,6 @@ class GameWorld:
         # place the paddle into the world
         self.world_objects.append(Paddle(constants.RED, constants.PAD_WIDTH, constants.PAD_HEIGHT, image=assets.PADDLE_IMG))
 
-        # setup the initial bricks level
-        Levels.build_level(self, Levels.LevelName.SMASHCORE_1 if level_name is None else level_name)
+        # set up the initial bricks level
+        Levels.build_level(self.world_objects, Levels.LevelName.SMASHCORE_1 if level_name is None else level_name)
 
