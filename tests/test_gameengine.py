@@ -14,7 +14,6 @@ import pytest
 import constants
 from unittest import mock
 from src.gameengine import GameEngine
-from gamestates import GameStates
 from gamestate import GameState
 from playerstate import PlayerState
 
@@ -45,7 +44,7 @@ def test_gamestate_reset(starting_ge):
     # modify test once multiple levels have been added
     # self.gw = GameWorld(Levels.LevelName.SMASHCORE_?)
     starting_ge.fps = 500 # any number is fine as long as it isn't initial FPS
-    starting_ge.gs.cur_state = GameStates.GAME_OVER
+    starting_ge.gs.cur_state = GameState.GameStateName.GAME_OVER
     starting_ge.ps.lives = 0
     starting_ge.ps.score = 90
     pygame.mouse.set_visible(True)
@@ -56,7 +55,7 @@ def test_gamestate_reset(starting_ge):
     # enums should be compared by identity
     # assert starting_ge.gs.cur_state is GameStates.READY_TO_LAUNCH
     # but it isn't working so comparing by name
-    assert starting_ge.gs.cur_state.name is GameStates.READY_TO_LAUNCH.name
+    assert starting_ge.gs.cur_state.name is GameState.GameStateName.READY_TO_LAUNCH.name
     assert starting_ge.ps.lives == constants.START_LIVES
     assert starting_ge.ps.score == 0
     assert not pygame.mouse.get_visible()

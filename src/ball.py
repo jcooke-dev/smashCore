@@ -16,7 +16,6 @@ import paddle
 from gamestate import GameState
 from playerstate import PlayerState
 from worldobject import WorldObject
-from gamestates import GameStates
 from motionmodels import MotionModels
 
 
@@ -51,7 +50,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # VECTOR motion models defaults
         self.v_pos: pygame.Vector2 = pygame.Vector2(x - self.radius, y)
         self.v_vel_unit: pygame.Vector2 = pygame.Vector2(1.0, 0.0)
-        self.v_vel_unit: pygame.Vector2 = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
+        self.v_vel_unit = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
         self.speed_v: float = constants.BALL_SPEED_VECTOR
         self.v_vel: pygame.Vector2 = self.v_vel_unit * self.speed_v
 
@@ -72,7 +71,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         :param ps: PlayerState
         :return:
         """
-        if gs.cur_state == GameStates.PLAYING:
+        if gs.cur_state == GameState.GameStateName.PLAYING:
 
             ##############################################################
             # perform the wall collision detection and overall position
@@ -151,11 +150,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         if self.rect.top > constants.HEIGHT:
             ps.lives -= 1
             self.reset_position()
-            gs.cur_state = GameStates.READY_TO_LAUNCH
+            gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
 
             # Displays game_over menu if user loses all of their lives
             if ps.lives <= 0:
-                gs.cur_state = GameStates.GAME_OVER
+                gs.cur_state = GameState.GameStateName.GAME_OVER
 
     def draw_wo(self, screen: pygame.Surface) -> None:
         """

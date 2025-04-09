@@ -21,7 +21,6 @@ from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
                            BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR)
 from src.levels import Levels
 from src.gameworld import GameWorld
-from gamestates import GameStates
 from userinterface import UserInterface
 from playerstate import PlayerState
 from gamestate import GameState
@@ -55,6 +54,7 @@ class GameEngine:
 
         # record the app start ticks to time the splash screen display
         self.app_start_ticks: float = pygame.time.get_ticks()
+        self.gs.cur_state = GameState.GameStateName.SPLASH
 
         pygame.display.set_caption(GAME_NAME)
 
@@ -74,7 +74,7 @@ class GameEngine:
         # assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
-        self.gs.cur_state = GameStates.READY_TO_LAUNCH
+        self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
         self.gs.cur_ball_x = (WIDTH / 2) - (PAD_WIDTH / 2)
         self.ps.lives = START_LIVES
         self.ps.score = START_SCORE
@@ -99,7 +99,7 @@ class GameEngine:
         else:
             Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
-        self.gs.cur_state = GameStates.READY_TO_LAUNCH
+        self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
         #self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
 
     def draw_world_and_status(self) -> None:
@@ -123,9 +123,9 @@ class GameEngine:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.ui.start_button_rect.collidepoint(event.pos):
-                    self.gs.cur_state = GameStates.READY_TO_LAUNCH
+                    self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
                 elif self.ui.credits_button_rect.collidepoint(event.pos):
-                    self.gs.cur_state = GameStates.CREDITS
+                    self.gs.cur_state = GameState.GameStateName.CREDITS
 
     def run_loop(self) -> None:
         """
@@ -142,53 +142,53 @@ class GameEngine:
                 ##############################################################
                 # display the SPLASH screen
                 ##############################################################
-                case GameStates.SPLASH:
+                case GameState.GameStateName.SPLASH:
                     # placeholder for the splash screen graphic
                     self.ui.draw_splash_screen()
 
                     # go beyond the splash GameState after desired time
                     cur_ticks = pygame.time.get_ticks()
                     if ((cur_ticks - self.app_start_ticks) / 1000) > SPLASH_TIME_SECS:
-                        self.gs.cur_state = GameStates.MENU_SCREEN
+                        self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
                 # display the MENU SCREEN
                 ##############################################################
-                case GameStates.MENU_SCREEN:
+                case GameState.GameStateName.MENU_SCREEN:
                     self.ui.draw_start_screen()
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             self.gs.running = False
-                            self.gs.cur_state = GameStates.GAME_OVER
+                            self.gs.cur_state = GameState.GameStateName.GAME_OVER
                             pygame.quit()
                             exit()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.start_button_rect.collidepoint(event.pos):
-                                self.gs.cur_state = GameStates.READY_TO_LAUNCH
+                                self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
                             elif self.ui.credits_button_rect.collidepoint(event.pos):
-                                self.gs.cur_state = GameStates.CREDITS
+                                self.gs.cur_state = GameState.GameStateName.CREDITS
 
                 ##############################################################
                 # display credits screen
                 ##############################################################
-                case GameStates.CREDITS:
+                case GameState.GameStateName.CREDITS:
                     self.ui.draw_credits_screen()
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:  # Add this line
                             self.gs.running = False
-                            self.gs.cur_state = GameStates.GAME_OVER
+                            self.gs.cur_state = GameState.GameStateName.GAME_OVER
                             pygame.quit()
                             exit()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.back_button_rect.collidepoint(event.pos):
-                                self.gs.cur_state = GameStates.MENU_SCREEN
+                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
                 # display the PLAYING gameplay screen
                 ##############################################################
-                case GameStates.PLAYING | GameStates.READY_TO_LAUNCH:
+                case GameState.GameStateName.PLAYING | GameState.GameStateName.READY_TO_LAUNCH:
                     # Hide the mouse again when transitioning away from the start screen.
                     pygame.mouse.set_visible(False)
                     # update all objects in GameWorld
@@ -244,7 +244,7 @@ class GameEngine:
                     # note this is the way the player enters the gameplay
                     # screen, in a pending, ready to launch mode, with the
                     # ball stuck to the paddle
-                    if self.gs.cur_state == GameStates.READY_TO_LAUNCH:
+                    if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
                         self.ui.draw_game_intro()
 
                     if not any(isinstance(wo, Brick) for wo in self.gw.world_objects):
@@ -254,7 +254,7 @@ class GameEngine:
                 ##############################################################
                 # display the PAUSED popup over the frozen gameplay
                 ##############################################################
-                case GameStates.PAUSED:
+                case GameState.GameStateName.PAUSED:
                     # draw all objects in GameWorld
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
@@ -265,7 +265,7 @@ class GameEngine:
                 ##############################################################
                 # display the GAME_OVER popup over the frozen gameplay
                 ##############################################################
-                case GameStates.GAME_OVER:
+                case GameState.GameStateName.GAME_OVER:
                     # draw all objects in GameWorld
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
@@ -278,24 +278,24 @@ class GameEngine:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.gs.running = False
-                    self.gs.cur_state = GameStates.GAME_OVER
+                    self.gs.cur_state = GameState.GameStateName.GAME_OVER
                     exit()
 
                 if event.type == pygame.KEYDOWN:
                     # toggle PAUSE GameState with ESCAPE key press
                     if event.key == pygame.K_ESCAPE:
-                        if self.gs.cur_state == GameStates.PAUSED:
-                            self.gs.cur_state = GameStates.PLAYING
+                        if self.gs.cur_state == GameState.GameStateName.PAUSED:
+                            self.gs.cur_state = GameState.GameStateName.PLAYING
                             pygame.mouse.set_pos(self.mouse_pos)
                             pygame.mouse.set_visible(False)
-                        elif self.gs.cur_state == GameStates.PLAYING:
-                            self.gs.cur_state = GameStates.PAUSED
+                        elif self.gs.cur_state == GameState.GameStateName.PLAYING:
+                            self.gs.cur_state = GameState.GameStateName.PAUSED
                             self.mouse_pos = pygame.mouse.get_pos()
                             pygame.mouse.set_visible(True)
 
                     if event.key == pygame.K_SPACE:
-                        if self.gs.cur_state == GameStates.READY_TO_LAUNCH:
-                            self.gs.cur_state = GameStates.PLAYING
+                        if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
+                            self.gs.cur_state = GameState.GameStateName.PLAYING
 
                     # detect the CTRL+d key combo to toggle the dev overlay
                     # calculation and display
@@ -353,16 +353,16 @@ class GameEngine:
 
                 # the actual button press checks from the returned rects above
                 if (event.type == pygame.MOUSEBUTTONDOWN and
-                        ((self.gs.cur_state == GameStates.PAUSED) or
-                         (self.gs.cur_state == GameStates.GAME_OVER))):
+                        ((self.gs.cur_state == GameState.GameStateName.PAUSED) or
+                         (self.gs.cur_state == GameState.GameStateName.GAME_OVER))):
                     if self.restart_game_button.collidepoint(event.pos):
                         self.reset_game()
                     if self.quit_game_button.collidepoint(event.pos):
                         self.gs.running = False
-                        self.gs.cur_state = GameStates.GAME_OVER
+                        self.gs.cur_state = GameState.GameStateName.GAME_OVER
                         exit()
-                    if self.gs.cur_state == GameStates.GAME_OVER:
-                        self.gs.cur_state = GameStates.CREDITS
+                    if self.gs.cur_state == GameState.GameStateName.GAME_OVER:
+                        self.gs.cur_state = GameState.GameStateName.CREDITS
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:

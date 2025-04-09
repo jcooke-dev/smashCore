@@ -63,7 +63,6 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
             screen.blit(paddle_scale.convert_alpha(),
                         (self.rect.x - 2.2, self.rect.y - 1.1))
 
-
     def move_left(self, pixels: int) -> None:
         """
         Incremental Paddle movement to the left (likely used for KB control)
