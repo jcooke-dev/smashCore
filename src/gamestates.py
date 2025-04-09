@@ -14,10 +14,10 @@ from enum import Enum, auto
 
 class GameStates(Enum):
     """ Enum with all possible GameState values """
-    SPLASH = auto()
-    MENU_SCREEN = auto()
-    READY_TO_LAUNCH = auto()
-    PLAYING = auto()
-    PAUSED = auto()
-    GAME_OVER = auto()
-    CREDITS = auto()
+    SPLASH: Enum = auto()
+    MENU_SCREEN: Enum = auto()
+    READY_TO_LAUNCH: Enum = auto()
+    PLAYING: Enum = auto()
+    PAUSED: Enum = auto()
+    GAME_OVER: Enum = auto()
+    CREDITS: Enum = auto()
