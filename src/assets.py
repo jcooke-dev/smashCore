@@ -33,7 +33,7 @@ BRK_YELLOW_IMG, BRK_BLUE_IMG, BRK_GREEN_IMG = None, None, None
 BRK_RED_IMG, BRK_PINK_IMG, BRK_ORANGE_IMG, = None, None, None
 BRK_LTBLUE_IMG, BRK_PURPLE_IMG, BRK_TEAL_IMG = None, None, None
 BRK_LAVENDER_IMG = None
-
+BRICK_COLORS = []
 
 def load_assets():
     """
@@ -43,7 +43,7 @@ def load_assets():
     global BACKGROUND_IMG, BALL_IMG, PADDLE_IMG
     global BRK_YELLOW_IMG, BRK_BLUE_IMG, BRK_GREEN_IMG, BRK_RED_IMG
     global BRK_PINK_IMG, BRK_ORANGE_IMG, BRK_LTBLUE_IMG, BRK_PURPLE_IMG
-    global BRK_TEAL_IMG, BRK_LAVENDER_IMG
+    global BRK_TEAL_IMG, BRK_LAVENDER_IMG, BRICK_COLORS
     BACKGROUND_IMG = pygame.image.load(os.path.join(ART_DIR, BACKGROUND_FILENAME))
     BRK_YELLOW_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_YELLOW_FILENAME))
     BRK_BLUE_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_BLUE_FILENAME))
@@ -57,3 +57,6 @@ def load_assets():
     BRK_LAVENDER_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_LAVENDER_FILENAME))
     BALL_IMG = pygame.image.load(os.path.join(ART_DIR, BALL_FILENAME))
     PADDLE_IMG = pygame.image.load(os.path.join(ART_DIR, PADDLE_FILENAME))
+
+    BRICK_COLORS = [BRK_YELLOW_IMG, BRK_BLUE_IMG, BRK_GREEN_IMG, BRK_RED_IMG, BRK_PINK_IMG, BRK_ORANGE_IMG,
+                    BRK_LTBLUE_IMG, BRK_PURPLE_IMG, BRK_TEAL_IMG, BRK_LAVENDER_IMG]

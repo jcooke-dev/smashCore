@@ -175,9 +175,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         :return:
         """
         # SIMPLE_1 motion model defaults
-        self.rect.center = self.commanded_pos_x, (
-                    constants.HEIGHT - constants.PAD_HEIGHT -
-                    constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))
+        self.rect.x = self.commanded_pos_x
+        self.rect.y = (constants.HEIGHT - constants.PAD_HEIGHT -
+                        constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))
         self.dx = rnd.choice([1, -1])
         self.dy = -1
 
@@ -185,7 +185,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         self.v_pos = Vector2(self.commanded_pos_x,
                              (constants.HEIGHT - constants.PAD_HEIGHT -
                               constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)))
-        self.rect.center = (self.v_pos.x, self.v_pos.y)
+        self.rect.x = self.v_pos.x
+        self.rect.y = self.v_pos.y
 
         self.v_vel_unit = Vector2(1.0, 0.0)
         self.v_vel_unit = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
