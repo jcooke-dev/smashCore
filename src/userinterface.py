@@ -227,6 +227,27 @@ class UserInterface:
         :return:
         """
         self.surface.fill(constants.BLACK)
+
+        # Basic game information and instructions
+        howto_font = pygame.font.Font(None, 30)
+        howto_text = ["SmashCore is a retro-style, simple, brick-breaking arcade game.",
+                 "Move the paddle using your mouse or trackpad to hit the ball and break the bricks.",
+                 "Clear all the bricks to progress to the next level.",
+                 "",
+                 "ESC Pauses the game.",
+                 "CTRL-D Toggles the developer overlay to see ongoing game performance and stats. "
+                 ]
+
+        x, y = 0, 200
+        line_spacing = 10
+        for howto in howto_text:
+            rendered = howto_font.render(howto, True, constants.WHITE)
+            if x == 0:
+                x = constants.WIDTH // 2 - rendered.get_width() // 2
+            self.surface.blit(rendered, (x, y))
+            y += rendered.get_height() + line_spacing
+
+
         font = pygame.font.Font(None, 48)
         text = font.render("Click to Play", True, constants.BLACK)
         button_width = text.get_width() + 40
