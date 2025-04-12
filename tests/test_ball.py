@@ -8,6 +8,7 @@
 
     Module Description: This is the test harness for the Ball class.
 """
+from enum import Enum, auto
 
 import pygame
 import pytest
@@ -15,7 +16,7 @@ from paddle import Paddle
 from pygame import Vector2
 from ball import Ball
 from constants import BALL_RADIUS, BALL_SPEED_SIMPLE, WIDTH, HEIGHT, WHITE
-from gamestates import GameStates
+from gamestate import GameState
 from motionmodels import MotionModels
 
 
@@ -43,8 +44,10 @@ def playerstate():
 @pytest.fixture
 def gamestate():
     class GameState:
+        class GameStateName(Enum):
+            PLAYING: Enum = auto()
         def __init__(self):
-            self.cur_state = GameStates.PLAYING
+            self.cur_state = GameState.GameStateName.PLAYING
             self.motion_model = MotionModels.SIMPLE_1
             self.gravity_acc_length = 0
             self.v_gravity_acc = Vector2(0, 0)
@@ -81,6 +84,7 @@ def test_update_wo_position_update_simple(ball, gamestate):
 
 def test_update_wo_wall_collision_left_simple(ball, gamestate):
     gs = gamestate
+    gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.SIMPLE_1
 
     ball.dx = -1 # must ensure moving to the left before collision test (since __init__ has it randomly either -1, 1)
@@ -93,6 +97,7 @@ def test_update_wo_wall_collision_left_simple(ball, gamestate):
 
 def test_update_wo_wall_collision_right_simple(ball, gamestate):
     gs = gamestate
+    gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.SIMPLE_1
 
     ball.dx = 1  # must ensure moving to the right before collision test (since __init__ has it randomly either -1, 1)
@@ -105,6 +110,7 @@ def test_update_wo_wall_collision_right_simple(ball, gamestate):
 
 def test_update_wo_wall_collision_top_simple(ball, gamestate):
     gs = gamestate
+    gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.SIMPLE_1
 
     ball.rect.centery = 0  # simulate collision with top wall
@@ -115,6 +121,7 @@ def test_update_wo_wall_collision_top_simple(ball, gamestate):
 
 def test_update_wo_gravity_application_vector(ball, gamestate):
     gs = gamestate
+    gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.VECTOR_1
     gs.gravity_acc_length = 1.0
     gs.v_gravity_acc = Vector2(0, 1)
@@ -128,7 +135,7 @@ def test_update_wo_gravity_application_vector(ball, gamestate):
 
 def test_update_wo_game_state_ready_to_launch(ball, gamestate):
     gs = gamestate
-    gs.cur_state = GameStates.READY_TO_LAUNCH
+    gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
 
     ball.update_wo(gs, None)
 
@@ -143,7 +150,7 @@ def test_update_wo_game_state_game_over(ball, gamestate, playerstate):
 
     ball.update_wo(gs, ps)
 
-    assert gs.cur_state == GameStates.GAME_OVER  # game should be over
+    assert gs.cur_state == GameState.GameStateName.GAME_OVER  # game should be over
 
 
 def test_simple_horizontal_collision(ball, gamestate):

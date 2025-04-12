@@ -20,7 +20,7 @@ class Brick(WorldObject):
     They have a size, color, and point value
     """
 
-    def __init__(self, rect, color, value=1, image=None):
+    def __init__(self, rect: pygame.rect, color: pygame.color, value: int = 1, image: pygame.image = None) -> None:
         """
         Initializes a Brick object.
 
@@ -30,13 +30,14 @@ class Brick(WorldObject):
         """
         super().__init__()
 
-        self.strength = 1  # Number of hits required to break the brick
-        self.rect = pygame.Rect(rect)
-        self.color = color
-        self.value = value
-        self.image = image
+        self.strength: int = 1  # Number of hits required to break the brick
+        self.rect: pygame.rect = pygame.Rect(rect)
+        self.color: pygame.color = color
+        self.value: int = value
+        self.image: pygame.image = image
 
-    def draw_wo(self, screen):
+
+    def draw_wo(self, screen: pygame.Surface) -> None:
         """
         Draws the brick to the screen.
 
@@ -48,7 +49,7 @@ class Brick(WorldObject):
         else:
             screen.blit(self.image, self.rect)
 
-    def add_collision(self):
+    def add_collision(self) -> None:
         """
         Reduces the brick's strength when it's hit.
 
@@ -56,7 +57,7 @@ class Brick(WorldObject):
         """
         self.strength -= 1
 
-    def should_remove(self):
+    def should_remove(self) -> bool:
         """
         Returns True if the brick should be removed (strength <= 0).
 
