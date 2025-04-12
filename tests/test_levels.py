@@ -28,7 +28,7 @@ def mock_gameworld():
 @mock.patch("pygame.transform.scale")
 def test_level_smashcore_1(mock_scale_image, mock_image_load, mock_gameworld):
     assets.load_assets()
-    Levels.build_level(mock_gameworld, Levels.LevelName.SMASHCORE_1)
+    Levels.build_level(mock_gameworld.world_objects, Levels.LevelName.SMASHCORE_1)
 
     # Assert that the correct number of bricks are added
     assert len(mock_gameworld.world_objects) == 40  # 10 columns * 4 rows
@@ -41,7 +41,7 @@ def test_level_smashcore_1(mock_scale_image, mock_image_load, mock_gameworld):
 
 def test_build_level_invalid(mock_gameworld):
     # Test with an invalid level name
-    Levels.build_level(mock_gameworld, None)
+    Levels.build_level(mock_gameworld.world_objects, None)
 
     # Assert no bricks are added
     assert len(mock_gameworld.world_objects) == 0
