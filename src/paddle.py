@@ -31,7 +31,10 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         super().__init__()
 
         # Set starting location for paddle in the bottom center of screen
-        self.rect: pygame.rect = pygame.Rect([((constants.WIDTH/2) - (width/2)), (constants.HEIGHT - height - constants.PADDLE_START_POSITION_OFFSET), width, height])
+        self.rect: pygame.rect = pygame.Rect([((constants.WIDTH/2) - (width/2)),
+                                 (constants.HEIGHT - (height * 2) -
+                                  constants.PADDLE_START_POSITION_OFFSET), width, height])
+
         self.color: pygame.color = color
         self.image: pygame.image = image
 

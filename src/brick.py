@@ -20,7 +20,7 @@ class Brick(WorldObject):
     They have a size, color, and point value
     """
 
-    def __init__(self, rect: pygame.rect, color: pygame.color, value: int = 1) -> None:
+    def __init__(self, rect: pygame.rect, color: pygame.color, value: int = 1, image: pygame.image = None) -> None:
         """
         Initializes a Brick object.
 
@@ -34,6 +34,8 @@ class Brick(WorldObject):
         self.rect: pygame.rect = pygame.Rect(rect)
         self.color: pygame.color = color
         self.value: int = value
+        self.image: pygame.image = image
+
 
     def draw_wo(self, screen: pygame.Surface) -> None:
         """
@@ -42,7 +44,10 @@ class Brick(WorldObject):
         :param screen:
         :return:
         """
-        pygame.draw.rect(screen, self.color, self.rect)
+        if self.image is None:
+            pygame.draw.rect(screen, self.color, self.rect)
+        else:
+            screen.blit(self.image, self.rect)
 
     def add_collision(self) -> None:
         """

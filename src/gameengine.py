@@ -26,6 +26,8 @@ from playerstate import PlayerState
 from gamestate import GameState
 from motionmodels import MotionModels
 
+import utils
+
 
 class GameEngine:
     """ The main engine that drives the game loop """
@@ -93,11 +95,16 @@ class GameEngine:
                 wo.reset_position()
                 wo.speed_v = BALL_SPEED_VECTOR + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
                 wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
-        # builds level in cycles of the 2 levels
-        if self.ps.level % 2 == 0:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_SOLID_ROWS_1)
-        else:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_1)
+        # builds level in cycles of the 4 levels
+        if self.ps.level % 4 == 1:
+            Levels.build_level(self.gw, Levels.LevelName.SMASHCORE_1)
+        if self.ps.level % 4 == 2:
+            Levels.build_level(self.gw, Levels.LevelName.SMASHCORE_SOLID_ROWS_1)
+        if self.ps.level % 4 == 3:
+            Levels.build_level(self.gw, Levels.LevelName.SMASHCORE_IMG_CHAMFER_1)
+        if self.ps.level % 4 == 0:
+            Levels.build_level(self.gw, Levels.LevelName.SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1)
+
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
         #self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
