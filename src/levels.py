@@ -62,7 +62,7 @@ class Levels:
 
                 for i in range(num_columns):
                     for j in range(5):
-                        gw.world_objects.append(Brick(pygame.Rect(10 + horizontal * i, 60 + vertical * j, 100, 50),
+                        gw_list.append(Brick(pygame.Rect(10 + horizontal * i, 60 + vertical * j, 100, 50),
                                                       colors[j], values[j]))
 
             case Levels.LevelName.SMASHCORE_IMG_CHAMFER_1:
@@ -71,7 +71,7 @@ class Levels:
                         random_brick = choice(assets.BRICK_COLORS)
                         scaled_brick = pygame.transform.scale(random_brick, (110, 40))
                         random_score = rnd(1, 11)
-                        gw.world_objects.append(Brick(pygame.Rect(35 + 113 * i, 120 + 40 * j, 110, 40),
+                        gw_list.append(Brick(pygame.Rect(35 + 113 * i, 120 + 40 * j, 110, 40),
                                                       (rnd(30, 256), rnd(30, 256), rnd(30, 256)),
                                                       random_score, image=scaled_brick))
 
@@ -94,7 +94,7 @@ class Levels:
 
                 for i in range(num_columns):
                     for j in range(5):
-                        gw.world_objects.append(Brick(pygame.Rect(10 + horizontal * i, 60 + vertical * j, 100, 50),
+                        gw_list.append(Brick(pygame.Rect(10 + horizontal * i, 60 + vertical * j, 100, 50),
                                                       colors[j], values[j], image=row_colors[j]))
 
             case _:
