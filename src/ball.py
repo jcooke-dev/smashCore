@@ -11,7 +11,6 @@
 
 import random as rnd
 import pygame
-from pygame import Vector2
 import constants
 import paddle
 from gamestate import GameState
