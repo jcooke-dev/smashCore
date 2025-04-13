@@ -17,13 +17,14 @@ class GameState:
 
     class GameStateName(Enum):
         """ Enum with all possible GameState values """
-        SPLASH: Enum = auto()
-        MENU_SCREEN: Enum = auto()
-        READY_TO_LAUNCH: Enum = auto()
-        PLAYING: Enum = auto()
-        PAUSED: Enum = auto()
-        GAME_OVER: Enum = auto()
-        CREDITS: Enum = auto()
+        SPLASH = auto()
+        MENU_SCREEN = auto()
+        READY_TO_LAUNCH = auto()
+        PLAYING = auto()
+        PAUSED = auto()
+        GAME_OVER = auto()
+        CREDITS = auto()
+        HOW_TO_PLAY = auto()
     """ This maintains the current GameState """
 
     def __init__(self) -> None:
