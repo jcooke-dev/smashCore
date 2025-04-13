@@ -24,6 +24,7 @@ class GameState:
         PAUSED: Enum = auto()
         GAME_OVER: Enum = auto()
         CREDITS: Enum = auto()
+        HOW_TO_PLAY = auto()
     """ This maintains the current GameState """
 
     def __init__(self) -> None:
