@@ -12,7 +12,6 @@
 from pygame import Vector2
 
 import constants
-
 from gamestates import GameStates
 from motionmodels import MotionModels
 

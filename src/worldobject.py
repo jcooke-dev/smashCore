@@ -18,10 +18,11 @@ class WorldObject:
         self.can_react = False # can this object react to collisions with other objects?
         self.primed_collision = True
 
-    def update_wo(self, gs, ps):
+    def update_wo(self, gs, ps, lb):
         """
         Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
 
+        :param lb:
         :param gs:
         :param ps:
         :return:

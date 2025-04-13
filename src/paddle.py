@@ -37,10 +37,11 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
 
         self.commanded_pos_x = 0
 
-    def update_wo(self, gs, ps):
+    def update_wo(self, gs, ps, lb):
         """
         Update the Paddle's pos
 
+        :param lb:
         :param gs: GameState
         :param ps: PlayerState
         :return:

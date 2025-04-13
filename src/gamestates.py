@@ -21,3 +21,5 @@ class GameStates(Enum):
     PAUSED = auto()
     GAME_OVER = auto()
     CREDITS = auto()
+    LEADERBOARD = auto()
+    GET_HIGH_SCORE = auto()

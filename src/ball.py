@@ -10,6 +10,7 @@
 """
 
 import random as rnd
+
 import pygame
 from pygame import Vector2
 import constants
@@ -63,10 +64,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         self.commanded_pos_x = 0
 
-    def update_wo(self, gs, ps):
+    def update_wo(self, gs, ps, lb):
         """
         Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
 
+        :param lb:
         :param gs: GameState
         :param ps: PlayerState
         :return:
@@ -154,7 +156,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
             # Displays game_over menu if user loses all of their lives
             if ps.lives <= 0:
-                gs.cur_state = GameStates.GAME_OVER
+                # collects the player's initials if this is a high score
+                if lb.is_high_score(ps.score):
+                    gs.cur_state = GameStates.GET_HIGH_SCORE
+                else:
+                    gs.cur_state = GameStates.GAME_OVER
 
     def draw_wo(self, screen):
         """

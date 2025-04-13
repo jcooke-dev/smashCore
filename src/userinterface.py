@@ -23,8 +23,11 @@ class UserInterface:
         # not certain this will reliably get a font (especially on diff OSes), but it's supposed to
         # fallback to a default pygame font
         self.font_fixed_small = pygame.font.SysFont("Courier", 16, True)
+        self.font_fixed_large = pygame.font.SysFont("Courier", 35, True)
+        self.font_fixed_xlarge = pygame.font.SysFont("Courier", 60, True)
         self.surface = None
         self.screen = None
+        self.tb_initials_text = ""
 
     def draw_button(self, text, x, y, width, height, color, hover_color, action=None):
         """
@@ -81,9 +84,10 @@ class UserInterface:
 
         :return:
         """
+
         pygame.mouse.set_visible(True)
         pygame.draw.rect(self.surface,
-                         (0, 0, 0, 160),
+                         (0, 0, 0, 140),
                          [0, 0, constants.WIDTH, constants.HEIGHT])
 
         text_game_over = self.font_game_over.render(
@@ -117,7 +121,76 @@ class UserInterface:
                          (255, 0, 0),
                          (200, 0, 0))
         self.screen.blit(self.surface, (0, 0))
+
         return reset, quit
+
+    def draw_get_high_score(self):
+        """
+        Draws the game over screen on a surface and displays it if game is lost
+        Buttons to give the user the option to try again or quit
+
+        :return:
+        """
+
+        pygame.mouse.set_visible(True)
+        pygame.draw.rect(self.surface,
+                         (0, 0, 0, 140),
+                         [0, 0, constants.WIDTH, constants.HEIGHT])
+
+        # draw message
+        text_high_score1 = self.font_game_over.render(
+            "That's a high score!", True, constants.YELLOW)
+        text_rect1 = text_high_score1.get_rect(
+            center=(constants.WIDTH // 2, constants.HEIGHT // 3))
+
+        text_high_score2 = self.font_game_over.render(
+            "Please enter your initials:", True, constants.YELLOW)
+        text_rect2 = text_high_score2.get_rect(
+            center=(constants.WIDTH // 2, (constants.HEIGHT // 3) + 80))
+
+        bg_surface1 = pygame.Surface(
+            (text_rect1.width + 20, text_rect1.height + 10), pygame.SRCALPHA)
+        bg_surface1.fill((0, 0, 0, 255))
+
+        bg_surface2 = pygame.Surface(
+            (text_rect2.width + 20, text_rect2.height + 10), pygame.SRCALPHA)
+        bg_surface2.fill((0, 0, 0, 255))
+
+        bg_rect1 = bg_surface1.get_rect(center=text_rect1.center)
+        bg_rect2 = bg_surface2.get_rect(center=text_rect2.center)
+
+        self.surface.blit(bg_surface1, (bg_rect1.x, bg_rect1.y))
+        self.surface.blit(text_high_score1, (text_rect1.x, text_rect1.y))
+
+        self.surface.blit(bg_surface2, (bg_rect2.x, bg_rect2.y))
+        self.surface.blit(text_high_score2, (text_rect2.x, text_rect2.y))
+
+        # draw input box
+        color = (0, 255, 0)
+        backcolor = (255, 255, 255, 192)
+        pos = (constants.WIDTH / 2, text_rect2.y + 150)
+        width = 400
+        text = "---" if len(self.tb_initials_text) == 0 else self.tb_initials_text
+        tb_text = self.font_fixed_xlarge.render(text, True, color, constants.BLACK)
+        tb_text_rect = tb_text.get_rect(center=pos)
+
+        pygame.draw.rect(self.surface, backcolor, tb_text_rect.inflate(2, 2), 200)
+        self.surface.blit(tb_text, tb_text_rect)
+
+        # draw enter button
+        button_width = 200
+        button_height = 75
+        button_x = (constants.WIDTH - button_width) // 2  # Center buttons horizontally
+        button_y_start = tb_text_rect.y + 125
+
+        enter_btn = pygame.Rect(button_x, button_y_start, button_width, button_height)
+        self.draw_button("Enter", button_x, button_y_start, button_width, button_height,
+                         (0, 255, 0),
+                         (0, 200, 0))
+
+        self.screen.blit(self.surface, (0, 0))
+
+        return enter_btn
 
     def draw_game_intro(self):
         """
@@ -236,7 +309,8 @@ class UserInterface:
         self.start_button_rect = button_rect
         self.screen.blit(self.surface, (0, 0))
 
-        credits_width = 100
+        # add Credits button
+        credits_width = 185
         credits_height = 40
         credits_x = 20  # a little to the right
         credits_y = constants.HEIGHT - credits_height - 30  # a little higher
@@ -249,6 +323,23 @@ class UserInterface:
         self.surface.blit(credits_text, credits_text_rect)
 
         self.credits_button_rect = credits_rect
+
+        self.screen.blit(self.surface, (0, 0))
+
+        # add Leaderboard button
+        leader_width = 185
+        leader_height = 40
+        leader_x = 20  # a little to the right
+        leader_y = constants.HEIGHT - credits_height - leader_height - 60  # a little higher
+        leader_rect = pygame.Rect(leader_x, leader_y, leader_width, leader_height)
+        leader_font = pygame.font.Font(None, 36)  # same size as the rest of the buttons.
+        leader_text = leader_font.render("Leaderboard", True, constants.BLACK)  # same color as the rest of the buttons
+        leader_text_rect = leader_text.get_rect(center=leader_rect.center)
+
+        pygame.draw.rect(self.surface, (150, 150, 150), leader_rect)
+        self.surface.blit(leader_text, leader_text_rect)
+
+        self.leader_button_rect = leader_rect
 
         self.screen.blit(self.surface, (0, 0))
 
@@ -285,4 +376,45 @@ class UserInterface:
         self.back_button_rect = back_rect
         self.screen.blit(self.surface, (0, 0))
 
+    def draw_leaderboard_screen(self, lb):
+        """
+        Show the leaderboard screen
 
+        :return:
+        """
+        self.surface.fill(constants.BLACK)
+
+        l_scores = []
+        l_scores.append("HIGH SCORES")
+        l_scores.append("")
+
+        score_sorted = sorted(lb.l_top_scores, key=lambda scr: scr.score, reverse=True)
+        for scr in score_sorted:
+            str_build = (f"{scr.id}  "
+                         f"{scr.score:>8d}   "
+                         f"(level: {scr.level:>2d})")
+            l_scores.append(str_build)
+
+        y_offset = constants.HEIGHT // 6
+        for score_str in l_scores:
+            score_text = self.font_fixed_large.render("  " + score_str, True, constants.WHITE)
+            score_rect = score_text.get_rect(center=(constants.WIDTH // 2, y_offset))
+            self.surface.blit(score_text, score_rect)
+            y_offset += 50
+
+        # Draws back button
+        back_width = 100
+        back_height = 40
+        back_x = 10
+        back_y = constants.HEIGHT - back_height - 10
+        back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
+        back_font = pygame.font.Font(None, 36)
+        back_text = back_font.render("Back", True, constants.BLACK)
+        back_text_rect = back_text.get_rect(center=back_rect.center)
+
+        pygame.draw.rect(self.surface, (150, 150, 150), back_rect)
+        self.surface.blit(back_text, back_text_rect)
+        self.back_button_rect = back_rect
+
+        # draw everything
+        self.screen.blit(self.surface, (0, 0))
