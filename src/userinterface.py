@@ -132,7 +132,7 @@ class UserInterface:
 
         return reset, quit
 
-    def draw_get_high_score(self) -> None:
+    def draw_get_high_score(self) -> pygame.Rect:
         """
         Draws the game over screen on a surface and displays it if game is lost
         Buttons to give the user the option to try again or quit
