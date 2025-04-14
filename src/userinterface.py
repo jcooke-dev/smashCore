@@ -8,28 +8,32 @@
 
     Module Description: UserInterface contains the various UI element drawing functions.
 """
+from collections.abc import Callable
 
 import pygame
 import constants
+from gamestate import GameState
+from leaderboard import Leaderboard
 
 
 class UserInterface:
     """ This provides a number of different UI element drawing functions """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Font setup
         self.font_game_over = pygame.font.Font(None, 100)
         self.font_buttons = pygame.font.Font(None, 50)
         # not certain this will reliably get a font (especially on diff OSes), but it's supposed to
         # fallback to a default pygame font
-        self.font_fixed_small = pygame.font.SysFont("Courier", 16, True)
-        self.font_fixed_large = pygame.font.SysFont("Courier", 35, True)
-        self.font_fixed_xlarge = pygame.font.SysFont("Courier", 60, True)
-        self.surface = None
-        self.screen = None
-        self.tb_initials_text = ""
+        self.font_fixed_small: pygame.font = pygame.font.SysFont("Courier", 16, True)
+        self.font_fixed_large: pygame.font = pygame.font.SysFont("Courier", 35, True)
+        self.font_fixed_xlarge: pygame.font = pygame.font.SysFont("Courier", 60, True)
+        self.surface: pygame.surface = None
+        self.screen: pygame.surface = None
+        self.tb_initials_text: str = ""
 
-    def draw_button(self, text, x, y, width, height, color, hover_color, action=None):
+    def draw_button(self, text: str, x: int, y: int, width: int, height: int, color: pygame.color,
+                    hover_color: pygame.color, action: Callable = None) -> None:
         """
         Draw a button
 
@@ -58,7 +62,7 @@ class UserInterface:
         text_rect = text_surface.get_rect(center=rect.center)
         self.surface.blit(text_surface, text_rect)
 
-    def draw_pause_menu(self):
+    def draw_pause_menu(self) -> tuple[pygame.Rect, pygame.Rect]:
         """
         Displays the pause menu where user can continue, restart, or quit the game
 
@@ -77,7 +81,7 @@ class UserInterface:
 
         return reset, quit
 
-    def draw_game_over_menu(self):
+    def draw_game_over_menu(self) -> tuple[pygame.Rect, pygame.Rect]:
         """
         Draws the game over screen on a surface and displays it if game is lost
         Buttons to give the user the option to try again or quit
@@ -124,7 +128,7 @@ class UserInterface:
 
         return reset, quit
 
-    def draw_get_high_score(self):
+    def draw_get_high_score(self) -> None:
         """
         Draws the game over screen on a surface and displays it if game is lost
         Buttons to give the user the option to try again or quit
@@ -192,7 +196,7 @@ class UserInterface:
 
         return enter_btn
 
-    def draw_game_intro(self):
+    def draw_game_intro(self) -> None:
         """
         Displays the intro screen where the player must press the spacebar to begin play
 
@@ -201,7 +205,7 @@ class UserInterface:
         self.screen.blit(self.font_buttons.render("Press SPACEBAR to start", True, constants.WHITE),
                          ((constants.WIDTH //4) + 50, constants.HEIGHT - (constants.HEIGHT // 6)))
 
-    def draw_status(self, lives, score, level):
+    def draw_status(self, lives: int, score: int, level: int) -> None:
         """
         Draws each life in the top left corner of the screen
         Draws the score in the top right corner of the screen
@@ -222,7 +226,7 @@ class UserInterface:
         level_display = self.font_buttons.render(f"Level: {level}", True, constants.WHITE)
         self.screen.blit(level_display, ((constants.WIDTH - level_display.get_width()) / 2, 10))
 
-    def draw_dev_overlay(self, gs):
+    def draw_dev_overlay(self, gs: GameState) -> None:
         """
         Show the developer overlay
 
@@ -245,7 +249,7 @@ class UserInterface:
         self.screen.blit(dev_overlay2, ((constants.WIDTH - dev_overlay2.get_width()) / 2,
                                         constants.HEIGHT - dev_overlay2.get_height() - 24))
 
-    def draw_splash_screen(self):
+    def draw_splash_screen(self) -> None:
         """
         Show the splash screen
 
@@ -290,7 +294,7 @@ class UserInterface:
                                                 (logo_x + 150, logo_y + 150))
         self.screen.blit(text_arcade, text_arcade_rect)
 
-    def draw_start_screen(self):
+    def draw_start_screen(self) -> None:
         """
         Show the start screen
 
@@ -343,7 +347,7 @@ class UserInterface:
 
         self.screen.blit(self.surface, (0, 0))
 
-    def draw_credits_screen(self):
+    def draw_credits_screen(self) -> None:
         """
         Show the credits screen
 
@@ -376,7 +380,7 @@ class UserInterface:
         self.back_button_rect = back_rect
         self.screen.blit(self.surface, (0, 0))
 
-    def draw_leaderboard_screen(self, lb):
+    def draw_leaderboard_screen(self, lb: Leaderboard) -> None:
         """
         Show the leaderboard screen
 

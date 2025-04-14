@@ -9,16 +9,24 @@
     Module Description: This is meant to be a useful parent type class for all objects in the
                         GameWorld, although there isn't much commonality between the types.
 """
+import pygame
+import gamestate as gs_
+import playerstate as ps_
+import leaderboard as lb_
+
 
 class WorldObject:
     """ This is a parent class for the specific world objects (Ball, Paddle, Bricks) """
 
-    def __init__(self):
+    def __init__(self) -> None:
 
-        self.can_react = False # can this object react to collisions with other objects?
-        self.primed_collision = True
+        self.color: pygame.color = None
+        self.value: int = 0
+        self.rect: pygame.rect = None
+        self.can_react: bool = False  # can this object react to collisions with other objects?
+        self.primed_collision: bool = True
 
-    def update_wo(self, gs, ps, lb):
+    def update_wo(self, gs: gs_.GameState, ps: ps_.PlayerState, lb: lb_.Leaderboard):
         """
         Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
 
@@ -29,7 +37,7 @@ class WorldObject:
         """
         pass
 
-    def draw_wo(self, screen):
+    def draw_wo(self, screen: pygame.Surface) -> None:
         """
         Draw the WorldObject to the screen
 
@@ -38,7 +46,7 @@ class WorldObject:
         """
         pass
 
-    def detect_collision(self, hitbox, gs):
+    def detect_collision(self, hitbox: pygame.rect, gs: gs_.GameState) -> None:
         """
         Function to detect collisions
 
@@ -48,7 +56,7 @@ class WorldObject:
         """
         pass
 
-    def add_collision(self):
+    def add_collision(self) -> None:
         """
         Record that something collided with this WorldObject
 
@@ -56,7 +64,7 @@ class WorldObject:
         """
         pass
 
-    def should_remove(self):
+    def should_remove(self) -> bool:
         """
         Inform caller that this WorldObject should be removed from the GameWorld
 
@@ -64,7 +72,7 @@ class WorldObject:
         """
         return False
 
-    def allow_collision(self):
+    def allow_collision(self) -> bool:
         """
         Determines if this object can participate in a collision
 
@@ -76,7 +84,7 @@ class WorldObject:
         else:
             return False
 
-    def prime_for_collision(self):
+    def prime_for_collision(self) -> None:
         """
         Reset the latch to allow for future collisions
 

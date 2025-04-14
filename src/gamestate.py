@@ -8,29 +8,42 @@
 
     Module Description: Consolidate the game state flags and parameters into a single class.
 """
-
-from pygame import Vector2
-
+import pygame
 import constants
-from gamestates import GameStates
+
+from enum import Enum, auto
+
 from motionmodels import MotionModels
 
 class GameState:
-    """ This maintains the current GameState """
+	""" This maintains the current GameState """
+	
+    class GameStateName(Enum):
+        """ Enum with all possible GameState values """
+        SPLASH: Enum = auto()
+        MENU_SCREEN: Enum = auto()
+        READY_TO_LAUNCH: Enum = auto()
+        PLAYING: Enum = auto()
+        PAUSED: Enum = auto()
+        GAME_OVER: Enum = auto()
+        CREDITS: Enum = auto()
+		LEADERBOARD: Enum = auto()
+		GET_HIGH_SCORE: Enum = auto()
+    
 
-    def __init__(self):
+    def __init__(self) -> None:
 
-        self.running = True
-        self.cur_state = GameStates.SPLASH
-        self.fps_avg = 0.0
-        self.loop_time_avg = 0
-        self.show_dev_overlay = False
-        self.auto_play = False
-        self.motion_model = MotionModels.VECTOR_1
-        self.tick_time = 0
-        self.cur_ball_x = (constants.WIDTH / 2) - (constants.PAD_WIDTH / 2) # used for the auto-play mode that matches paddle pos to the ball pos
-        self.gravity_acc_length = constants.WORLD_GRAVITY_ACC
-        self.v_gravity_unit = Vector2(0.0, 1.0)
-        self.v_gravity_acc = self.v_gravity_unit * self.gravity_acc_length
-        self.paddle_impulse_vel_length = constants.PADDLE_IMPULSE
-        self.ball_speed_step = constants.BALL_SPEED_STEP
+        self.running: bool = True
+        self.cur_state: GameState.GameStateName = GameState.GameStateName.SPLASH
+        self.fps_avg: float = 0.0
+        self.loop_time_avg: float = 0
+        self.show_dev_overlay: bool = False
+        self.auto_play: bool = False
+        self.motion_model: MotionModels = MotionModels.VECTOR_1
+        self.tick_time: int = 0
+        self.cur_ball_x: int = (constants.WIDTH / 2) - (constants.PAD_WIDTH / 2) # used for the auto-play mode that matches paddle pos to the ball pos
+        self.gravity_acc_length: float = constants.WORLD_GRAVITY_ACC
+        self.v_gravity_unit: pygame.Vector2 = pygame.Vector2(0.0, 1.0)
+        self.v_gravity_acc: pygame.Vector2 = self.v_gravity_unit * self.gravity_acc_length
+        self.paddle_impulse_vel_length: float = constants.PADDLE_IMPULSE
+        self.ball_speed_step: float = constants.BALL_SPEED_STEP

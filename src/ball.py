@@ -12,18 +12,19 @@
 import random as rnd
 
 import pygame
-from pygame import Vector2
 import constants
 import paddle
+from gamestate import GameState
+from playerstate import PlayerState
+from leaderboard import Leaderboard
 from worldobject import WorldObject
-from gamestates import GameStates
 from motionmodels import MotionModels
 
 
 class Ball(WorldObject, pygame.sprite.Sprite):
     """ The ball object that collides with the paddle, walls, and bricks """
 
-    def __init__(self, x, y, image=None):
+    def __init__(self, x: int, y: int, image=None) -> None:
         """
         Initialize ball with base values and primed for collisions
 
@@ -34,37 +35,37 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         super().__init__()
 
         # general world object properties
-        self.can_react = True #  allow object to react to collisions with other objects
+        self.can_react: bool = True #  allow object to react to collisions with other objects
         # ball settings
-        self.radius = constants.BALL_RADIUS
-        self.ball_rect = int(self.radius * 2 ** 0.5)
-        self.image = image
+        self.radius: int = constants.BALL_RADIUS
+        self.ball_rect: pygame.rect = self.radius * 2 ** 0.5
+        self.image: pygame.image = image
 
         # SIMPLE_1 motion model defaults
-        self.x = x - self.radius
-        self.y = y
-        self.dx = rnd.choice([1, -1])
-        self.dy = -1
-        self.speed = constants.BALL_SPEED_SIMPLE
-        self.rect = pygame.Rect(self.x, self.y, self.ball_rect, self.ball_rect)
+        self.x: int = x - self.radius
+        self.y: int = y
+        self.dx: int = rnd.choice([1, -1])
+        self.dy: int = -1
+        self.speed: float = constants.BALL_SPEED_SIMPLE
+        self.rect: pygame.rect.Rect = pygame.Rect(self.x, self.y, self.ball_rect, self.ball_rect)
 
         # VECTOR motion models defaults
-        self.v_pos = Vector2(x - self.radius, y)
-        self.v_vel_unit = Vector2(1.0, 0.0)
-        self.v_vel_unit = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
-        self.speed_v = constants.BALL_SPEED_VECTOR
-        self.v_vel = self.v_vel_unit * self.speed_v
+        self.v_pos: pygame.Vector2 = pygame.Vector2(x - self.radius, y)
+        self.v_vel_unit: pygame.Vector2 = pygame.Vector2(1.0, 0.0)
+        self.v_vel_unit: pygame.Vector2 = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
+        self.speed_v: float = constants.BALL_SPEED_VECTOR
+        self.v_vel: pygame.Vector2 = self.v_vel_unit * self.speed_v
 
         self.rect = pygame.Rect(self.v_pos.x, self.v_pos.y, self.ball_rect, self.ball_rect)
 
         # these flags act as indicators that the ball is primed for collision with the specific item
-        self.primed_collision_wall_left = True
-        self.primed_collision_wall_right = True
-        self.primed_collision_wall_top = True
+        self.primed_collision_wall_left: bool = True
+        self.primed_collision_wall_right: bool = True
+        self.primed_collision_wall_top: bool = True
 
         self.commanded_pos_x = 0
 
-    def update_wo(self, gs, ps, lb):
+    def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard) -> None:
         """
         Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
 
@@ -73,7 +74,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         :param ps: PlayerState
         :return:
         """
-        if gs.cur_state == GameStates.PLAYING:
+        if gs.cur_state == GameState.GameStateName.PLAYING:
 
             ##############################################################
             # perform the wall collision detection and overall position
@@ -135,8 +136,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
                 self.v_pos += self.v_vel * gs.tick_time * 1.0
 
-                self.rect.x = self.v_pos.x
-                self.rect.y = self.v_pos.y
+                self.rect.x = int(self.v_pos.x)
+                self.rect.y = int(self.v_pos.y)
 
                 self.x = self.rect.x
                 self.y = self.rect.y
@@ -152,17 +153,17 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         if self.rect.top > constants.HEIGHT:
             ps.lives -= 1
             self.reset_position()
-            gs.cur_state = GameStates.READY_TO_LAUNCH
+            gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
 
             # Displays game_over menu if user loses all of their lives
             if ps.lives <= 0:
                 # collects the player's initials if this is a high score
                 if lb.is_high_score(ps.score):
-                    gs.cur_state = GameStates.GET_HIGH_SCORE
+                    gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
                 else:
-                    gs.cur_state = GameStates.GAME_OVER
+                    gs.cur_state = GameState.GameStateName.GAME_OVER
 
-    def draw_wo(self, screen):
+    def draw_wo(self, screen: pygame.Surface) -> None:
         """
         Draw the WorldObject/Ball to the screen
 
@@ -174,7 +175,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         else:
             screen.blit(self.image.convert_alpha(), (self.rect.x - 4, self.rect.y - 3.15))
 
-    def reset_position(self):
+    def reset_position(self) -> None:
         """
         Resets the position of the ball
 
@@ -188,17 +189,17 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         self.dy = -1
 
         # VECTOR motion models defaults
-        self.v_pos = Vector2(self.commanded_pos_x,
+        self.v_pos = pygame.Vector2(self.commanded_pos_x,
                              (constants.HEIGHT - constants.PAD_HEIGHT -
                               constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)))
         self.rect.x = self.v_pos.x
         self.rect.y = self.v_pos.y
 
-        self.v_vel_unit = Vector2(1.0, 0.0)
+        self.v_vel_unit = pygame.Vector2(1.0, 0.0)
         self.v_vel_unit = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
         self.v_vel = self.v_vel_unit * self.speed_v
 
-    def detect_collision(self, wo, gs):
+    def detect_collision(self, wo: pygame.rect, gs: GameState) -> None:
         """
         Detects collisions between the ball and other objects
 
@@ -265,12 +266,12 @@ class Ball(WorldObject, pygame.sprite.Sprite):
             # striking the paddle, similar to brick breaking
             if isinstance(wo, paddle.Paddle) and (gs.paddle_impulse_vel_length > 0.0):
                 # add a 'push' straight up
-                v_impulse = Vector2(0.0, -gs.paddle_impulse_vel_length)
+                v_impulse = pygame.Vector2(0.0, -gs.paddle_impulse_vel_length)
                 self.v_vel += v_impulse
                 self.speed_v = self.v_vel.magnitude()
                 self.v_vel_unit = self.v_vel.normalize()
 
-    def move_to_x(self, pos_x):
+    def move_to_x(self, pos_x: int) -> None:
         """
         Move ball_x to mouse_position
         Used when repositioning the ball when game is no longer in the
