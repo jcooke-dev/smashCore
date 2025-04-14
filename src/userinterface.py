@@ -317,9 +317,9 @@ class UserInterface:
             ((constants.WIDTH // 2, constants.HEIGHT // 3), constants.RED),
             ((constants.WIDTH // 3, constants.HEIGHT // 2), constants.ORANGE),
             ((constants.WIDTH // 5, constants.HEIGHT // 5 * 3), constants.LIGHTBLUE),
-            ((constants.WIDTH // 6, constants.HEIGHT // 6 * 4), constants.GREEN),
+            ((constants.WIDTH // 6, constants.HEIGHT // 6 * 4), constants.RED),
             ((constants.WIDTH // 8 * 7, constants.HEIGHT // 8), constants.YELLOW),
-            ((constants.WIDTH // 8, constants.HEIGHT // 8 * 7), constants.RED),
+            ((constants.WIDTH // 8, constants.HEIGHT // 8 * 7), constants.GREEN),
             ((constants.WIDTH // 2, constants.HEIGHT // 5 * 4), constants.ORANGE),
             ((constants.WIDTH // 5 * 4, constants.HEIGHT // 3), constants.LIGHTBLUE),
         ]
@@ -428,7 +428,7 @@ class UserInterface:
         leader_text = leader_font.render("Leaderboard", True, constants.BLACK)  # same color as the rest of the buttons
         leader_text_rect = leader_text.get_rect(center=leader_rect.center)
 
-        pygame.draw.rect(self.surface, (150, 150, 150), leader_rect)
+        pygame.draw.rect(self.surface, constants.RED, leader_rect, border_radius=10)
         self.surface.blit(leader_text, leader_text_rect)
         self.leader_button_rect = leader_rect
 		
@@ -459,12 +459,16 @@ class UserInterface:
         # Back button
         back_width = 100
         back_height = 40
-        back_x = 20
-        back_y = constants.HEIGHT - back_height - 30
+        back_x = 20  # same x as credits button
+        back_y = constants.HEIGHT - back_height - 30  # same y as credits button
         back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
-        self.draw_button("Back", back_rect.x, back_rect.y, back_rect.width, back_rect.height, constants.RED, constants.RED, None)
-        self.how_to_play_back_button_rect = back_rect
+        back_font = pygame.font.Font(None, 36)
+        back_text = back_font.render("Back", True, constants.BLACK)
+        back_text_rect = back_text.get_rect(center=back_rect.center)
 
+        pygame.draw.rect(self.surface, constants.RED, back_rect, border_radius=10)  # same color as credits
+        self.surface.blit(back_text, back_text_rect)
+        self.how_to_play_back_button_rect = back_rect
         self.screen.blit(self.surface, (0, 0))
 
     def draw_credits_screen(self) -> None:
@@ -495,7 +499,7 @@ class UserInterface:
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, back_rect)  # same color as credits
+        pygame.draw.rect(self.surface, constants.RED, back_rect, border_radius=10)  # same color as credits
         self.surface.blit(back_text, back_text_rect)
         self.back_button_rect = back_rect
         self.screen.blit(self.surface, (0, 0))
@@ -529,14 +533,14 @@ class UserInterface:
         # Draws back button
         back_width = 100
         back_height = 40
-        back_x = 10
-        back_y = constants.HEIGHT - back_height - 10
+        back_x = 20
+        back_y = constants.HEIGHT - back_height - 30
         back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
         back_font = pygame.font.Font(None, 36)
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
-        pygame.draw.rect(self.surface, (150, 150, 150), back_rect)
+        pygame.draw.rect(self.surface, constants.RED, back_rect, border_radius=10)  # same color as leader
         self.surface.blit(back_text, back_text_rect)
         self.back_button_rect = back_rect
 
