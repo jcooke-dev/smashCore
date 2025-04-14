@@ -189,6 +189,25 @@ class GameEngine:
                                 self.gs.cur_state = GameState.GameStateName.CREDITS
                             elif self.ui.leader_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.LEADERBOARD
+                            elif hasattr(self.ui,
+                                         'how_to_play_button_rect') and self.ui.how_to_play_button_rect.collidepoint(
+                                    event.pos):
+                                self.gs.cur_state = GameState.GameStateName.HOW_TO_PLAY
+
+                ##############################################################
+                # display how to play screen
+                ##############################################################
+                case GameState.GameStateName.HOW_TO_PLAY:
+                    self.ui.draw_how_to_play_screen()
+                    pygame.mouse.set_visible(True)
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            self.clean_shutdown()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if hasattr(self.ui,
+                                       'how_to_play_back_button_rect') and self.ui.how_to_play_back_button_rect.collidepoint(
+                                    event.pos):
+                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
                 # display credits screen
@@ -197,7 +216,7 @@ class GameEngine:
                     self.ui.draw_credits_screen()
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
-                        if event.type == pygame.QUIT:  # Add this line
+                        if event.type == pygame.QUIT:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.back_button_rect.collidepoint(event.pos):
