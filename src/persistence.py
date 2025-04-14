@@ -11,7 +11,6 @@
 
 import os.path
 import pickle
-from pprint import pprint
 
 # paths to serialized files
 GAME_DATA_PATH = 'settings/'
@@ -23,7 +22,6 @@ def store_object(obj: object, path: str):
     os.makedirs(GAME_DATA_PATH, exist_ok=True)
     with open(path, 'wb') as fileOut:
         pickle.dump(obj, fileOut)
-        pprint(obj)
 
 def read_object(path: str):
 
@@ -32,7 +30,6 @@ def read_object(path: str):
             with open(path, 'rb') as fileIn:
                 if fileIn is not None:
                     obj = pickle.load(fileIn)
-                    pprint(obj)
                     return obj
 
     except FileNotFoundError:

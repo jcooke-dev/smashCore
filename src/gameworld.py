@@ -40,4 +40,3 @@ class GameWorld:
 
         # set up the initial bricks level
         Levels.build_level(self.world_objects, Levels.LevelName.SMASHCORE_1 if level_name is None else level_name)
-

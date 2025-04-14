@@ -52,8 +52,3 @@ class Leaderboard:
 
         # ensure in proper order
         self.l_top_scores.sort()
-
-
-
-
-

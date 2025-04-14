@@ -16,6 +16,7 @@ from unittest import mock
 from src.gameengine import GameEngine
 from gamestate import GameState
 from playerstate import PlayerState
+from leaderboard import Leaderboard
 
 
 
@@ -31,7 +32,8 @@ def starting_ge(mock_image_load):
     gw = mock.Mock()
     ps = PlayerState()
     #ps = mock.Mock()
-    ge = GameEngine(ps, gw, gs, ui)
+    lb = Leaderboard()
+    ge = GameEngine(lb, ps, gw, gs, ui)
     return ge
 
 

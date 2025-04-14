@@ -44,9 +44,9 @@ class GameEngine:
         """
         self.quit_game_button = None
         self.restart_game_button = None
-		self.high_score_enter_btn = None
+        self.high_score_enter_btn = None
         self.mouse_pos = None
-		self.lb: Leaderboard = lb
+        self.lb: Leaderboard = lb
         self.ps: PlayerState = ps
         self.gw: GameWorld = gw
         self.gs: GameState = gs
@@ -410,7 +410,7 @@ class GameEngine:
                     if self.quit_game_button.collidepoint(event.pos):
                         self.clean_shutdown()
                     if self.gs.cur_state == GameState.GameStateName.GAME_OVER:
-					    self.gs.cur_state = GameState.GameStateName.CREDITS
+                        self.gs.cur_state = GameState.GameStateName.CREDITS
 
                 if (event.type == pygame.MOUSEBUTTONDOWN and
                         (self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE)):

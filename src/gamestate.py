@@ -16,8 +16,8 @@ from enum import Enum, auto
 from motionmodels import MotionModels
 
 class GameState:
-	""" This maintains the current GameState """
-	
+    """ This maintains the current GameState """
+
     class GameStateName(Enum):
         """ Enum with all possible GameState values """
         SPLASH: Enum = auto()
@@ -27,8 +27,8 @@ class GameState:
         PAUSED: Enum = auto()
         GAME_OVER: Enum = auto()
         CREDITS: Enum = auto()
-		LEADERBOARD: Enum = auto()
-		GET_HIGH_SCORE: Enum = auto()
+        LEADERBOARD: Enum = auto()
+        GET_HIGH_SCORE: Enum = auto()
     
 
     def __init__(self) -> None:

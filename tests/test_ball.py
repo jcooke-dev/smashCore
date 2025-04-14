@@ -18,6 +18,7 @@ from ball import Ball
 from constants import BALL_RADIUS, BALL_SPEED_SIMPLE, WIDTH, HEIGHT, WHITE
 from gamestate import GameState
 from motionmodels import MotionModels
+from leaderboard import Leaderboard
 
 
 @pytest.fixture
@@ -38,6 +39,7 @@ def playerstate():
     class PlayerState:
         def __init__(self):
             self.lives = 3
+            self.score = 0
     return PlayerState()
 
 
@@ -54,6 +56,15 @@ def gamestate():
             self.tick_time = 1
             self.cur_ball_x = 0
     return GameState()
+
+@pytest.fixture
+def leaderboard():
+    class Leaderboard:
+        def __init__(self):
+            self.l_top_scores = []
+        def is_high_score(self, score):
+            return False
+    return Leaderboard()
 
 
 def test_initial_state(ball):
@@ -76,7 +87,7 @@ def test_update_wo_position_update_simple(ball, gamestate):
     gs = gamestate
     gs.motion_model = MotionModels.SIMPLE_1
 
-    ball.update_wo(gs, None)
+    ball.update_wo(gs, None, None)
 
     assert ball.rect.x == ball.x
     assert ball.rect.y == ball.y
@@ -90,7 +101,7 @@ def test_update_wo_wall_collision_left_simple(ball, gamestate):
     ball.dx = -1 # must ensure moving to the left before collision test (since __init__ has it randomly either -1, 1)
 
     ball.rect.centerx = 0  # simulate collision with left wall
-    ball.update_wo(gs, None)
+    ball.update_wo(gs, None, None)
 
     assert ball.dx == 1  # direction should reverse
 
@@ -103,7 +114,7 @@ def test_update_wo_wall_collision_right_simple(ball, gamestate):
     ball.dx = 1  # must ensure moving to the right before collision test (since __init__ has it randomly either -1, 1)
 
     ball.rect.centerx = WIDTH  # simulate collision with right wall
-    ball.update_wo(gs, None)
+    ball.update_wo(gs, None, None)
 
     assert ball.dx == -1  # direction should reverse
 
@@ -114,7 +125,7 @@ def test_update_wo_wall_collision_top_simple(ball, gamestate):
     gs.motion_model = MotionModels.SIMPLE_1
 
     ball.rect.centery = 0  # simulate collision with top wall
-    ball.update_wo(gs, None)
+    ball.update_wo(gs, None, None)
 
     assert ball.dy == 1  # direction should reverse
 
@@ -128,7 +139,7 @@ def test_update_wo_gravity_application_vector(ball, gamestate):
     gs.tick_time = 1
 
     initial_velocity = ball.v_vel.y
-    ball.update_wo(gs, None)
+    ball.update_wo(gs, None, None)
 
     assert ball.v_vel.y > initial_velocity # gravity should increase y velocity
 
@@ -137,18 +148,19 @@ def test_update_wo_game_state_ready_to_launch(ball, gamestate):
     gs = gamestate
     gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
 
-    ball.update_wo(gs, None)
+    ball.update_wo(gs, None, None)
 
     assert gs.cur_ball_x == ball.x  # ball should not move
 
 
-def test_update_wo_game_state_game_over(ball, gamestate, playerstate):
+def test_update_wo_game_state_game_over(ball, gamestate, playerstate, leaderboard):
     gs = gamestate
     ps = playerstate
+    lb = leaderboard
     ball.rect.top = HEIGHT + 100  # simulate ball going below window
     ps.lives = 1
 
-    ball.update_wo(gs, ps)
+    ball.update_wo(gs, ps, lb)
 
     assert gs.cur_state == GameState.GameStateName.GAME_OVER  # game should be over
 
