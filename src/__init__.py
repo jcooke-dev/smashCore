@@ -12,6 +12,7 @@
 import pygame
 
 import assets
+from leaderboard import Leaderboard
 from src.gamestate import GameState
 from src.playerstate import PlayerState
 from src.userinterface import UserInterface
@@ -30,7 +31,9 @@ if __name__ == "__main__":
     gs = GameState()
     gw = GameWorld()
     ps = PlayerState()
-    ge = GameEngine(ps, gw, gs, ui)
+    lb = Leaderboard.create_persisted_object()
+
+    ge = GameEngine(lb, ps, gw, gs, ui)
 
     # run the main game loop -- this returns when done
     ge.run_loop()

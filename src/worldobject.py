@@ -12,6 +12,7 @@
 import pygame
 import gamestate as gs_
 import playerstate as ps_
+import leaderboard as lb_
 
 
 class WorldObject:
@@ -22,13 +23,14 @@ class WorldObject:
         self.color: pygame.color = None
         self.value: int = 0
         self.rect: pygame.rect = None
-        self.can_react = False  # can this object react to collisions with other objects?
-        self.primed_collision = True
+        self.can_react: bool = False  # can this object react to collisions with other objects?
+        self.primed_collision: bool = True
 
-    def update_wo(self, gs: gs_.GameState, ps: ps_.PlayerState):
+    def update_wo(self, gs: gs_.GameState, ps: ps_.PlayerState, lb: lb_.Leaderboard):
         """
         Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
 
+        :param lb:
         :param gs:
         :param ps:
         :return:

@@ -10,10 +10,13 @@
 """
 import pygame
 import constants
+
 from enum import Enum, auto
+
 from motionmodels import MotionModels
 
 class GameState:
+    """ This maintains the current GameState """
 
     class GameStateName(Enum):
         """ Enum with all possible GameState values """
@@ -24,8 +27,10 @@ class GameState:
         PAUSED: Enum = auto()
         GAME_OVER: Enum = auto()
         CREDITS: Enum = auto()
-        HOW_TO_PLAY = auto()
-    """ This maintains the current GameState """
+        LEADERBOARD: Enum = auto()
+        GET_HIGH_SCORE: Enum = auto()
+        HOW_TO_PLAY: Enum = auto()
+
 
     def __init__(self) -> None:
 

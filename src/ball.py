@@ -10,11 +10,13 @@
 """
 
 import random as rnd
+
 import pygame
 import constants
 import paddle
 from gamestate import GameState
 from playerstate import PlayerState
+from leaderboard import Leaderboard
 from worldobject import WorldObject
 from motionmodels import MotionModels
 
@@ -50,7 +52,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # VECTOR motion models defaults
         self.v_pos: pygame.Vector2 = pygame.Vector2(x - self.radius, y)
         self.v_vel_unit: pygame.Vector2 = pygame.Vector2(1.0, 0.0)
-        self.v_vel_unit = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
+        self.v_vel_unit: pygame.Vector2 = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
         self.speed_v: float = constants.BALL_SPEED_VECTOR
         self.v_vel: pygame.Vector2 = self.v_vel_unit * self.speed_v
 
@@ -63,10 +65,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         self.commanded_pos_x = 0
 
-    def update_wo(self, gs: GameState, ps: PlayerState) -> None:
+    def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard) -> None:
         """
         Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
 
+        :param lb:
         :param gs: GameState
         :param ps: PlayerState
         :return:
@@ -154,7 +157,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
             # Displays game_over menu if user loses all of their lives
             if ps.lives <= 0:
-                gs.cur_state = GameState.GameStateName.GAME_OVER
+                # collects the player's initials if this is a high score
+                if lb.is_high_score(ps.score):
+                    gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
+                else:
+                    gs.cur_state = GameState.GameStateName.GAME_OVER
 
     def draw_wo(self, screen: pygame.Surface) -> None:
         """

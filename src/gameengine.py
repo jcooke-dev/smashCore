@@ -11,28 +11,30 @@
 """
 
 import pygame
+
 import utils
+import persistence
 from src.ball import Ball
 from src.brick import Brick
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
-                           PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
-                           BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
-                           PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
-                           BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR)
+    PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+    BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+    PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+    BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
+
 from src.levels import Levels
 from src.gameworld import GameWorld
 from userinterface import UserInterface
 from playerstate import PlayerState
+from leaderboard import Leaderboard
 from gamestate import GameState
 from motionmodels import MotionModels
-
-import utils
 
 
 class GameEngine:
     """ The main engine that drives the game loop """
 
-    def __init__(self, ps: PlayerState, gw: GameWorld, gs: GameState, ui: UserInterface) -> None:
+    def __init__(self, lb: Leaderboard, ps: PlayerState, gw: GameWorld, gs: GameState, ui: UserInterface) -> None:
         """
 
         :param ps: PlayerState
@@ -42,7 +44,9 @@ class GameEngine:
         """
         self.quit_game_button = None
         self.restart_game_button = None
+        self.high_score_enter_btn = None
         self.mouse_pos = None
+        self.lb: Leaderboard = lb
         self.ps: PlayerState = ps
         self.gw: GameWorld = gw
         self.gs: GameState = gs
@@ -134,12 +138,23 @@ class GameEngine:
                 elif self.ui.credits_button_rect.collidepoint(event.pos):
                     self.gs.cur_state = GameState.GameStateName.CREDITS
 
+    def clean_shutdown(self) -> None:
+        self.gs.running = False
+        self.gs.cur_state = GameState.GameStateName.GAME_OVER
+
+        # store leaderboard
+        self.lb.store(persistence.LEADERBOARD_FILE_PATH)
+
+        pygame.quit()
+        exit()
+
     def run_loop(self) -> None:
         """
         Runs the main game loop
 
         :return:
         """
+
         while self.gs.running:
             # fill the screen with black as a good default
             self.screen.fill(BLACK)
@@ -166,15 +181,14 @@ class GameEngine:
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
-                            self.gs.running = False
-                            self.gs.cur_state = GameState.GameStateName.GAME_OVER
-                            pygame.quit()
-                            exit()
+                            self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.start_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
                             elif self.ui.credits_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.CREDITS
+                            elif self.ui.leader_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameState.GameStateName.LEADERBOARD
                             elif hasattr(self.ui,
                                          'how_to_play_button_rect') and self.ui.how_to_play_button_rect.collidepoint(
                                     event.pos):
@@ -188,10 +202,7 @@ class GameEngine:
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
-                            self.gs.running = False
-                            self.gs.cur_state = GameState.GameStateName.GAME_OVER
-                            pygame.quit()
-                            exit()
+                            self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if hasattr(self.ui,
                                        'how_to_play_back_button_rect') and self.ui.how_to_play_back_button_rect.collidepoint(
@@ -206,10 +217,20 @@ class GameEngine:
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
-                            self.gs.running = False
-                            self.gs.cur_state = GameState.GameStateName.GAME_OVER
-                            pygame.quit()
-                            exit()
+                            self.clean_shutdown()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.back_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
+                ##############################################################
+                # display leaderboard screen
+                ##############################################################
+                case GameState.GameStateName.LEADERBOARD:
+                    self.ui.draw_leaderboard_screen(self.lb)
+                    pygame.mouse.set_visible(True)
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:  # Add this line
+                            self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
@@ -226,7 +247,7 @@ class GameEngine:
                         # this controls whether the AutoPlay system or the
                         # player's mouse input is driving the paddle
                         current_wo.commanded_pos_x = self.gs.cur_ball_x if self.gs.auto_play else mouse_pos[0]
-                        current_wo.update_wo(self.gs, self.ps)
+                        current_wo.update_wo(self.gs, self.ps, self.lb)
                         # test for collisions between world_objects, but ignore
                         # objects that can't be affected (for performance)
                         if current_wo.can_react:
@@ -292,6 +313,16 @@ class GameEngine:
                     pygame.mouse.set_visible(True)
 
                 ##############################################################
+                # display the GET_HIGH_SCORE popup over the frozen gameplay
+                ##############################################################
+                case GameState.GameStateName.GET_HIGH_SCORE:
+                    # draw all objects in GameWorld
+                    self.draw_world_and_status()
+                    # getting the rects for the UI buttons for later collision
+                    # detection (button pressing)
+                    self.high_score_enter_btn = self.ui.draw_get_high_score()
+
+                ##############################################################
                 # display the GAME_OVER popup over the frozen gameplay
                 ##############################################################
                 case GameState.GameStateName.GAME_OVER:
@@ -304,11 +335,10 @@ class GameEngine:
             ##############################################################
             # event handling
             ##############################################################
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.gs.running = False
-                    self.gs.cur_state = GameState.GameStateName.GAME_OVER
-                    exit()
+                    self.clean_shutdown()
 
                 if event.type == pygame.KEYDOWN:
                     # toggle PAUSE GameState with ESCAPE key press
@@ -380,6 +410,16 @@ class GameEngine:
                                 case MotionModels.VECTOR_1:
                                     self.gs.motion_model = MotionModels.SIMPLE_1
 
+                    # handle initials textbox input
+                    if self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE:
+                        if (event.key == pygame.K_RETURN) or (event.key == pygame.K_KP_ENTER):
+                            self.lb.add_score(self.ps, self.ui)
+                            self.gs.cur_state = GameState.GameStateName.GAME_OVER
+                        elif event.key == pygame.K_BACKSPACE:
+                            self.ui.tb_initials_text = self.ui.tb_initials_text[:-1]
+                        elif len(self.ui.tb_initials_text) < SCORE_INITIALS_MAX:
+                            self.ui.tb_initials_text += event.unicode
+
                 # the actual button press checks from the returned rects above
                 if (event.type == pygame.MOUSEBUTTONDOWN and
                         ((self.gs.cur_state == GameState.GameStateName.PAUSED) or
@@ -387,11 +427,15 @@ class GameEngine:
                     if self.restart_game_button.collidepoint(event.pos):
                         self.reset_game()
                     if self.quit_game_button.collidepoint(event.pos):
-                        self.gs.running = False
-                        self.gs.cur_state = GameState.GameStateName.GAME_OVER
-                        exit()
+                        self.clean_shutdown()
                     if self.gs.cur_state == GameState.GameStateName.GAME_OVER:
                         self.gs.cur_state = GameState.GameStateName.CREDITS
+
+                if (event.type == pygame.MOUSEBUTTONDOWN and
+                        (self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE)):
+                    if self.high_score_enter_btn.collidepoint(event.pos):
+                        self.lb.add_score(self.ps, self.ui)
+                        self.gs.cur_state = GameState.GameStateName.GAME_OVER
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:

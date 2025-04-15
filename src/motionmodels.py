@@ -21,4 +21,3 @@ class MotionModels(Enum):
     # motion calculations using POS/VEL/ACC vectors and the clock.tick() returned delta time, so the motion is unlinked
     # from the frame rate - can set a MAX_FPS_VECTOR to limit the fps a bit (rather than letting it run all out)
     VECTOR_1: Enum = auto()
-
