@@ -14,7 +14,7 @@ import pygame
 import constants
 from gamestate import GameState
 from leaderboard import Leaderboard
-from src import assets
+import assets
 
 
 class UserInterface:

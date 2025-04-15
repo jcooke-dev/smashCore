@@ -17,7 +17,8 @@ import constants
 
 
 @pytest.fixture
-def ui():
+@mock.patch("src.userinterface.pygame.transform.scale")
+def ui(mock_scaled_image):
     """
     Set up UserInterface with mocked up members for screen and font_buttons
     :return:
