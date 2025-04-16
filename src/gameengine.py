@@ -9,18 +9,20 @@
     Module Description: This brings together the various modules that make up the game (GameWorld,
                         GameState, UI, etc.) and runs the main game loop.
 """
+import os
 
 import pygame
 
 import utils
 import persistence
+from src import assets
 from src.ball import Ball
 from src.brick import Brick
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
-    PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
-    BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
-    PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
-    BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
+                           PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+                           BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+                           PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+                           BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
 
 from src.levels import Levels
 from src.gameworld import GameWorld
@@ -70,13 +72,23 @@ class GameEngine:
         # Initially, hide the mouse cursor
         pygame.mouse.set_visible(False)
 
+        # Initialize game music and paths
+        pygame.mixer.init()
+        self.music_paths = {}
+        self.current_music = None
+        self.music_paths['splash'] = os.path.join(assets.SOUND_DIR, 'splash_music.wav')
+        self.music_paths['menu_screen'] = os.path.join(assets.SOUND_DIR, 'menu_music.wav')
+        self.music_paths['playing'] = os.path.join(assets.SOUND_DIR, 'game_music.wav')
+        self.music_paths['game_over'] = os.path.join(assets.SOUND_DIR, 'game_over_music.wav')
+        self.music_paths['get_high_score'] = os.path.join(assets.SOUND_DIR, 'score_music.wav')
+
     def reset_game(self) -> None:
         """
         Resets the game to the initial state
 
         :return:
         """
-        # does python run auto garbage collection so it's OK to just
+        # does python run auto garbage collection, so it's OK to just
         # assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
@@ -86,6 +98,8 @@ class GameEngine:
         self.ps.score = START_SCORE
         self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
+        pygame.mixer.music.stop()
+        self.current_music = None
 
     def next_level(self) -> None:
         """
@@ -111,7 +125,7 @@ class GameEngine:
 
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
-        #self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
+        # self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
 
     def draw_world_and_status(self) -> None:
         """
@@ -139,6 +153,8 @@ class GameEngine:
                     self.gs.cur_state = GameState.GameStateName.CREDITS
 
     def clean_shutdown(self) -> None:
+        pygame.mixer.music.stop()
+        self.current_music = None
         self.gs.running = False
         self.gs.cur_state = GameState.GameStateName.GAME_OVER
 
@@ -147,6 +163,31 @@ class GameEngine:
 
         pygame.quit()
         exit()
+
+    def play_music(self, state_name):
+        """
+        Plays the music file for each game state
+
+        :return:
+        """
+        target_music = None
+        loop = -1  # Default to loop infinitely
+
+        if state_name in self.music_paths:
+            target_music = state_name
+            if state_name == 'get_high_score':
+                loop = 0  # Play only once
+        elif state_name == 'ready_to_launch' and 'playing' in self.music_paths:
+            target_music = 'playing'
+
+        if target_music and self.current_music != target_music:
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load(self.music_paths[target_music])
+            pygame.mixer.music.play(loop)
+            self.current_music = target_music
+        elif not target_music and self.current_music is not None:
+            pygame.mixer.music.stop()
+            self.current_music = None
 
     def run_loop(self) -> None:
         """
@@ -159,6 +200,8 @@ class GameEngine:
             # fill the screen with black as a good default
             self.screen.fill(BLACK)
 
+            current_state_name = self.gs.cur_state.name.lower()
+            self.play_music(current_state_name)
             match self.gs.cur_state:
 
                 ##############################################################
@@ -206,9 +249,8 @@ class GameEngine:
                         if event.type == pygame.QUIT:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
-                            if hasattr(self.ui,
-                                       'how_to_play_back_button_rect') and self.ui.how_to_play_back_button_rect.collidepoint(
-                                    event.pos):
+                            if hasattr(self.ui, 'how_to_play_back_button_rect') \
+                                    and self.ui.how_to_play_back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
@@ -231,7 +273,7 @@ class GameEngine:
                     self.ui.draw_leaderboard_screen(self.lb)
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
-                        if event.type == pygame.QUIT:  # Add this line
+                        if event.type == pygame.QUIT:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.back_button_rect.collidepoint(event.pos):
@@ -242,6 +284,7 @@ class GameEngine:
                 ##############################################################
                 case GameState.GameStateName.PLAYING | GameState.GameStateName.READY_TO_LAUNCH:
                     # Hide the mouse again when transitioning away from the start screen.
+                    pygame.mouse.set_visible(False)
                     pygame.mouse.set_visible(False)
                     # update all objects in GameWorld
                     mouse_pos = pygame.mouse.get_pos()
@@ -313,6 +356,7 @@ class GameEngine:
                     # detection (button pressing)
                     self.restart_game_button, self.quit_game_button = self.ui.draw_pause_menu()
                     pygame.mouse.set_visible(True)
+                    pygame.mixer.music.pause()  # Pause the current music
 
                 ##############################################################
                 # display the GET_HIGH_SCORE popup over the frozen gameplay
@@ -333,6 +377,7 @@ class GameEngine:
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
                     self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_game_over_menu()
+                    self.play_music('game_over')
 
             ##############################################################
             # event handling
@@ -349,10 +394,12 @@ class GameEngine:
                             self.gs.cur_state = GameState.GameStateName.PLAYING
                             pygame.mouse.set_pos(self.mouse_pos)
                             pygame.mouse.set_visible(False)
+                            pygame.mixer.music.unpause()  # Unpause the music
                         elif self.gs.cur_state == GameState.GameStateName.PLAYING:
                             self.gs.cur_state = GameState.GameStateName.PAUSED
                             self.mouse_pos = pygame.mouse.get_pos()
                             pygame.mouse.set_visible(True)
+                            pygame.mixer.music.pause()  # Pause the music
 
                     if event.key == pygame.K_SPACE:
                         if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
