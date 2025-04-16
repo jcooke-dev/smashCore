@@ -26,9 +26,9 @@ class UserInterface:
         self.font_buttons = pygame.font.Font(None, 50)
         # not certain this will reliably get a font (especially on diff OSes), but it's supposed to
         # fallback to a default pygame font
-        self.font_fixed_small: pygame.font = pygame.font.SysFont("Courier", 16, True)
-        self.font_fixed_large: pygame.font = pygame.font.SysFont("Courier", 35, True)
-        self.font_fixed_xlarge: pygame.font = pygame.font.SysFont("Courier", 60, True)
+        self.font_fixed_small: pygame.font = pygame.font.Font('assets/font/slkscr.ttf', 16)
+        self.font_fixed_large: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 35)
+        self.font_fixed_xlarge: pygame.font = pygame.font.Font('assets/font/slkscreb.ttf', 60)
         self.surface: pygame.surface = None
         self.screen: pygame.surface = None
         self.tb_initials_text: str = ""
@@ -379,8 +379,10 @@ class UserInterface:
             self.surface.blit(brick['image'], brick['rect'])
 
         # Draw Click to Play button
-        font = pygame.font.Font(None, 72)
-        text = font.render("Click to Play", True, constants.BLACK)
+        main_font = pygame.font.Font('assets/font/slkscrb.ttf', 72)
+        sub_font = pygame.font.Font('assets/font/slkscr.ttf', 32)
+
+        text = main_font.render("Click to Play", True, constants.BLACK)
         button_width = text.get_width() + 120
         button_height = text.get_height() + 60
         button_rect = pygame.Rect((constants.WIDTH - button_width) // 2,
@@ -391,27 +393,23 @@ class UserInterface:
         self.surface.blit(text, text_rect)
         self.start_button_rect = button_rect
 
+        sub_button_width = 250
+        sub_button_height = 40
         # Draw How to Play Button
-        how_to_play_width = 200
-        how_to_play_height = 40
-        how_to_play_x = (constants.WIDTH - how_to_play_width) // 2
+        how_to_play_x = (constants.WIDTH - sub_button_width) // 2
         how_to_play_y = button_rect.y + button_height + 20
-        how_to_play_rect = pygame.Rect(how_to_play_x, how_to_play_y, how_to_play_width, how_to_play_height)
-        how_to_play_font = pygame.font.Font(None, 36)
-        how_to_play_text = how_to_play_font.render("How to Play", True, constants.BLACK)
+        how_to_play_rect = pygame.Rect(how_to_play_x, how_to_play_y, sub_button_width, sub_button_height)
+        how_to_play_text = sub_font.render("How to Play", True, constants.BLACK)
         how_to_play_text_rect = how_to_play_text.get_rect(center=how_to_play_rect.center)
         pygame.draw.rect(self.surface, constants.RED, how_to_play_rect, border_radius=10)
         self.surface.blit(how_to_play_text, how_to_play_text_rect)
         self.how_to_play_button_rect = how_to_play_rect
 
         # Draw Credits button
-        credits_width = 185
-        credits_height = 40
         credits_x = 20
-        credits_y = constants.HEIGHT - credits_height - 30
-        credits_rect = pygame.Rect(credits_x, credits_y, credits_width, credits_height)
-        credits_font = pygame.font.Font(None, 36)
-        credits_text = credits_font.render("Credits", True, constants.BLACK)
+        credits_y = constants.HEIGHT - sub_button_height - 30
+        credits_rect = pygame.Rect(credits_x, credits_y, sub_button_width, sub_button_height)
+        credits_text = sub_font.render("Credits", True, constants.BLACK)
         credits_text_rect = credits_text.get_rect(center=credits_rect.center)
 
         pygame.draw.rect(self.surface, constants.RED, credits_rect, border_radius=10)
@@ -419,13 +417,10 @@ class UserInterface:
         self.credits_button_rect = credits_rect
 
         # add Leaderboard button
-        leader_width = 185
-        leader_height = 40
         leader_x = 20  # a little to the right
-        leader_y = constants.HEIGHT - credits_height - leader_height - 60  # a little higher
-        leader_rect = pygame.Rect(leader_x, leader_y, leader_width, leader_height)
-        leader_font = pygame.font.Font(None, 36)  # same size as the rest of the buttons.
-        leader_text = leader_font.render("Leaderboard", True, constants.BLACK)  # same color as the rest of the buttons
+        leader_y = constants.HEIGHT - sub_button_height - sub_button_height - 60  # a little higher
+        leader_rect = pygame.Rect(leader_x, leader_y, sub_button_width, sub_button_height)
+        leader_text = sub_font.render("Leaderboard", True, constants.BLACK)  # same color as the rest of the buttons
         leader_text_rect = leader_text.get_rect(center=leader_rect.center)
 
         pygame.draw.rect(self.surface, constants.RED, leader_rect, border_radius=10)
@@ -437,7 +432,7 @@ class UserInterface:
     def draw_how_to_play_screen(self):
         """Shows how to play information when button is clicked"""
         self.surface.fill(constants.BLACK)
-        font = pygame.font.Font(None, 30)
+        font = pygame.font.Font('assets/font/slkscr.ttf', 30)
         text_lines = [
             "SmashCore is a brick-breaking game.",
             "Use the paddle to hit the ball.",
@@ -457,12 +452,12 @@ class UserInterface:
             y += line_height
 
         # Back button
-        back_width = 100
+        back_width = 120
         back_height = 40
         back_x = 20  # same x as credits button
         back_y = constants.HEIGHT - back_height - 30  # same y as credits button
         back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
-        back_font = pygame.font.Font(None, 36)
+        back_font = pygame.font.Font('assets/font/slkscr.ttf', 36)
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
@@ -478,7 +473,7 @@ class UserInterface:
         :return:
         """
         self.surface.fill(constants.BLACK)
-        font_credits = pygame.font.Font(None, 40)
+        font_credits = pygame.font.Font('assets/font/slkscre.ttf', 40)
 
         developers = ["DEVELOPERS", "", "Justin Cooke", "Ann Rauscher", "Camila Roxo", "Justin Smith", "Rex Vargas"]
 
@@ -490,12 +485,12 @@ class UserInterface:
             y_offset += 50
 
         # Draws back button
-        back_width = 100
+        back_width = 120
         back_height = 40
         back_x = 20  # same x as credits button
         back_y = constants.HEIGHT - back_height - 30  # same y as credits button
         back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
-        back_font = pygame.font.Font(None, 36)
+        back_font = pygame.font.Font('assets/font/slkscr.ttf', 36)
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
@@ -512,9 +507,7 @@ class UserInterface:
         """
         self.surface.fill(constants.BLACK)
 
-        l_scores = []
-        l_scores.append("HIGH SCORES")
-        l_scores.append("")
+        l_scores = ["HIGH SCORES", ""]
 
         score_sorted = sorted(lb.l_top_scores, key=lambda scr: scr.score, reverse=True)
         for scr in score_sorted:
@@ -531,12 +524,12 @@ class UserInterface:
             y_offset += 50
 
         # Draws back button
-        back_width = 100
+        back_width = 120
         back_height = 40
         back_x = 20
         back_y = constants.HEIGHT - back_height - 30
         back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
-        back_font = pygame.font.Font(None, 36)
+        back_font = pygame.font.Font('assets/font/slkscr.ttf', 36)
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
