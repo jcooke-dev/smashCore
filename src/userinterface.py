@@ -206,8 +206,11 @@ class UserInterface:
 
         :return:
         """
-        self.screen.blit(self.font_buttons.render("Press SPACEBAR to start", True, constants.WHITE),
-                         ((constants.WIDTH //4) + 50, constants.HEIGHT - (constants.HEIGHT // 6)))
+        intro_font = pygame.font.Font('assets/font/slkscreb.ttf', 40)
+        intro_text = intro_font.render("Press SPACEBAR to begin", True, constants.WHITE)
+        intro_rect = intro_text.get_rect(center=(constants.WIDTH // 2, constants.HEIGHT - (constants.HEIGHT // 6)))
+
+        self.screen.blit(intro_text, intro_rect)
 
     def draw_status(self, lives: int, score: int, level: int) -> None:
         """
@@ -220,14 +223,16 @@ class UserInterface:
         :param level:
         :return:
         """
-        self.screen.blit(self.font_buttons.render("Lives:", True, constants.WHITE), (10, 10))
-        for i in range(lives):
-            pygame.draw.circle(self.screen, constants.WHITE, (130 + 35 * i, 27), 12)
+        status_font = pygame.font.Font('assets/font/slkscrb.ttf', 36)
 
-        score_display = self.font_buttons.render(f"Score: {score}", True, constants.WHITE)
+        self.screen.blit(status_font.render("Lives:", True, constants.WHITE), (10, 10))
+        for i in range(lives):
+            pygame.draw.circle(self.screen, constants.WHITE, (170 + 35 * i, 27), 12)
+
+        score_display = status_font.render(f"Score: {score}", True, constants.WHITE)
         self.screen.blit(score_display, (constants.WIDTH - score_display.get_width() - 100, 10))
 
-        level_display = self.font_buttons.render(f"Level: {level}", True, constants.WHITE)
+        level_display = status_font.render(f"Level: {level}", True, constants.WHITE)
         self.screen.blit(level_display, ((constants.WIDTH - level_display.get_width()) / 2, 10))
 
     def draw_dev_overlay(self, gs: GameState) -> None:
