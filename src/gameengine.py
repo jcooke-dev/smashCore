@@ -44,6 +44,7 @@ class GameEngine:
         """
         self.quit_game_button = None
         self.restart_game_button = None
+        self.main_menu_button = None
         self.high_score_enter_btn = None
         self.mouse_pos = None
         self.lb: Leaderboard = lb
@@ -311,8 +312,7 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
-                    self.restart_game_button, self.quit_game_button = self.ui.draw_pause_menu()
-                    pygame.mouse.set_visible(True)
+                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu()
 
                 ##############################################################
                 # display the GET_HIGH_SCORE popup over the frozen gameplay
