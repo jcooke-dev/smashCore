@@ -22,13 +22,13 @@ class UserInterface:
 
     def __init__(self) -> None:
         # Font setup
-        self.font_game_over = pygame.font.Font(None, 100)
-        self.font_buttons = pygame.font.Font(None, 50)
+        self.font_game_over = pygame.font.Font('assets/font/slkscrb.ttf', 80)
+        self.font_buttons = pygame.font.Font('assets/font/slkscrb.ttf', 40)
         # not certain this will reliably get a font (especially on diff OSes), but it's supposed to
         # fallback to a default pygame font
-        self.font_fixed_small: pygame.font = pygame.font.Font('assets/font/slkscr.ttf', 16)
-        self.font_fixed_large: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 35)
-        self.font_fixed_xlarge: pygame.font = pygame.font.Font('assets/font/slkscreb.ttf', 60)
+        self.font_fixed_small: pygame.font = pygame.font.SysFont("Courier", 16, True)
+        self.font_fixed_large: pygame.font = pygame.font.Font('assets/font/slkscreb.ttf', 35)
+        self.font_fixed_xlarge: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 60)
         self.surface: pygame.surface = None
         self.screen: pygame.surface = None
         self.tb_initials_text: str = ""
@@ -72,15 +72,25 @@ class UserInterface:
 
         :return:
         """
+
+        title_font = pygame.font.Font('assets/font/slkscrb.ttf', 70)
+        title1_text = title_font.render('Game Paused:', True, constants.YELLOW)
+        title2_text = title_font.render('Press ESC to Continue', True, constants.YELLOW)
+        title1_rect = title1_text.get_rect(center=(constants.WIDTH // 2, 230))
+        title2_rect = title2_text.get_rect(center=(constants.WIDTH // 2, 300))
+
+        restart_text = self.font_buttons.render('Restart Game', True, constants.BLACK)
+        quit_text = self.font_buttons.render('Quit Game', True, constants.BLACK)
+        restart_text_rect = restart_text.get_rect(center=(constants.WIDTH // 2, 380))
+        quit_text_rect = quit_text.get_rect(center=(constants.WIDTH // 2, 480))
+
         pygame.draw.rect(self.surface, (0, 0, 0, 100), [0, 0, constants.WIDTH, constants.HEIGHT])
         reset = pygame.draw.rect(self.surface, (0, 255, 0), [(constants.WIDTH // 2) - 200, 350, 400, 75])
         quit = pygame.draw.rect(self.surface, (0, 255, 0), [(constants.WIDTH // 2) - 200, 450, 400, 75])
-        self.surface.blit(self.font_game_over.render('Game Paused: ESC to Resume', True, constants.DARKBLUE),
-                          (90, 270))
-        self.surface.blit(self.font_buttons.render('Restart Game', True, constants.BLACK),
-                          ((constants.WIDTH // 2) - 190, 370))
-        self.surface.blit(self.font_buttons.render('Quit Game', True, constants.BLACK),
-                          ((constants.WIDTH // 2) - 190, 470))
+        self.surface.blit(title1_text, title1_rect)
+        self.surface.blit(title2_text, title2_rect)
+        self.surface.blit(restart_text, restart_text_rect)
+        self.surface.blit(quit_text, quit_text_rect)
         self.screen.blit(self.surface, (0, 0))
 
         return reset, quit
@@ -111,7 +121,7 @@ class UserInterface:
         self.surface.blit(bg_surface, bg_rect)
         self.surface.blit(text_game_over, text_rect)
 
-        button_width = 200
+        button_width = 280
         button_height = 75
         button_x = (constants.WIDTH - button_width) // 2  # Center buttons horizontally
         button_y_start = constants.HEIGHT // 2
@@ -146,12 +156,12 @@ class UserInterface:
                          [0, 0, constants.WIDTH, constants.HEIGHT])
 
         # draw message
-        text_high_score1 = self.font_game_over.render(
+        text_high_score1 = self.font_fixed_xlarge.render(
             "That's a high score!", True, constants.YELLOW)
         text_rect1 = text_high_score1.get_rect(
             center=(constants.WIDTH // 2, constants.HEIGHT // 3))
 
-        text_high_score2 = self.font_game_over.render(
+        text_high_score2 = self.font_fixed_xlarge.render(
             "Please enter your initials:", True, constants.YELLOW)
         text_rect2 = text_high_score2.get_rect(
             center=(constants.WIDTH // 2, (constants.HEIGHT // 3) + 80))
@@ -269,7 +279,7 @@ class UserInterface:
         shadow_color = (100, 100, 100)
 
         logo_x, logo_y = constants.WIDTH // 2 - 150, constants.HEIGHT // 3
-        font_smash = pygame.font.Font(None, 60)
+        font_smash = pygame.font.Font('assets/font/slkscrb.ttf', 60)
         text_smash = font_smash.render("Smash", True, text_color)
         text_smash_shadow = font_smash.render("Smash", True, shadow_color)
 
@@ -281,7 +291,7 @@ class UserInterface:
         self.screen.blit(text_smash_shadow, text_smash_shadow_rect)
         self.screen.blit(text_smash, text_smash_rect)
 
-        font_core = pygame.font.Font(None, 60)
+        font_core = pygame.font.Font('assets/font/slkscrb.ttf', 60)
         text_core = font_core.render("Core", True, text_color)
         text_core_shadow = font_core.render("Core", True, shadow_color)
 
@@ -293,10 +303,10 @@ class UserInterface:
         self.screen.blit(text_core, text_core_rect)
 
         pygame.draw.line(self.screen, logo_color,
-                         (logo_x, logo_y + 120), (logo_x + 300, logo_y + 120),
+                         (logo_x - 30, logo_y + 120), (logo_x + 330, logo_y + 120),
                          3)
 
-        font_arcade = pygame.font.Font(None, 24)
+        font_arcade = pygame.font.Font('assets/font/slkscre.ttf', 24)
         text_arcade = font_arcade.render("The Retro Arcade Experience", True,
                                          (200, 200, 200))
         text_arcade_rect = text_arcade.get_rect(center=
