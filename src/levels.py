@@ -29,8 +29,8 @@ class Levels:
         SMASHCORE_SOLID_ROWS_1: Enum = auto()
         SMASHCORE_IMG_CHAMFER_1: Enum = auto()
         SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1: Enum = auto()
-        SMASHCORE_SOLID_ROWS_SPACERS: Enum = 5
-        SMASHCORE_MULTIPLIER_1: Enum = 6
+        SMASHCORE_SOLID_ROWS_SPACERS: Enum = auto()
+        SMASHCORE_MULTIPLIER_1: Enum = auto()
 
     def __init__(self):
         pass
