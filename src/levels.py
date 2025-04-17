@@ -17,6 +17,7 @@ from random import randrange as rnd
 from random import choice, sample
 from enum import Enum, auto
 from src.brick import Brick
+from obstacle import Obstacle
 from worldobject import WorldObject
 
 
@@ -31,6 +32,7 @@ class Levels:
         SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1: Enum = auto()
         SMASHCORE_SOLID_ROWS_SPACERS: Enum = auto()
         SMASHCORE_MULTIPLIER_1: Enum = auto()
+        SMASHCORE_UNBREAKABLE_1: Enum = auto()
 
     def __init__(self):
         pass
@@ -54,7 +56,6 @@ class Levels:
         :param level_name: LevelName
         :return:
         """
-
         match level_name:
             case Levels.LevelName.SMASHCORE_1:
                 for i in range(10):
@@ -99,7 +100,6 @@ class Levels:
                                            row_colors=colors, values=values,
                                            skip_positions=skip_positions)
 
-
             case Levels.LevelName.SMASHCORE_MULTIPLIER_1:
                 colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
                           constants.GREEN, constants.LIGHTBLUE, constants.PURPLE]
@@ -113,6 +113,14 @@ class Levels:
                                            skip_positions=skip_positions,
                                            strong_bricks=multiplier_bricks)
 
+            case Levels.LevelName.SMASHCORE_UNBREAKABLE_1:
+                colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
+                          constants.GREEN]
+                unbreakable = [(0, 0)]
+                print(unbreakable)
+                Levels.generate_grid_level(gw_list=gw_list, rows=len(colors),
+                                           row_colors=colors,
+                                           unbreakable=unbreakable)
             case _:
                 pass
 
@@ -124,7 +132,8 @@ class Levels:
                             use_random_imgs: bool = False,
                             row_img_colors: list[pygame.image] = None,
                             skip_positions: list[tuple[int, int]] = None,
-                            strong_bricks: list[tuple[int, int]] = None
+                            strong_bricks: list[tuple[int, int]] = None,
+                            unbreakable: list[tuple[int, int]] = None
                             ):
         """
         Generates a grid of bricks with optional skip positions and color customization.
@@ -137,6 +146,7 @@ class Levels:
         :param row_img_colors: if not using random images, list of images for each row
         :param skip_positions: x,y brick positions to skip
         :param strong_bricks: (x, y) x, y position of bricks to make strong
+        :param unbreakable: (x, y) x, y position of bricks that are unbreakable
 
         """
         # adjust the distance from the top of the board based on number of rows
@@ -191,6 +201,8 @@ class Levels:
                                          value=value,
                                          bonus=strong_brick_bonus,
                                          image=strong_brick))
+                elif unbreakable is not None and (i, j) in unbreakable:
+                    gw_list.append(Obstacle(brk_rect, constants.GRAY, text="X X X"))
                 else:
                     if row_img_colors is not None:
                         scaled_image = pygame.transform.scale(

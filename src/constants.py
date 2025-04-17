@@ -39,6 +39,7 @@ PADDLE_IMPULSE_INCREMENT = 0.02 # the PADDLE_IMPULSE increment controlled and sh
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+GRAY = (128, 128, 128)
 DARKBLUE = (36, 90, 190)
 LIGHTBLUE = (0, 176, 240)
 RED = (255, 0, 0)
