@@ -19,10 +19,10 @@ from src import assets
 from src.ball import Ball
 from src.brick import Brick
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
-                           PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
-                           BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
-                           PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
-                           BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
+    PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+    BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+    PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+    BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
 
 from src.levels import Levels
 from src.gameworld import GameWorld
@@ -82,6 +82,7 @@ class GameEngine:
         self.music_paths['playing'] = os.path.join(assets.SOUND_DIR, 'game_music.wav')
         self.music_paths['game_over'] = os.path.join(assets.SOUND_DIR, 'game_over_music.wav')
         self.music_paths['get_high_score'] = os.path.join(assets.SOUND_DIR, 'score_music.wav')
+        self.game_over_music_played = False
 
     def reset_game(self) -> None:
         """
@@ -89,7 +90,7 @@ class GameEngine:
 
         :return:
         """
-        # does python run auto garbage collection, so it's OK to just
+        # does python run auto garbage collection so it's OK to just
         # assign a new gw?
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
@@ -127,7 +128,7 @@ class GameEngine:
 
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
-        # self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
+        #self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
 
     def draw_world_and_status(self) -> None:
         """
@@ -251,8 +252,9 @@ class GameEngine:
                         if event.type == pygame.QUIT:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
-                            if hasattr(self.ui, 'how_to_play_back_button_rect') \
-                                    and self.ui.how_to_play_back_button_rect.collidepoint(event.pos):
+                            if hasattr(self.ui,
+                                       'how_to_play_back_button_rect') and self.ui.how_to_play_back_button_rect.collidepoint(
+                                    event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
@@ -275,7 +277,7 @@ class GameEngine:
                     self.ui.draw_leaderboard_screen(self.lb)
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
+                        if event.type == pygame.QUIT:  # Add this line
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.back_button_rect.collidepoint(event.pos):
@@ -286,7 +288,6 @@ class GameEngine:
                 ##############################################################
                 case GameState.GameStateName.PLAYING | GameState.GameStateName.READY_TO_LAUNCH:
                     # Hide the mouse again when transitioning away from the start screen.
-                    pygame.mouse.set_visible(False)
                     pygame.mouse.set_visible(False)
                     # update all objects in GameWorld
                     mouse_pos = pygame.mouse.get_pos()
@@ -356,9 +357,7 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
-                    self.restart_game_button, self.quit_game_button = self.ui.draw_pause_menu()
-                    pygame.mouse.set_visible(True)
-                    pygame.mixer.music.pause()  # Pause the current music
+                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu()
 
                 ##############################################################
                 # display the GET_HIGH_SCORE popup over the frozen gameplay
@@ -379,7 +378,6 @@ class GameEngine:
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
                     self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_game_over_menu()
-                    self.play_music('game_over')
 
             ##############################################################
             # event handling
@@ -396,12 +394,10 @@ class GameEngine:
                             self.gs.cur_state = GameState.GameStateName.PLAYING
                             pygame.mouse.set_pos(self.mouse_pos)
                             pygame.mouse.set_visible(False)
-                            pygame.mixer.music.unpause()  # Unpause the music
                         elif self.gs.cur_state == GameState.GameStateName.PLAYING:
                             self.gs.cur_state = GameState.GameStateName.PAUSED
                             self.mouse_pos = pygame.mouse.get_pos()
                             pygame.mouse.set_visible(True)
-                            pygame.mixer.music.pause()  # Pause the music
 
                     if event.key == pygame.K_SPACE:
                         if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
