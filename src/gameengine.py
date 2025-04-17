@@ -44,6 +44,7 @@ class GameEngine:
         """
         self.quit_game_button = None
         self.restart_game_button = None
+        self.main_menu_button = None
         self.high_score_enter_btn = None
         self.mouse_pos = None
         self.lb: Leaderboard = lb
@@ -185,15 +186,17 @@ class GameEngine:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.start_button_rect.collidepoint(event.pos):
+                                self.reset_game()
                                 self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
                             elif self.ui.credits_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.CREDITS
                             elif self.ui.leader_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.LEADERBOARD
-                            elif hasattr(self.ui,
-                                         'how_to_play_button_rect') and self.ui.how_to_play_button_rect.collidepoint(
+                            elif self.ui.how_to_play_button_rect and self.ui.how_to_play_button_rect.collidepoint(
                                     event.pos):
                                 self.gs.cur_state = GameState.GameStateName.HOW_TO_PLAY
+                            elif self.ui.quit_button_start_rect.collidepoint(event.pos):
+                                self.clean_shutdown()
 
                 ##############################################################
                 # display how to play screen
@@ -310,8 +313,7 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
-                    self.restart_game_button, self.quit_game_button = self.ui.draw_pause_menu()
-                    pygame.mouse.set_visible(True)
+                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu()
 
                 ##############################################################
                 # display the GET_HIGH_SCORE popup over the frozen gameplay
@@ -331,7 +333,7 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
-                    self.restart_game_button, self.quit_game_button = self.ui.draw_game_over_menu()
+                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_game_over_menu()
 
             ##############################################################
             # event handling
@@ -425,12 +427,12 @@ class GameEngine:
                 if (event.type == pygame.MOUSEBUTTONDOWN and
                         ((self.gs.cur_state == GameState.GameStateName.PAUSED) or
                          (self.gs.cur_state == GameState.GameStateName.GAME_OVER))):
-                    if self.restart_game_button.collidepoint(event.pos):
+                    if self.restart_game_button and self.restart_game_button.collidepoint(event.pos):
                         self.reset_game()
-                    if self.quit_game_button.collidepoint(event.pos):
+                    if self.quit_game_button and self.quit_game_button.collidepoint(event.pos):
                         self.clean_shutdown()
-                    if self.gs.cur_state == GameState.GameStateName.GAME_OVER:
-                        self.gs.cur_state = GameState.GameStateName.CREDITS
+                    if self.main_menu_button and self.main_menu_button.collidepoint(event.pos):
+                        self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 if (event.type == pygame.MOUSEBUTTONDOWN and
                         (self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE)):
