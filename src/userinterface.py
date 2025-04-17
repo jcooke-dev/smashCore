@@ -37,10 +37,11 @@ class UserInterface:
         self.initialize_background_elements()
 
     def draw_button(self, text: str, x: int, y: int, width: int, height: int, color: pygame.color,
-                    hover_color: pygame.color, action: Callable = None) -> pygame.Rect:
+                    hover_color: pygame.color, action: Callable = None, corner_radius: int = 10) -> pygame.Rect:
         """
         Draw a button and return its Rect.
 
+        :param corner_radius:
         :param text: button text
         :param x: Rect x
         :param y: Rect y
@@ -56,36 +57,51 @@ class UserInterface:
         rect = pygame.Rect(x, y, width, height)
 
         if rect.collidepoint(mouse):
-            pygame.draw.rect(self.surface, hover_color, rect)
+            pygame.draw.rect(self.surface, hover_color, rect, border_radius=corner_radius)
             if click[0] == 1 and action is not None:
                 action()
         else:
-            pygame.draw.rect(self.surface, color, rect)
+            pygame.draw.rect(self.surface, color, rect, border_radius=corner_radius)
 
         text_surface = self.font_buttons.render(text, True, (0, 0, 0))
         text_rect = text_surface.get_rect(center=rect.center)
         self.surface.blit(text_surface, text_rect)
         return rect
 
-    def draw_pause_menu(self) -> tuple[pygame.Rect, pygame.Rect]:
+    def draw_pause_menu(self) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
         """
         Displays the pause menu where user can continue, restart, or quit the game
 
         :return:
         """
-        pygame.draw.rect(self.surface, (0, 0, 0, 100), [0, 0, constants.WIDTH, constants.HEIGHT])
-        reset_rect = pygame.Rect((constants.WIDTH // 2) - 200, 350, 400, 75)
-        pygame.draw.rect(self.surface, (0, 255, 0), reset_rect)
-        quit_rect = pygame.Rect((constants.WIDTH // 2) - 200, 450, 400, 75)
-        pygame.draw.rect(self.surface, (0, 255, 0), quit_rect)
-        self.surface.blit(self.font_game_over.render('Game Paused: ESC to Resume', True, constants.DARKBLUE), (90, 270))
-        self.surface.blit(self.font_buttons.render('Restart Game', True, constants.BLACK),
-                          (reset_rect.x + 10, reset_rect.centery - 25))
-        self.surface.blit(self.font_buttons.render('Quit Game', True, constants.BLACK),
-                          (quit_rect.x + 10, quit_rect.centery - 25))
+        pygame.mouse.set_visible(True)
+        pygame.draw.rect(self.surface, (0, 0, 0, 140), [0, 0, constants.WIDTH, constants.HEIGHT])
+
+        self.surface.blit(self.font_game_over.render('Game Paused: ESC to Resume', True, constants.LIGHTBLUE), (90, 270))
+
+        button_width = 200
+        button_height = 75
+        button_x = (constants.WIDTH - button_width) // 2
+        button_y_start = constants.HEIGHT // 2
+        button_spacing = 30
+
+        # Draw "Restart" button
+        restart_rect = self.draw_button("Restart", button_x, button_y_start,
+                                      button_width, button_height, constants.GREEN, (0, 200, 0))
+
+        # Draw "Main Menu" button
+        main_menu_y = button_y_start + button_height + button_spacing
+        main_menu_rect = self.draw_button("Main Menu", button_x, main_menu_y,
+                                          button_width, button_height, constants.YELLOW, (200, 200, 0))
+
+        # Draw "Quit" button
+        quit_y = main_menu_y + button_height + button_spacing
+        quit_rect = self.draw_button("Quit", button_x, quit_y,
+                                     button_width, button_height, constants.RED, (200, 0, 0))
+
         self.screen.blit(self.surface, (0, 0))
 
-        return reset_rect, quit_rect
+        return restart_rect, main_menu_rect, quit_rect
 
     def draw_game_over_menu(self, go_to_main_menu_action: Callable = None) -> tuple[
         pygame.Rect, pygame.Rect, pygame.Rect]:
@@ -116,16 +132,18 @@ class UserInterface:
 
         # Draw "Try Again" button
         reset_rect = self.draw_button("Try Again", button_x, button_y_start,
-                                      button_width, button_height, (0, 255, 0), (0, 200, 0))
+                                      button_width, button_height, constants.GREEN, (0, 200, 0))
 
         # Draw "Main Menu" button
         main_menu_y = button_y_start + button_height + button_spacing
-        main_menu_rect = self.draw_button("Main Menu", button_x, main_menu_y, button_width, button_height,
-                                          constants.YELLOW, (200, 200, 0), go_to_main_menu_action)
+        main_menu_rect = self.draw_button("Main Menu", button_x, main_menu_y,
+                                          button_width, button_height, constants.YELLOW, (200, 200, 0),
+                                          go_to_main_menu_action)
 
         # Draw "Quit" button
-        quit_rect = self.draw_button("Quit", button_x, main_menu_y + button_height + button_spacing,
-                                     button_width, button_height, (255, 0, 0), (200, 0, 0), )
+        quit_y = main_menu_y + button_height + button_spacing
+        quit_rect = self.draw_button("Quit", button_x, quit_y,
+                                     button_width, button_height, constants.RED, (200, 0, 0))
 
         self.screen.blit(self.surface, (0, 0))
 
@@ -181,7 +199,7 @@ class UserInterface:
         button_y_start = tb_text_rect.y + 125
 
         enter_btn_rect = self.draw_button("Enter", button_x, button_y_start,
-                                          button_width, button_height, (0, 255, 0), (0, 200, 0))
+                                          button_width, button_height, constants.GREEN, (0, 200, 0))
 
         self.screen.blit(self.surface, (0, 0))
 
@@ -364,7 +382,7 @@ class UserInterface:
         button_height = text.get_height() + 60
         button_rect = pygame.Rect((constants.WIDTH - button_width) // 2,
                                   (constants.HEIGHT - button_height) // 2 + 50, button_width, button_height)
-        pygame.draw.rect(self.surface, constants.RED, button_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.GREEN, button_rect, border_radius=10)
         text_rect = text.get_rect(center=button_rect.center)
         self.surface.blit(text, text_rect)
         self.start_button_rect = button_rect
@@ -378,7 +396,7 @@ class UserInterface:
         how_to_play_font = pygame.font.Font(None, 36)
         how_to_play_text = how_to_play_font.render("How to Play", True, constants.BLACK)
         how_to_play_text_rect = how_to_play_text.get_rect(center=how_to_play_rect.center)
-        pygame.draw.rect(self.surface, constants.RED, how_to_play_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.YELLOW, how_to_play_rect, border_radius=10)
         self.surface.blit(how_to_play_text, how_to_play_text_rect)
         self.how_to_play_button_rect = how_to_play_rect
 
@@ -392,7 +410,7 @@ class UserInterface:
         credits_text = credits_font.render("Credits", True, constants.BLACK)
         credits_text_rect = credits_text.get_rect(center=credits_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, credits_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.YELLOW, credits_rect, border_radius=10)
         self.surface.blit(credits_text, credits_text_rect)
         self.credits_button_rect = credits_rect
 
@@ -406,7 +424,7 @@ class UserInterface:
         leader_text = leader_font.render("Leaderboard", True, constants.BLACK)
         leader_text_rect = leader_text.get_rect(center=leader_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, leader_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.YELLOW, leader_rect, border_radius=10)
         self.surface.blit(leader_text, leader_text_rect)
         self.leader_button_rect = leader_rect
 
@@ -458,7 +476,7 @@ class UserInterface:
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, back_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.YELLOW, back_rect, border_radius=10)
         self.surface.blit(back_text, back_text_rect)
         self.how_to_play_back_button_rect = back_rect
         self.screen.blit(self.surface, (0, 0))
@@ -491,7 +509,7 @@ class UserInterface:
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, back_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.YELLOW, back_rect, border_radius=10)
         self.surface.blit(back_text, back_text_rect)
         self.back_button_rect = back_rect
         self.screen.blit(self.surface, (0, 0))
@@ -532,7 +550,7 @@ class UserInterface:
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, back_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.YELLOW, back_rect, border_radius=10)
         self.surface.blit(back_text, back_text_rect)
         self.back_button_rect = back_rect
 

@@ -46,6 +46,7 @@ class GameEngine:
         """
         self.quit_game_button = None
         self.restart_game_button = None
+        self.main_menu_button = None
         self.high_score_enter_btn = None
         self.mouse_pos = None
         self.lb: Leaderboard = lb
@@ -112,6 +113,7 @@ class GameEngine:
             if isinstance(wo, Ball):
                 wo.reset_position()
                 wo.speed_v = BALL_SPEED_VECTOR + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
+                wo.v_vel = wo.v_vel_unit * wo.speed_v
                 wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
         # builds level in cycles of the 4 levels
         if self.ps.level % 4 == 1:
