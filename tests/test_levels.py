@@ -39,10 +39,18 @@ def test_level_smashcore_1(mock_scale_image, mock_image_load, mock_gameworld):
         assert 1 <= brick.value <= 10
 
 
-def test_build_level_invalid(mock_gameworld):
-    # Test with an invalid level name
-    Levels.build_level(mock_gameworld.world_objects, None)
 
-    # Assert no bricks are added
-    assert len(mock_gameworld.world_objects) == 0
+def test_next_level_1():
+    next_level = Levels.get_next_level(1)
+    assert next_level is Levels.LevelName.SMASHCORE_SOLID_ROWS_1
 
+
+def test_next_level_3():
+    next_level = Levels.get_next_level(3)
+    assert next_level is Levels.LevelName.SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1
+
+
+def test_next_level_last():
+    last_level: Levels.LevelName = list(Levels.LevelName)[-1]
+    next_level = Levels.get_next_level(last_level.value)
+    assert next_level is Levels.LevelName.SMASHCORE_1

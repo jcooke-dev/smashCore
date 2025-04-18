@@ -102,14 +102,8 @@ class GameEngine:
                 wo.v_vel = wo.v_vel_unit * wo.speed_v
                 wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
         # builds level in cycles of the 4 levels
-        if self.ps.level % 4 == 1:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_1)
-        if self.ps.level % 4 == 2:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_SOLID_ROWS_1)
-        if self.ps.level % 4 == 3:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_IMG_CHAMFER_1)
-        if self.ps.level % 4 == 0:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1)
+        next_level = Levels.get_next_level(self.ps.level)
+        Levels.build_level(self.gw.world_objects, next_level)
 
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
@@ -269,8 +263,10 @@ class GameEngine:
                                             # to bounce, based on approach
                                             current_wo.detect_collision(other_wo, self.gs)
                                             other_wo.add_collision()
-                                            if other_wo.should_remove():
+                                            if other_wo.should_score():
                                                 self.ps.score += other_wo.value
+                                            if other_wo.should_remove():
+                                                self.ps.score += other_wo.bonus
                                                 # special effect
                                                 #  TODO probably need to store this brick rect and set
                                                 #  it to be displayed for some duration because we sometimes don't see
