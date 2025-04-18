@@ -12,36 +12,30 @@
 import os
 import pygame
 
-ART_DIR = 'assets/art/'
-SOUND_DIR = 'assets/sound/'
+from gamestate import GameState
 
-SPLASH_MUSIC_FILENAME = 'splash_music.wav'
-MENU_MUSIC_FILENAME = 'menu_music.wav'
-GAME_MUSIC_FILENAME = 'game_music.wav'
-GAME_OVER_MUSIC_FILENAME = 'game_over_music.wav'
-SCORE_MUSIC_FILENAME = 'score_music.wav'
+ART_DIR: str = 'assets/art/'
+SOUND_DIR: str = 'assets/sound/'
 
-music_paths = {
-    'splash': os.path.join(SOUND_DIR, SPLASH_MUSIC_FILENAME),
-    'menu_screen': os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME),
-    'playing': os.path.join(SOUND_DIR, GAME_MUSIC_FILENAME),
-    'game_over': os.path.join(SOUND_DIR, GAME_OVER_MUSIC_FILENAME),
-    'get_high_score': os.path.join(SOUND_DIR, SCORE_MUSIC_FILENAME),
-    'ready_to_launch': os.path.join(SOUND_DIR, GAME_MUSIC_FILENAME)
+SPLASH_MUSIC_FILENAME: str = 'splash_music.wav'
+MENU_MUSIC_FILENAME: str = 'menu_music.wav'
+GAME_MUSIC_FILENAME: str = 'game_music.wav'
+GAME_OVER_MUSIC_FILENAME: str = 'game_over_music.wav'
+SCORE_MUSIC_FILENAME: str = 'score_music.wav'
 
-BACKGROUND_FILENAME = 'background.png'
-BRK_YELLOW_FILENAME = 'yellow_brick.png'
-BRK_BLUE_FILENAME = 'blue_brick.png'
-BRK_GREEN_FILENAME = 'green_brick.png'
-BRK_RED_FILENAME = 'red_brick.png'
-BRK_PINK_FILENAME = 'pink_brick.png'
-BRK_ORANGE_FILENAME = 'orange_brick.png'
-BRK_LTBLUE_FILENAME = 'lt_blue_brick.png'
-BRK_PURPLE_FILENAME = 'purple_brick.png'
-BRK_TEAL_FILENAME = 'teal_brick.png'
-BRK_LAVENDER_FILENAME = 'lavender_brick.png'
-BALL_FILENAME = 'ball.png'
-PADDLE_FILENAME = 'paddle.png'
+BACKGROUND_FILENAME: str = 'background.png'
+BRK_YELLOW_FILENAME: str = 'yellow_brick.png'
+BRK_BLUE_FILENAME: str = 'blue_brick.png'
+BRK_GREEN_FILENAME: str = 'green_brick.png'
+BRK_RED_FILENAME: str = 'red_brick.png'
+BRK_PINK_FILENAME: str = 'pink_brick.png'
+BRK_ORANGE_FILENAME: str = 'orange_brick.png'
+BRK_LTBLUE_FILENAME: str = 'lt_blue_brick.png'
+BRK_PURPLE_FILENAME: str = 'purple_brick.png'
+BRK_TEAL_FILENAME: str = 'teal_brick.png'
+BRK_LAVENDER_FILENAME: str = 'lavender_brick.png'
+BALL_FILENAME: str = 'ball.png'
+PADDLE_FILENAME: str = 'paddle.png'
 
 BACKGROUND_IMG, BALL_IMG, PADDLE_IMG = None, None, None
 BRK_YELLOW_IMG, BRK_BLUE_IMG, BRK_GREEN_IMG = None, None, None
@@ -49,6 +43,8 @@ BRK_RED_IMG, BRK_PINK_IMG, BRK_ORANGE_IMG, = None, None, None
 BRK_LTBLUE_IMG, BRK_PURPLE_IMG, BRK_TEAL_IMG = None, None, None
 BRK_LAVENDER_IMG = None
 BRICK_COLORS = []
+
+MUSIC_PATHS = {}
 
 
 def load_assets():
@@ -60,6 +56,7 @@ def load_assets():
     global BRK_YELLOW_IMG, BRK_BLUE_IMG, BRK_GREEN_IMG, BRK_RED_IMG
     global BRK_PINK_IMG, BRK_ORANGE_IMG, BRK_LTBLUE_IMG, BRK_PURPLE_IMG
     global BRK_TEAL_IMG, BRK_LAVENDER_IMG, BRICK_COLORS
+    global MUSIC_PATHS
     BACKGROUND_IMG = pygame.image.load(os.path.join(ART_DIR, BACKGROUND_FILENAME))
     BRK_YELLOW_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_YELLOW_FILENAME))
     BRK_BLUE_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_BLUE_FILENAME))
@@ -76,3 +73,14 @@ def load_assets():
 
     BRICK_COLORS = [BRK_YELLOW_IMG, BRK_BLUE_IMG, BRK_GREEN_IMG, BRK_RED_IMG, BRK_PINK_IMG, BRK_ORANGE_IMG,
                     BRK_LTBLUE_IMG, BRK_PURPLE_IMG, BRK_TEAL_IMG, BRK_LAVENDER_IMG]
+
+    # music
+    MUSIC_PATHS[GameState.GameStateName.SPLASH] = os.path.join(SOUND_DIR, SPLASH_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.MENU_SCREEN] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.HOW_TO_PLAY] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.CREDITS] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.LEADERBOARD] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.PLAYING] = os.path.join(SOUND_DIR, GAME_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.GAME_OVER] = os.path.join(SOUND_DIR, GAME_OVER_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.GET_HIGH_SCORE] = os.path.join(SOUND_DIR, SCORE_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.READY_TO_LAUNCH] = os.path.join(SOUND_DIR, GAME_MUSIC_FILENAME)

@@ -70,7 +70,7 @@ class GameEngine:
 
         # Initialize game music and paths
         pygame.mixer.init()
-        self.current_music = None
+        self.current_music_path = None
 
     def reset_game(self) -> None:
         """
@@ -88,7 +88,7 @@ class GameEngine:
         self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
         pygame.mixer.music.stop()
-        self.current_music = None
+        self.current_music_path = None
 
     def next_level(self) -> None:
         """
@@ -141,7 +141,7 @@ class GameEngine:
 
     def clean_shutdown(self) -> None:
         pygame.mixer.music.stop()
-        self.current_music = None
+        self.current_music_path = None
         self.gs.running = False
         self.gs.cur_state = GameState.GameStateName.GAME_OVER
 
@@ -151,29 +151,27 @@ class GameEngine:
         pygame.quit()
         exit()
 
-    def play_music(self, state_name):
+    def play_music(self, gs: GameState):
         """
         Plays the music file for each game state
         :return:
         """
-        target_music = None
-        loop = -1  # Default to loop infinitely
+        target_music_path: str = None
+        loop: int = -1  # Default to loop infinitely
 
-        if state_name in assets.music_paths:
-            target_music = state_name
-            if state_name == 'get_high_score':
+        if gs.cur_state in assets.MUSIC_PATHS:
+            target_music_path = assets.MUSIC_PATHS[gs.cur_state]
+            if gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE:
                 loop = 0  # Play only once
-        elif state_name == 'ready_to_launch' and 'playing' in assets.music_paths:
-            target_music = 'playing'
 
-        if target_music and self.current_music != target_music:
+        if target_music_path and self.current_music_path != target_music_path:
             pygame.mixer.music.stop()
-            pygame.mixer.music.load(assets.music_paths[target_music])
+            pygame.mixer.music.load(target_music_path)
             pygame.mixer.music.play(loop)
-            self.current_music = target_music
-        elif not target_music and self.current_music is not None:
+            self.current_music_path = target_music_path
+        elif not target_music_path and self.current_music_path is not None:
             pygame.mixer.music.stop()
-            self.current_music = None
+            self.current_music_path = None
 
     def run_loop(self) -> None:
         """
@@ -185,8 +183,8 @@ class GameEngine:
             # fill the screen with black as a good default
             self.screen.fill(BLACK)
 
-            current_state_name = self.gs.cur_state.name.lower()
-            self.play_music(current_state_name)
+            self.play_music(self.gs)
+
             match self.gs.cur_state:
 
                 ##############################################################
@@ -491,11 +489,6 @@ class GameEngine:
             if self.gs.show_dev_overlay:
                 self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(),
                                                                                          self.clock.get_time())
-
-        ##############################################################
-        # close down cleanly
-        ##############################################################
-        pygame.quit()
 
         ##############################################################
         # close down cleanly
