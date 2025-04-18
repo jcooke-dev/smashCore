@@ -14,6 +14,7 @@ import pygame
 
 import utils
 import persistence
+from obstacle import Obstacle
 from src.ball import Ball
 from src.brick import Brick
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
@@ -88,6 +89,15 @@ class GameEngine:
         self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
 
+    def remove_obstacles(self) -> None:
+        """
+        Removes any obstacles from the list of gw.world_objects
+        :return:
+        """
+        wo_to_keep = [wo for wo in self.gw.world_objects if
+                      not isinstance(wo, Obstacle)]
+        self.gw.world_objects = wo_to_keep
+
     def next_level(self) -> None:
         """
         Builds the next level, resets the ball position and initial speed
@@ -95,6 +105,7 @@ class GameEngine:
 
         :return:
         """
+        self.remove_obstacles()
         for wo in self.gw.world_objects:
             if isinstance(wo, Ball):
                 wo.reset_position()

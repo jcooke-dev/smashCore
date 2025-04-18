@@ -116,8 +116,7 @@ class Levels:
             case Levels.LevelName.SMASHCORE_UNBREAKABLE_1:
                 colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
                           constants.GREEN]
-                unbreakable = [(0, 0)]
-                print(unbreakable)
+                unbreakable = [(0, 2), (1, 2), (9, 2), (10, 2)]
                 Levels.generate_grid_level(gw_list=gw_list, rows=len(colors),
                                            row_colors=colors,
                                            unbreakable=unbreakable)
