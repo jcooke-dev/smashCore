@@ -50,10 +50,10 @@ def test_draw_pause_menu(mock_rect, ui):
     :param ui:
     :return:
     """
-    ui.font_game_over = mock.Mock()
+    ui.font_title_text = mock.Mock()
 
     ui.draw_pause_menu()
-    called_args_game_over = ui.font_game_over.render.call_args
+    called_args_game_over = ui.font_title_text.render.call_args
 
     if called_args_game_over:
         assert called_args_game_over[0][0] == "Game Paused: ESC to Resume"
