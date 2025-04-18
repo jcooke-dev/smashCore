@@ -33,10 +33,7 @@ def score_list_full():
                                Score(150, 1, "aaa"),
                                Score(550, 1, "ddd"),
                                Score(560, 1, "ggg"),
-                               Score(120, 1, "hhh"),
-                               Score(56, 1, "iii"),
-                               Score(80, 1, "jjj"),
-                               Score(101, 1, "kkk")
+                               Score(120, 1, "hhh")
                                ]
     return score_list
 
@@ -58,10 +55,10 @@ def test_is_not_high_score_with_full_list(score_list_full):
     assert top_scores.is_high_score(30) is False
 
 
-def test_is_not_high_score_with_full_list_not_min_score(score_list_full):
+def test_is_not_high_score_with_full_list_same_min_score(score_list_full):
     top_scores = Leaderboard()
     top_scores.l_top_scores = score_list_full
-    assert top_scores.is_high_score(55) is False
+    assert top_scores.is_high_score(50) is False
 
 
 def test_is_high_score_with_full_list(score_list_full):
