@@ -101,12 +101,12 @@ class UserInterface:
         pygame.draw.rect(self.surface, (0, 0, 0, 140), [0, 0, constants.WIDTH, constants.HEIGHT])
 
         title1_text = self.font_title_text.render("Game Paused:", True, constants.YELLOW)
-        title2_txt = self.font_title_text.render("Press ESC to Continue", True, constants.YELLOW)
+        title2_text = self.font_title_text.render("Press ESC to Continue", True, constants.YELLOW)
         title1_text_rect = title1_text.get_rect(center=(constants.WIDTH // 2, 270))
-        title2_text_rect = title2_txt.get_rect(center=(constants.WIDTH // 2, 350))
+        title2_text_rect = title2_text.get_rect(center=(constants.WIDTH // 2, 350))
 
         self.surface.blit(title1_text, title1_text_rect)
-        self.surface.blit(title2_txt, title2_text_rect)
+        self.surface.blit(title2_text, title2_text_rect)
 
         button_width = 300
         button_height = 75
