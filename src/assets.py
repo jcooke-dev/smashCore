@@ -14,6 +14,13 @@ import pygame
 
 ART_DIR = 'assets/art/'
 SOUND_DIR = 'assets/sound/'
+
+SPLASH_MUSIC_FILENAME = 'splash_music.wav'
+MENU_MUSIC_FILENAME = 'menu_music.wav'
+GAME_MUSIC_FILENAME = 'game_music.wav'
+GAME_OVER_MUSIC_FILENAME = 'game_over_music.wav'
+SCORE_MUSIC_FILENAME = 'score_music.wav'
+
 BACKGROUND_FILENAME = 'background.png'
 BRK_YELLOW_FILENAME = 'yellow_brick.png'
 BRK_BLUE_FILENAME = 'blue_brick.png'
