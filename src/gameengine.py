@@ -9,10 +9,7 @@
     Module Description: This brings together the various modules that make up the game (GameWorld,
                         GameState, UI, etc.) and runs the main game loop.
 """
-import os
-
 import pygame
-
 import utils
 import persistence
 from src import assets
@@ -23,7 +20,6 @@ from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
     BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
     PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
     BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
-
 from src.levels import Levels
 from src.gameworld import GameWorld
 from userinterface import UserInterface
@@ -38,7 +34,6 @@ class GameEngine:
 
     def __init__(self, lb: Leaderboard, ps: PlayerState, gw: GameWorld, gs: GameState, ui: UserInterface) -> None:
         """
-
         :param ps: PlayerState
         :param gw: GameWorld
         :param gs: GameState
@@ -75,19 +70,11 @@ class GameEngine:
 
         # Initialize game music and paths
         pygame.mixer.init()
-        self.music_paths = {}
         self.current_music = None
-        self.music_paths['splash'] = os.path.join(assets.SOUND_DIR, 'splash_music.wav')
-        self.music_paths['menu_screen'] = os.path.join(assets.SOUND_DIR, 'menu_music.wav')
-        self.music_paths['playing'] = os.path.join(assets.SOUND_DIR, 'game_music.wav')
-        self.music_paths['game_over'] = os.path.join(assets.SOUND_DIR, 'game_over_music.wav')
-        self.music_paths['get_high_score'] = os.path.join(assets.SOUND_DIR, 'score_music.wav')
-        self.game_over_music_played = False
 
     def reset_game(self) -> None:
         """
         Resets the game to the initial state
-
         :return:
         """
         # does python run auto garbage collection so it's OK to just
@@ -107,7 +94,6 @@ class GameEngine:
         """
         Builds the next level, resets the ball position and initial speed
         Slight increase in initial ball speed to add difficulty
-
         :return:
         """
         for wo in self.gw.world_objects:
@@ -133,7 +119,6 @@ class GameEngine:
     def draw_world_and_status(self) -> None:
         """
         Draw all objects in GameWorld plus status overlays
-
         :return:
         """
         # draw every game object
@@ -145,7 +130,6 @@ class GameEngine:
     def menu_screen_handler(self) -> None:
         """
         Checks for button presses and shifts to the proper GameSate
-
         :return:
         """
         for event in pygame.event.get():
@@ -170,22 +154,21 @@ class GameEngine:
     def play_music(self, state_name):
         """
         Plays the music file for each game state
-
         :return:
         """
         target_music = None
         loop = -1  # Default to loop infinitely
 
-        if state_name in self.music_paths:
+        if state_name in assets.music_paths:
             target_music = state_name
             if state_name == 'get_high_score':
                 loop = 0  # Play only once
-        elif state_name == 'ready_to_launch' and 'playing' in self.music_paths:
+        elif state_name == 'ready_to_launch' and 'playing' in assets.music_paths:
             target_music = 'playing'
 
         if target_music and self.current_music != target_music:
             pygame.mixer.music.stop()
-            pygame.mixer.music.load(self.music_paths[target_music])
+            pygame.mixer.music.load(assets.music_paths[target_music])
             pygame.mixer.music.play(loop)
             self.current_music = target_music
         elif not target_music and self.current_music is not None:
@@ -195,7 +178,6 @@ class GameEngine:
     def run_loop(self) -> None:
         """
         Runs the main game loop
-
         :return:
         """
 
@@ -509,6 +491,11 @@ class GameEngine:
             if self.gs.show_dev_overlay:
                 self.gs.fps_avg, self.gs.loop_time_avg = utils.calculate_timing_averages(self.clock.get_fps(),
                                                                                          self.clock.get_time())
+
+        ##############################################################
+        # close down cleanly
+        ##############################################################
+        pygame.quit()
 
         ##############################################################
         # close down cleanly
