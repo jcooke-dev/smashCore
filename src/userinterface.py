@@ -25,7 +25,7 @@ class UserInterface:
         self.font_game_over = pygame.font.Font('assets/font/slkscrb.ttf', 80)
         self.font_buttons = pygame.font.Font('assets/font/slkscrb.ttf', 40)
         # not certain this will reliably get a font (especially on diff OSes), but it's supposed to
-        # fallback to a default pygame font
+        # fall back to a default pygame font
         self.font_fixed_small: pygame.font = pygame.font.SysFont("Courier", 16, True)
         self.font_fixed_large: pygame.font = pygame.font.Font('assets/font/slkscreb.ttf', 35)
         self.font_fixed_xlarge: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 60)
@@ -37,10 +37,11 @@ class UserInterface:
         self.initialize_background_elements()
 
     def draw_button(self, text: str, x: int, y: int, width: int, height: int, color: pygame.color,
-                    hover_color: pygame.color, action: Callable = None) -> None:
+                    hover_color: pygame.color, action: Callable = None, corner_radius: int = 10) -> pygame.Rect:
         """
-        Draw a button
+        Draw a button and return its Rect.
 
+        :param corner_radius:
         :param text: button text
         :param x: Rect x
         :param y: Rect y
@@ -48,130 +49,126 @@ class UserInterface:
         :param height: Rect height
         :param color: button color
         :param hover_color: button hover color
-        :param action:
-        :return:
+        :param action: Function to call on click
+        :return: pygame.Rect of the button
         """
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         rect = pygame.Rect(x, y, width, height)
 
         if rect.collidepoint(mouse):
-            pygame.draw.rect(self.surface, hover_color, rect)
+            pygame.draw.rect(self.surface, hover_color, rect, border_radius=corner_radius)
             if click[0] == 1 and action is not None:
                 action()
         else:
-            pygame.draw.rect(self.surface, color, rect)
+            pygame.draw.rect(self.surface, color, rect, border_radius=corner_radius)
 
         text_surface = self.font_buttons.render(text, True, (0, 0, 0))
         text_rect = text_surface.get_rect(center=rect.center)
         self.surface.blit(text_surface, text_rect)
+        return rect
 
-    def draw_pause_menu(self) -> tuple[pygame.Rect, pygame.Rect]:
+    def draw_pause_menu(self) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
         """
         Displays the pause menu where user can continue, restart, or quit the game
 
         :return:
         """
+        pygame.mouse.set_visible(True)
+        pygame.draw.rect(self.surface, (0, 0, 0, 140), [0, 0, constants.WIDTH, constants.HEIGHT])
 
-        title_font = pygame.font.Font('assets/font/slkscrb.ttf', 70)
-        title1_text = title_font.render('Game Paused:', True, constants.YELLOW)
-        title2_text = title_font.render('Press ESC to Continue', True, constants.YELLOW)
-        title1_rect = title1_text.get_rect(center=(constants.WIDTH // 2, 230))
-        title2_rect = title2_text.get_rect(center=(constants.WIDTH // 2, 300))
+        self.surface.blit(self.font_game_over.render('Game Paused: ESC to Resume', True, constants.LIGHTBLUE), (90, 270))
 
-        restart_text = self.font_buttons.render('Restart Game', True, constants.BLACK)
-        quit_text = self.font_buttons.render('Quit Game', True, constants.BLACK)
-        restart_text_rect = restart_text.get_rect(center=(constants.WIDTH // 2, 380))
-        quit_text_rect = quit_text.get_rect(center=(constants.WIDTH // 2, 480))
+        button_width = 200
+        button_height = 75
+        button_x = (constants.WIDTH - button_width) // 2
+        button_y_start = constants.HEIGHT // 2
+        button_spacing = 30
 
-        pygame.draw.rect(self.surface, (0, 0, 0, 100), [0, 0, constants.WIDTH, constants.HEIGHT])
-        reset = pygame.draw.rect(self.surface, (0, 255, 0), [(constants.WIDTH // 2) - 200, 350, 400, 75])
-        quit = pygame.draw.rect(self.surface, (0, 255, 0), [(constants.WIDTH // 2) - 200, 450, 400, 75])
-        self.surface.blit(title1_text, title1_rect)
-        self.surface.blit(title2_text, title2_rect)
-        self.surface.blit(restart_text, restart_text_rect)
-        self.surface.blit(quit_text, quit_text_rect)
+        # Draw "Restart" button
+        restart_rect = self.draw_button("Restart", button_x, button_y_start,
+                                      button_width, button_height, constants.GREEN, (0, 200, 0))
+
+        # Draw "Main Menu" button
+        main_menu_y = button_y_start + button_height + button_spacing
+        main_menu_rect = self.draw_button("Main Menu", button_x, main_menu_y,
+                                          button_width, button_height, constants.YELLOW, (200, 200, 0))
+
+        # Draw "Quit" button
+        quit_y = main_menu_y + button_height + button_spacing
+        quit_rect = self.draw_button("Quit", button_x, quit_y,
+                                     button_width, button_height, constants.RED, (200, 0, 0))
+
         self.screen.blit(self.surface, (0, 0))
 
-        return reset, quit
+        return restart_rect, main_menu_rect, quit_rect
 
-    def draw_game_over_menu(self) -> tuple[pygame.Rect, pygame.Rect]:
+    def draw_game_over_menu(self, go_to_main_menu_action: Callable = None) -> tuple[
+        pygame.Rect, pygame.Rect, pygame.Rect]:
         """
-        Draws the game over screen on a surface and displays it if game is lost
-        Buttons to give the user the option to try again or quit
+        Draws the game over screen with options to try again, go to main menu, and quit.
 
-        :return:
+        :param go_to_main_menu_action: Function to call when the "Main Menu" button is clicked.
+        :return: Tuple of Rects for "Try Again", "Main Menu", and "Quit" buttons.
         """
-
         pygame.mouse.set_visible(True)
-        pygame.draw.rect(self.surface,
-                         (0, 0, 0, 140),
-                         [0, 0, constants.WIDTH, constants.HEIGHT])
+        pygame.draw.rect(self.surface, (0, 0, 0, 140), [0, 0, constants.WIDTH, constants.HEIGHT])
 
-        text_game_over = self.font_game_over.render(
-            "YOU GOT SMASHED!", True, pygame.Color('red'))
-        text_rect = text_game_over.get_rect(
-            center=(constants.WIDTH // 2, constants.HEIGHT // 3))
+        text_game_over = self.font_game_over.render("YOU GOT SMASHED!", True, pygame.Color('red'))
+        text_rect = text_game_over.get_rect(center=(constants.WIDTH // 2, constants.HEIGHT // 3))
 
-        bg_surface = pygame.Surface(
-            (text_rect.width + 20, text_rect.height + 10), pygame.SRCALPHA)
+        bg_surface = pygame.Surface((text_rect.width + 20, text_rect.height + 10), pygame.SRCALPHA)
         bg_surface.fill((0, 0, 0, 255))
-
         bg_rect = bg_surface.get_rect(center=text_rect.center)
+
         self.surface.blit(bg_surface, bg_rect)
         self.surface.blit(text_game_over, text_rect)
 
         button_width = 280
         button_height = 75
-        button_x = (constants.WIDTH - button_width) // 2  # Center buttons horizontally
+        button_x = (constants.WIDTH - button_width) // 2
         button_y_start = constants.HEIGHT // 2
         button_spacing = 30
 
-        # Draw buttons
-        reset = pygame.Rect(button_x, button_y_start, button_width, button_height)
-        self.draw_button("Try Again", button_x, button_y_start, button_width, button_height,
-                         (0, 255, 0),
-                         (0, 200, 0))
+        # Draw "Try Again" button
+        reset_rect = self.draw_button("Try Again", button_x, button_y_start,
+                                      button_width, button_height, constants.GREEN, (0, 200, 0))
 
-        quit = pygame.Rect(button_x, button_y_start + button_height + button_spacing, button_width,
-                           button_height)
-        self.draw_button("Quit", button_x, button_y_start + button_height + button_spacing, button_width, button_height,
-                         (255, 0, 0),
-                         (200, 0, 0))
+        # Draw "Main Menu" button
+        main_menu_y = button_y_start + button_height + button_spacing
+        main_menu_rect = self.draw_button("Main Menu", button_x, main_menu_y,
+                                          button_width, button_height, constants.YELLOW, (200, 200, 0),
+                                          go_to_main_menu_action)
+
+        # Draw "Quit" button
+        quit_y = main_menu_y + button_height + button_spacing
+        quit_rect = self.draw_button("Quit", button_x, quit_y,
+                                     button_width, button_height, constants.RED, (200, 0, 0))
+
         self.screen.blit(self.surface, (0, 0))
 
-        return reset, quit
+        return reset_rect, main_menu_rect, quit_rect
 
     def draw_get_high_score(self) -> pygame.Rect:
         """
-        Draws the game over screen on a surface and displays it if game is lost
-        Buttons to give the user the option to try again or quit
+        Draws the screen for getting high score initials.
 
-        :return:
+        :return: Rect of the "Enter" button.
         """
-
         pygame.mouse.set_visible(True)
-        pygame.draw.rect(self.surface,
-                         (0, 0, 0, 140),
-                         [0, 0, constants.WIDTH, constants.HEIGHT])
+        pygame.draw.rect(self.surface, (0, 0, 0, 140), [0, 0, constants.WIDTH, constants.HEIGHT])
 
         # draw message
-        text_high_score1 = self.font_fixed_xlarge.render(
-            "That's a high score!", True, constants.YELLOW)
-        text_rect1 = text_high_score1.get_rect(
-            center=(constants.WIDTH // 2, constants.HEIGHT // 3))
+        text_high_score1 = self.font_fixed_xlarge.render("That's a high score!", True, constants.YELLOW)
+        text_rect1 = text_high_score1.get_rect(center=(constants.WIDTH // 2, constants.HEIGHT // 3))
 
-        text_high_score2 = self.font_fixed_xlarge.render(
-            "Please enter your initials:", True, constants.YELLOW)
-        text_rect2 = text_high_score2.get_rect(
-            center=(constants.WIDTH // 2, (constants.HEIGHT // 3) + 80))
+        text_high_score2 = self.font_fixed_xlarge.render("Please enter your initials:", True, constants.YELLOW)
+        text_rect2 = text_high_score2.get_rect(center=(constants.WIDTH // 2, (constants.HEIGHT // 3) + 80))
 
-        bg_surface1 = pygame.Surface(
-            (text_rect1.width + 20, text_rect1.height + 10), pygame.SRCALPHA)
+        bg_surface1 = pygame.Surface((text_rect1.width + 20, text_rect1.height + 10), pygame.SRCALPHA)
         bg_surface1.fill((0, 0, 0, 255))
 
-        bg_surface2 = pygame.Surface(
-            (text_rect2.width + 20, text_rect2.height + 10), pygame.SRCALPHA)
+        bg_surface2 = pygame.Surface((text_rect2.width + 20, text_rect2.height + 10), pygame.SRCALPHA)
         bg_surface2.fill((0, 0, 0, 255))
 
         bg_rect1 = bg_surface1.get_rect(center=text_rect1.center)
@@ -198,17 +195,15 @@ class UserInterface:
         # draw enter button
         button_width = 200
         button_height = 75
-        button_x = (constants.WIDTH - button_width) // 2  # Center buttons horizontally
+        button_x = (constants.WIDTH - button_width) // 2
         button_y_start = tb_text_rect.y + 125
 
-        enter_btn = pygame.Rect(button_x, button_y_start, button_width, button_height)
-        self.draw_button("Enter", button_x, button_y_start, button_width, button_height,
-                         (0, 255, 0),
-                         (0, 200, 0))
+        enter_btn_rect = self.draw_button("Enter", button_x, button_y_start,
+                                          button_width, button_height, constants.GREEN, (0, 200, 0))
 
         self.screen.blit(self.surface, (0, 0))
 
-        return enter_btn
+        return enter_btn_rect
 
     def draw_game_intro(self) -> None:
         """
@@ -224,14 +219,12 @@ class UserInterface:
 
     def draw_status(self, lives: int, score: int, level: int) -> None:
         """
-        Draws each life in the top left corner of the screen
-        Draws the score in the top right corner of the screen
-        Draws the level name in the top middle of the screen
+        Draws each life, score, and level on the screen.
 
-        :param lives:
-        :param score:
-        :param level:
-        :return:
+        :param lives: Number of remaining lives.
+        :param score: Current game score.
+        :param level: Current game level.
+        :return: None
         """
         status_font = pygame.font.Font('assets/font/slkscrb.ttf', 36)
 
@@ -283,8 +276,7 @@ class UserInterface:
         text_smash = font_smash.render("Smash", True, text_color)
         text_smash_shadow = font_smash.render("Smash", True, shadow_color)
 
-        text_smash_rect = text_smash.get_rect(center=
-                                              (logo_x + 100, logo_y + 40))
+        text_smash_rect = text_smash.get_rect(center=(logo_x + 100, logo_y + 40))
         text_smash_shadow_rect = text_smash_rect.copy()
         text_smash_shadow_rect.move_ip(3, 3)
 
@@ -302,39 +294,34 @@ class UserInterface:
         self.screen.blit(text_core_shadow, text_core_shadow_rect)
         self.screen.blit(text_core, text_core_rect)
 
-        pygame.draw.line(self.screen, logo_color,
-                         (logo_x - 30, logo_y + 120), (logo_x + 330, logo_y + 120),
-                         3)
+        pygame.draw.line(self.screen, logo_color, (logo_x - 30, logo_y + 120), (logo_x + 330, logo_y + 120), 3)
 
         font_arcade = pygame.font.Font('assets/font/slkscre.ttf', 24)
-        text_arcade = font_arcade.render("The Retro Arcade Experience", True,
-                                         (200, 200, 200))
-        text_arcade_rect = text_arcade.get_rect(center=
-                                                (logo_x + 150, logo_y + 150))
+        text_arcade = font_arcade.render("The Retro Arcade Experience", True, (200, 200, 200))
+        text_arcade_rect = text_arcade.get_rect(center=(logo_x + 150, logo_y + 150))
         self.screen.blit(text_arcade, text_arcade_rect)
 
     def initialize_background_elements(self):
         """Creates a set of bricks with different colors and multiple balls."""
         # Create multiple balls
-        for _ in range(8): # Use this to change number of balls
+        for _ in range(8):  # Use this to change number of balls
             x = random.randint(0, constants.WIDTH)
             y = random.randint(0, constants.HEIGHT)
             speed_x = random.choice([-2, 2])
             speed_y = random.choice([-2, 2])
             ball_rect = pygame.Rect(x, y, constants.BALL_RADIUS * 2, constants.BALL_RADIUS * 2)
             ball_image = pygame.transform.scale(assets.BALL_IMG, (constants.BALL_RADIUS * 2, constants.BALL_RADIUS * 2))
-            self.background_balls.append(
-                {'rect': ball_rect, 'speed_x': speed_x, 'speed_y': speed_y, 'image': ball_image})
+            self.background_balls.append \
+                ({'rect': ball_rect, 'speed_x': speed_x, 'speed_y': speed_y, 'image': ball_image})
 
             # Create bricks with fixed positions and colors
         brick_data = [
             ((constants.WIDTH // 4, constants.HEIGHT // 4), constants.YELLOW),
-            ((constants.WIDTH // 2, constants.HEIGHT // 3), constants.RED),
+            ((constants.WIDTH // 2, constants.HEIGHT // 3), constants.GREEN),
             ((constants.WIDTH // 3, constants.HEIGHT // 2), constants.ORANGE),
             ((constants.WIDTH // 5, constants.HEIGHT // 5 * 3), constants.LIGHTBLUE),
             ((constants.WIDTH // 6, constants.HEIGHT // 6 * 4), constants.RED),
             ((constants.WIDTH // 8 * 7, constants.HEIGHT // 8), constants.YELLOW),
-            ((constants.WIDTH // 8, constants.HEIGHT // 8 * 7), constants.GREEN),
             ((constants.WIDTH // 2, constants.HEIGHT // 5 * 4), constants.ORANGE),
             ((constants.WIDTH // 5 * 4, constants.HEIGHT // 3), constants.LIGHTBLUE),
         ]
@@ -359,10 +346,10 @@ class UserInterface:
 
             for brick in self.background_bricks:
                 if ball['rect'].colliderect(brick['rect']):
-                    overlap_x = min(ball['rect'].right, brick['rect'].right) - max(ball['rect'].left,
-                                                                                   brick['rect'].left)
-                    overlap_y = min(ball['rect'].bottom, brick['rect'].bottom) - max(ball['rect'].top,
-                                                                                     brick['rect'].top)
+                    overlap_x = min(ball['rect'].right, brick['rect'].right) - \
+                                max(ball['rect'].left, brick['rect'].left)
+                    overlap_y = min(ball['rect'].bottom, brick['rect'].bottom) - \
+                                max(ball['rect'].top, brick['rect'].top)
 
                     if overlap_x > 0 and overlap_y > 0:
                         if abs(overlap_x) < abs(overlap_y):
@@ -401,9 +388,8 @@ class UserInterface:
         button_width = text.get_width() + 120
         button_height = text.get_height() + 60
         button_rect = pygame.Rect((constants.WIDTH - button_width) // 2,
-                                  (constants.HEIGHT - button_height) // 2 + 50,
-                                  button_width, button_height)
-        pygame.draw.rect(self.surface, constants.RED, button_rect, border_radius=10)
+                                  (constants.HEIGHT - button_height) // 2 + 50, button_width, button_height)
+        pygame.draw.rect(self.surface, constants.GREEN, button_rect, border_radius=10)
         text_rect = text.get_rect(center=button_rect.center)
         self.surface.blit(text, text_rect)
         self.start_button_rect = button_rect
@@ -416,7 +402,7 @@ class UserInterface:
         how_to_play_rect = pygame.Rect(how_to_play_x, how_to_play_y, sub_button_width, sub_button_height)
         how_to_play_text = sub_font.render("How to Play", True, constants.BLACK)
         how_to_play_text_rect = how_to_play_text.get_rect(center=how_to_play_rect.center)
-        pygame.draw.rect(self.surface, constants.RED, how_to_play_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.YELLOW, how_to_play_rect, border_radius=10)
         self.surface.blit(how_to_play_text, how_to_play_text_rect)
         self.how_to_play_button_rect = how_to_play_rect
 
@@ -427,7 +413,7 @@ class UserInterface:
         credits_text = sub_font.render("Credits", True, constants.BLACK)
         credits_text_rect = credits_text.get_rect(center=credits_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, credits_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.YELLOW, credits_rect, border_radius=10)
         self.surface.blit(credits_text, credits_text_rect)
         self.credits_button_rect = credits_rect
 
@@ -438,10 +424,24 @@ class UserInterface:
         leader_text = sub_font.render("Leaderboard", True, constants.BLACK)  # same color as the rest of the buttons
         leader_text_rect = leader_text.get_rect(center=leader_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, leader_rect, border_radius=10)
+        pygame.draw.rect(self.surface, constants.YELLOW, leader_rect, border_radius=10)
         self.surface.blit(leader_text, leader_text_rect)
         self.leader_button_rect = leader_rect
-		
+
+        # Draw Quit button
+        quit_width = 185
+        quit_height = 40
+        quit_x = constants.WIDTH - quit_width - 20
+        quit_y = constants.HEIGHT - quit_height - 30
+        quit_rect = pygame.Rect(quit_x, quit_y, quit_width, quit_height)
+        quit_font = pygame.font.Font(None, 36)
+        quit_text = quit_font.render("Quit", True, constants.BLACK)
+        quit_text_rect = quit_text.get_rect(center=quit_rect.center)
+
+        pygame.draw.rect(self.surface, constants.RED, quit_rect, border_radius=10)
+        self.surface.blit(quit_text, quit_text_rect)
+        self.quit_button_start_rect = quit_rect
+
         self.screen.blit(self.surface, (0, 0))
 
     def draw_how_to_play_screen(self):
@@ -469,14 +469,14 @@ class UserInterface:
         # Back button
         back_width = 120
         back_height = 40
-        back_x = 20  # same x as credits button
-        back_y = constants.HEIGHT - back_height - 30  # same y as credits button
+        back_x = 20
+        back_y = constants.HEIGHT - back_height - 30
         back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
         back_font = pygame.font.Font('assets/font/slkscr.ttf', 36)
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, back_rect, border_radius=10)  # same color as credits
+        pygame.draw.rect(self.surface, constants.YELLOW, back_rect, border_radius=10)
         self.surface.blit(back_text, back_text_rect)
         self.how_to_play_back_button_rect = back_rect
         self.screen.blit(self.surface, (0, 0))
@@ -502,14 +502,14 @@ class UserInterface:
         # Draws back button
         back_width = 120
         back_height = 40
-        back_x = 20  # same x as credits button
-        back_y = constants.HEIGHT - back_height - 30  # same y as credits button
+        back_x = 20
+        back_y = constants.HEIGHT - back_height - 30
         back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
         back_font = pygame.font.Font('assets/font/slkscr.ttf', 36)
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, back_rect, border_radius=10)  # same color as credits
+        pygame.draw.rect(self.surface, constants.YELLOW, back_rect, border_radius=10)
         self.surface.blit(back_text, back_text_rect)
         self.back_button_rect = back_rect
         self.screen.blit(self.surface, (0, 0))
@@ -548,7 +548,7 @@ class UserInterface:
         back_text = back_font.render("Back", True, constants.BLACK)
         back_text_rect = back_text.get_rect(center=back_rect.center)
 
-        pygame.draw.rect(self.surface, constants.RED, back_rect, border_radius=10)  # same color as leader
+        pygame.draw.rect(self.surface, constants.YELLOW, back_rect, border_radius=10)
         self.surface.blit(back_text, back_text_rect)
         self.back_button_rect = back_rect
 

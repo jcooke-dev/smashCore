@@ -58,11 +58,12 @@ def test_draw_pause_menu(mock_rect, ui):
     if called_args_game_over:
         assert called_args_game_over[0][0] == "Game Paused: ESC to Resume"
 
-    ui.font_buttons.render.assert_any_call("Restart Game", mock.ANY, mock.ANY)
-    ui.font_buttons.render.assert_any_call("Quit Game", mock.ANY,mock.ANY)
+    ui.font_buttons.render.assert_any_call("Restart", mock.ANY, mock.ANY)
+    ui.font_buttons.render.assert_any_call("Main Menu", mock.ANY, mock.ANY)
+    ui.font_buttons.render.assert_any_call("Quit", mock.ANY,mock.ANY)
     assert ui.surface.blit.called
     assert ui.screen.blit.called
-    assert mock_rect.call_count == 3  #rect for buttons and text
+    assert mock_rect.call_count == 4  #rect for buttons and text
     pass
 
 
