@@ -21,6 +21,14 @@ GAME_MUSIC_FILENAME = 'game_music.wav'
 GAME_OVER_MUSIC_FILENAME = 'game_over_music.wav'
 SCORE_MUSIC_FILENAME = 'score_music.wav'
 
+music_paths = {
+    'splash': os.path.join(SOUND_DIR, SPLASH_MUSIC_FILENAME),
+    'menu_screen': os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME),
+    'playing': os.path.join(SOUND_DIR, GAME_MUSIC_FILENAME),
+    'game_over': os.path.join(SOUND_DIR, GAME_OVER_MUSIC_FILENAME),
+    'get_high_score': os.path.join(SOUND_DIR, SCORE_MUSIC_FILENAME),
+    'ready_to_launch': os.path.join(SOUND_DIR, GAME_MUSIC_FILENAME)
+
 BACKGROUND_FILENAME = 'background.png'
 BRK_YELLOW_FILENAME = 'yellow_brick.png'
 BRK_BLUE_FILENAME = 'blue_brick.png'
@@ -41,6 +49,7 @@ BRK_RED_IMG, BRK_PINK_IMG, BRK_ORANGE_IMG, = None, None, None
 BRK_LTBLUE_IMG, BRK_PURPLE_IMG, BRK_TEAL_IMG = None, None, None
 BRK_LAVENDER_IMG = None
 BRICK_COLORS = []
+
 
 def load_assets():
     """
