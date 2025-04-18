@@ -35,16 +35,23 @@ class Leaderboard:
         persistence.store_object(self, path)
 
     def is_high_score(self, score: int) -> bool:
-        return (score >= min(scr.score for scr in self.l_top_scores)) if len(self.l_top_scores) >= constants.LEADERBOARD_SIZE else True
+        return (score > min(scr.score for scr in self.l_top_scores)) if len(self.l_top_scores) >= constants.LEADERBOARD_SIZE else True
 
     def add_score(self, ps, ui):
-
+        """
+        Called after it is determined player has achieved a high score.
+        Adds player's high score to the leaderboard
+        If leaderboard is full, bumps a player off and resorts.
+        :param ps: PlayerState
+        :param ui: UserInterface
+        :return:
+        """
         score = Score(ps.score, ps.level, ui.tb_initials_text)
 
         if len(self.l_top_scores) < constants.LEADERBOARD_SIZE:
             self.l_top_scores.append(score)
         else:
-            # full, so remove lowest score
+            # full, so remove lowest scor
             self.l_top_scores[0] = score
 
         # reset the ui var holding the entered initials
