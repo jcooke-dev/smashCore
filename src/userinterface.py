@@ -59,7 +59,7 @@ class UserInterface:
         self.background_bricks = []
         self.initialize_background_elements()
 
-    def draw_button(self, text: str, x: int, y: int, width: int, height: int, color: pygame.color,
+    def draw_button(self, text: pygame.Surface, x: int, y: int, width: int, height: int, color: pygame.color,
                     hover_color: pygame.color, action: Callable = None, corner_radius: int = 10) -> pygame.Rect:
         """
         Draw a button and return its Rect.
@@ -86,9 +86,9 @@ class UserInterface:
         else:
             pygame.draw.rect(self.surface, color, rect, border_radius=corner_radius)
 
-        text_surface = self.font_buttons.render(text, True, (0, 0, 0))
-        text_rect = text_surface.get_rect(center=rect.center)
-        self.surface.blit(text_surface, text_rect)
+        #text_surface = self.font_buttons.render(text, True, (0, 0, 0))
+        text_rect = text.get_rect(center=rect.center)
+        self.surface.blit(text, text_rect)
         return rect
 
     def draw_pause_menu(self) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
@@ -115,17 +115,20 @@ class UserInterface:
         button_spacing = 30
 
         # Draw "Restart" button
-        restart_rect = self.draw_button("Restart", button_x, button_y_start,
+        restart_text_surface = self.font_buttons.render("Restart", True, (0, 0, 0))
+        restart_rect = self.draw_button(restart_text_surface, button_x, button_y_start,
                                         button_width, button_height, constants.GREEN, (0, 200, 0))
 
         # Draw "Main Menu" button
         main_menu_y = button_y_start + button_height + button_spacing
-        main_menu_rect = self.draw_button("Main Menu", button_x, main_menu_y,
+        menu_text_surface = self.font_buttons.render("Main Menu", True, (0, 0, 0))
+        main_menu_rect = self.draw_button(menu_text_surface, button_x, main_menu_y,
                                           button_width, button_height, constants.YELLOW, (200, 200, 0))
 
         # Draw "Quit" button
         quit_y = main_menu_y + button_height + button_spacing
-        quit_rect = self.draw_button("Quit", button_x, quit_y,
+        quit_text_surface = self.font_buttons.render("Quit", True, (0, 0, 0))
+        quit_rect = self.draw_button(quit_text_surface, button_x, quit_y,
                                      button_width, button_height, constants.RED, (200, 0, 0))
 
         self.screen.blit(self.surface, (0, 0))
@@ -160,18 +163,21 @@ class UserInterface:
         button_spacing = 30
 
         # Draw "Try Again" button
-        reset_rect = self.draw_button("Try Again", button_x, button_y_start,
+        reset_text_surface = self.font_buttons.render("Try Again", True, (0, 0, 0))
+        reset_rect = self.draw_button(reset_text_surface, button_x, button_y_start,
                                       button_width, button_height, constants.GREEN, (0, 200, 0))
 
         # Draw "Main Menu" button
         main_menu_y = button_y_start + button_height + button_spacing
-        main_menu_rect = self.draw_button("Main Menu", button_x, main_menu_y,
+        menu_text_surface = self.font_buttons.render("Main Menu", True, (0, 0, 0))
+        main_menu_rect = self.draw_button(menu_text_surface, button_x, main_menu_y,
                                           button_width, button_height, constants.YELLOW, (200, 200, 0),
                                           go_to_main_menu_action)
 
         # Draw "Quit" button
         quit_y = main_menu_y + button_height + button_spacing
-        quit_rect = self.draw_button("Quit", button_x, quit_y,
+        quit_text_surface = self.font_buttons.render("Quit", True, (0, 0, 0))
+        quit_rect = self.draw_button(quit_text_surface, button_x, quit_y,
                                      button_width, button_height, constants.RED, (200, 0, 0))
 
         self.screen.blit(self.surface, (0, 0))
@@ -226,7 +232,8 @@ class UserInterface:
         button_x = (constants.WIDTH - button_width) // 2
         button_y_start = tb_text_rect.y + 125
 
-        enter_btn_rect = self.draw_button("Enter", button_x, button_y_start,
+        enter_text_surface = self.font_buttons.render("Enter", True, (0, 0, 0))
+        enter_btn_rect = self.draw_button(enter_text_surface, button_x, button_y_start,
                                           button_width, button_height, constants.GREEN, (0, 200, 0))
 
         self.screen.blit(self.surface, (0, 0))
