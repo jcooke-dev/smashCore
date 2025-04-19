@@ -12,6 +12,7 @@
 import pygame
 import utils
 import persistence
+from obstacle import Obstacle
 from src import assets
 from src.ball import Ball
 from src.brick import Brick
@@ -20,6 +21,7 @@ from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
     BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
     PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
     BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
+
 from src.levels import Levels
 from src.gameworld import GameWorld
 from userinterface import UserInterface
@@ -34,6 +36,7 @@ class GameEngine:
 
     def __init__(self, lb: Leaderboard, ps: PlayerState, gw: GameWorld, gs: GameState, ui: UserInterface) -> None:
         """
+        
         :param ps: PlayerState
         :param gw: GameWorld
         :param gs: GameState
@@ -75,6 +78,7 @@ class GameEngine:
     def reset_game(self) -> None:
         """
         Resets the game to the initial state
+        
         :return:
         """
         # does python run auto garbage collection so it's OK to just
@@ -90,12 +94,24 @@ class GameEngine:
         pygame.mixer.music.stop()
         self.current_music_path = None
 
+    def remove_obstacles(self) -> None:
+        """
+        Removes any obstacles from the list of gw.world_objects
+        
+        :return:
+        """
+        wo_to_keep = [wo for wo in self.gw.world_objects if
+                      not isinstance(wo, Obstacle)]
+        self.gw.world_objects = wo_to_keep
+
     def next_level(self) -> None:
         """
         Builds the next level, resets the ball position and initial speed
         Slight increase in initial ball speed to add difficulty
+        
         :return:
         """
+        self.remove_obstacles()
         for wo in self.gw.world_objects:
             if isinstance(wo, Ball):
                 wo.reset_position()
@@ -113,6 +129,7 @@ class GameEngine:
     def draw_world_and_status(self) -> None:
         """
         Draw all objects in GameWorld plus status overlays
+        
         :return:
         """
         # draw every game object
@@ -124,6 +141,7 @@ class GameEngine:
     def menu_screen_handler(self) -> None:
         """
         Checks for button presses and shifts to the proper GameSate
+        
         :return:
         """
         for event in pygame.event.get():
@@ -148,6 +166,7 @@ class GameEngine:
     def play_music(self, gs: GameState):
         """
         Plays the music file for each game state
+        
         :return:
         """
         target_music_path: str = None
@@ -170,6 +189,7 @@ class GameEngine:
     def run_loop(self) -> None:
         """
         Runs the main game loop
+        
         :return:
         """
 
