@@ -119,7 +119,7 @@ class GameEngine:
                 wo.v_vel = wo.v_vel_unit * wo.speed_v
                 wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
         # builds level in cycles of the 4 levels
-        next_level = Levels.get_next_level(self.ps.level)
+        next_level = Levels.get_level_name_from_num(self.ps.level)
         Levels.build_level(self.gw.world_objects, next_level)
 
         self.fps = INITIAL_FPS_SIMPLE
