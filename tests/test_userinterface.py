@@ -23,6 +23,7 @@ def ui(mock_scaled_image):
     Set up UserInterface with mocked up members for screen and font_buttons
     :return:
     """
+    pygame.init()
     pygame.font.init()
     ui = UserInterface()
     ui.screen = mock.Mock()
