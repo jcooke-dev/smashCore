@@ -9,11 +9,11 @@
     Module Description: This brings together the various modules that make up the game (GameWorld,
                         GameState, UI, etc.) and runs the main game loop.
 """
-
 import pygame
-
 import utils
 import persistence
+from obstacle import Obstacle
+from src import assets
 from src.ball import Ball
 from src.brick import Brick
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
@@ -36,7 +36,7 @@ class GameEngine:
 
     def __init__(self, lb: Leaderboard, ps: PlayerState, gw: GameWorld, gs: GameState, ui: UserInterface) -> None:
         """
-
+        
         :param ps: PlayerState
         :param gw: GameWorld
         :param gs: GameState
@@ -71,10 +71,14 @@ class GameEngine:
         # Initially, hide the mouse cursor
         pygame.mouse.set_visible(False)
 
+        # Initialize game music and paths
+        pygame.mixer.init()
+        self.current_music_path = None
+
     def reset_game(self) -> None:
         """
         Resets the game to the initial state
-
+        
         :return:
         """
         # does python run auto garbage collection so it's OK to just
@@ -87,14 +91,27 @@ class GameEngine:
         self.ps.score = START_SCORE
         self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
+        pygame.mixer.music.stop()
+        self.current_music_path = None
+
+    def remove_obstacles(self) -> None:
+        """
+        Removes any obstacles from the list of gw.world_objects
+        
+        :return:
+        """
+        wo_to_keep = [wo for wo in self.gw.world_objects if
+                      not isinstance(wo, Obstacle)]
+        self.gw.world_objects = wo_to_keep
 
     def next_level(self) -> None:
         """
         Builds the next level, resets the ball position and initial speed
         Slight increase in initial ball speed to add difficulty
-
+        
         :return:
         """
+        self.remove_obstacles()
         for wo in self.gw.world_objects:
             if isinstance(wo, Ball):
                 wo.reset_position()
@@ -102,14 +119,8 @@ class GameEngine:
                 wo.v_vel = wo.v_vel_unit * wo.speed_v
                 wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
         # builds level in cycles of the 4 levels
-        if self.ps.level % 4 == 1:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_1)
-        if self.ps.level % 4 == 2:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_SOLID_ROWS_1)
-        if self.ps.level % 4 == 3:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_IMG_CHAMFER_1)
-        if self.ps.level % 4 == 0:
-            Levels.build_level(self.gw.world_objects, Levels.LevelName.SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1)
+        next_level = Levels.get_next_level(self.ps.level)
+        Levels.build_level(self.gw.world_objects, next_level)
 
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
@@ -118,7 +129,7 @@ class GameEngine:
     def draw_world_and_status(self) -> None:
         """
         Draw all objects in GameWorld plus status overlays
-
+        
         :return:
         """
         # draw every game object
@@ -130,7 +141,7 @@ class GameEngine:
     def menu_screen_handler(self) -> None:
         """
         Checks for button presses and shifts to the proper GameSate
-
+        
         :return:
         """
         for event in pygame.event.get():
@@ -141,25 +152,52 @@ class GameEngine:
                     self.gs.cur_state = GameState.GameStateName.CREDITS
 
     def clean_shutdown(self) -> None:
+        pygame.mixer.music.stop()
+        self.current_music_path = None
         self.gs.running = False
         self.gs.cur_state = GameState.GameStateName.GAME_OVER
 
         # store leaderboard
-        self.lb.store(persistence.LEADERBOARD_FILE_PATH)
+        self.lb.store(persistence.LEADERBOARD_FILENAME)
 
         pygame.quit()
         exit()
 
+    def play_music(self, gs: GameState):
+        """
+        Plays the music file for each game state
+        
+        :return:
+        """
+        target_music_path: str = None
+        loop: int = -1  # Default to loop infinitely
+
+        if gs.cur_state in assets.MUSIC_PATHS:
+            target_music_path = assets.MUSIC_PATHS[gs.cur_state]
+            if gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE:
+                loop = 0  # Play only once
+
+        if target_music_path and self.current_music_path != target_music_path:
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load(target_music_path)
+            pygame.mixer.music.play(loop)
+            self.current_music_path = target_music_path
+        elif not target_music_path and self.current_music_path is not None:
+            pygame.mixer.music.stop()
+            self.current_music_path = None
+
     def run_loop(self) -> None:
         """
         Runs the main game loop
-
+        
         :return:
         """
 
         while self.gs.running:
             # fill the screen with black as a good default
             self.screen.fill(BLACK)
+
+            self.play_music(self.gs)
 
             match self.gs.cur_state:
 
@@ -269,8 +307,10 @@ class GameEngine:
                                             # to bounce, based on approach
                                             current_wo.detect_collision(other_wo, self.gs)
                                             other_wo.add_collision()
-                                            if other_wo.should_remove():
+                                            if other_wo.should_score():
                                                 self.ps.score += other_wo.value
+                                            if other_wo.should_remove():
+                                                self.ps.score += other_wo.bonus
                                                 # special effect
                                                 #  TODO probably need to store this brick rect and set
                                                 #  it to be displayed for some duration because we sometimes don't see

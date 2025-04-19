@@ -460,8 +460,9 @@ class UserInterface:
         self.surface.fill(constants.BLACK)
         text_lines = [
             "SmashCore is a brick-breaking game.",
+            "Use a mouse or trackpad to control the paddle.",
             "Use the paddle to hit the ball.",
-            "Break all bricks to win.",
+            "Break all the bricks to win.",
             "",
             "ESC to pause.",
             "CTRL-D for dev stats."
