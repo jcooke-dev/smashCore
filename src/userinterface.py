@@ -22,32 +22,32 @@ class UserInterface:
 
     def __init__(self) -> None:
         # Define UI buttons
-        self.quit_button_start_rect = None
-        self.leader_button_rect = None
-        self.credits_button_rect = None
-        self.how_to_play_button_rect = None
-        self.start_button_rect = None
-        self.back_button_rect = None
+        # self.quit_button_start_rect = None
+        # self.leader_button_rect = None
+        # self.credits_button_rect = None
+        # self.how_to_play_button_rect = None
+        # self.start_button_rect = None
+        # self.back_button_rect = None
 
         # Font setups
         # font - logo (splash screen fonts)
-        self.font_logo: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 60)
-        self.font_logo_tagline: pygame.font = pygame.font.Font('assets/font/slkscre.ttf', 24)
+        self.font_logo: pygame.font = pygame.font.Font(None, 60)
+        self.font_logo_tagline: pygame.font = pygame.font.Font(None, 24)
         # font - main menu
-        self.menu_main_font: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 72)
-        self.menu_sub_font: pygame.font = pygame.font.Font('assets/font/slkscr.ttf', 32)
+        self.menu_main_font: pygame.font = pygame.font.Font(None, 72)
+        self.menu_sub_font: pygame.font = pygame.font.Font(None, 32)
         # font - main menu elements
-        self.h2p_font: pygame.font = pygame.font.Font('assets/font/slkscr.ttf', 30)
-        self.font_credits: pygame.font = pygame.font.Font('assets/font/slkscre.ttf', 40)
-        self.font_leaderboard: pygame.font = pygame.font.Font('assets/font/slkscreb.ttf', 35)
-        self.back_btn_font: pygame.font = pygame.font.Font('assets/font/slkscr.ttf', 36)
+        self.h2p_font: pygame.font = pygame.font.Font(None, 30)
+        self.font_credits: pygame.font = pygame.font.Font(None, 40)
+        self.font_leaderboard: pygame.font = pygame.font.Font(None, 35)
+        self.back_btn_font: pygame.font = pygame.font.Font(None, 36)
         #font - playing menus (game_over, pause, and highscore)
-        self.font_title_text: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 70)
-        self.font_subtitle_text: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 60)  # high scores
-        self.font_buttons: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 40)
+        self.font_title_text: pygame.font = pygame.font.Font(None, 70)
+        self.font_subtitle_text: pygame.font = pygame.font.Font(None, 60)  # high scores
+        self.font_buttons: pygame.font = pygame.font.Font(None, 40)
         # font - play screen elements
-        self.game_intro_font: pygame.font = pygame.font.Font('assets/font/slkscreb.ttf', 40)
-        self.status_font: pygame.font = pygame.font.Font('assets/font/slkscrb.ttf', 36)
+        self.game_intro_font: pygame.font = pygame.font.Font(None, 40)
+        self.status_font: pygame.font = pygame.font.Font(None, 36)
         # not certain this will reliably get a font (especially on diff OSes), but it's supposed to
         # fall back to a default pygame font
         self.font_fixed_small: pygame.font = pygame.font.SysFont("Courier", 16, True)  # dev overlay font
@@ -108,7 +108,7 @@ class UserInterface:
         self.surface.blit(title1_text, title1_text_rect)
         self.surface.blit(title2_text, title2_text_rect)
 
-        button_width = 300
+        button_width = 200
         button_height = 75
         button_x = (constants.WIDTH - button_width) // 2
         button_y_start = constants.HEIGHT // 2
@@ -153,7 +153,7 @@ class UserInterface:
         self.surface.blit(bg_surface, bg_rect)
         self.surface.blit(text_game_over, text_rect)
 
-        button_width = 300
+        button_width = 200
         button_height = 75
         button_x = (constants.WIDTH - button_width) // 2
         button_y_start = constants.HEIGHT // 2
@@ -317,7 +317,7 @@ class UserInterface:
         self.screen.blit(text_core_shadow, text_core_shadow_rect)
         self.screen.blit(text_core, text_core_rect)
 
-        pygame.draw.line(self.screen, logo_color, (logo_x - 30, logo_y + 120), (logo_x + 330, logo_y + 120), 3)
+        pygame.draw.line(self.screen, logo_color, (logo_x, logo_y + 120), (logo_x + 300, logo_y + 120), 3)
 
         text_logo_tagline = self.font_logo_tagline.render("The Retro Arcade Experience", True, (200, 200, 200))
         text_logo_tagline_rect = text_logo_tagline.get_rect(center=(logo_x + 150, logo_y + 150))
@@ -413,11 +413,15 @@ class UserInterface:
         self.surface.blit(text, text_rect)
         self.start_button_rect = button_rect
 
-        sub_button_width = 250
+        sub_button_width = 200
         sub_button_height = 40
         # Draw How to Play Button
         how_to_play_x = (constants.WIDTH - sub_button_width) // 2
         how_to_play_y = button_rect.y + button_height + 20
+
+        # how_to_play_rect = self.draw_button("Try Again", button_x, button_y_start,
+        #                               button_width, button_height, constants.GREEN, (0, 200, 0))
+
         how_to_play_rect = pygame.Rect(how_to_play_x, how_to_play_y, sub_button_width, sub_button_height)
         how_to_play_text = self.menu_sub_font.render("How to Play", True, constants.BLACK)
         how_to_play_text_rect = how_to_play_text.get_rect(center=how_to_play_rect.center)
@@ -483,7 +487,7 @@ class UserInterface:
             y += line_height
 
         # Back button
-        back_width = 120
+        back_width = 100
         back_height = 40
         back_x = 20
         back_y = constants.HEIGHT - back_height - 30
@@ -514,7 +518,7 @@ class UserInterface:
             y_offset += 50
 
         # Draws back button
-        back_width = 120
+        back_width = 100
         back_height = 40
         back_x = 20
         back_y = constants.HEIGHT - back_height - 30

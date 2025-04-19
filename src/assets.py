@@ -14,6 +14,7 @@ import pygame
 
 ART_DIR = 'assets/art/'
 SOUND_DIR = 'assets/sound/'
+FONT_DIR = 'assets/fonts/'
 BACKGROUND_FILENAME = 'background.png'
 BRK_YELLOW_FILENAME = 'yellow_brick.png'
 BRK_BLUE_FILENAME = 'blue_brick.png'
