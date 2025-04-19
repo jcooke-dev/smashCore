@@ -9,12 +9,11 @@
     Module Description: This brings together the various modules that make up the game (GameWorld,
                         GameState, UI, etc.) and runs the main game loop.
 """
-
 import pygame
-
 import utils
 import persistence
 from obstacle import Obstacle
+from src import assets
 from src.ball import Ball
 from src.brick import Brick
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
@@ -37,7 +36,7 @@ class GameEngine:
 
     def __init__(self, lb: Leaderboard, ps: PlayerState, gw: GameWorld, gs: GameState, ui: UserInterface) -> None:
         """
-
+        
         :param ps: PlayerState
         :param gw: GameWorld
         :param gs: GameState
@@ -72,10 +71,14 @@ class GameEngine:
         # Initially, hide the mouse cursor
         pygame.mouse.set_visible(False)
 
+        # Initialize game music and paths
+        pygame.mixer.init()
+        self.current_music_path = None
+
     def reset_game(self) -> None:
         """
         Resets the game to the initial state
-
+        
         :return:
         """
         # does python run auto garbage collection so it's OK to just
@@ -88,10 +91,13 @@ class GameEngine:
         self.ps.score = START_SCORE
         self.ps.level = 1
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
+        pygame.mixer.music.stop()
+        self.current_music_path = None
 
     def remove_obstacles(self) -> None:
         """
         Removes any obstacles from the list of gw.world_objects
+        
         :return:
         """
         wo_to_keep = [wo for wo in self.gw.world_objects if
@@ -102,7 +108,7 @@ class GameEngine:
         """
         Builds the next level, resets the ball position and initial speed
         Slight increase in initial ball speed to add difficulty
-
+        
         :return:
         """
         self.remove_obstacles()
@@ -123,7 +129,7 @@ class GameEngine:
     def draw_world_and_status(self) -> None:
         """
         Draw all objects in GameWorld plus status overlays
-
+        
         :return:
         """
         # draw every game object
@@ -135,7 +141,7 @@ class GameEngine:
     def menu_screen_handler(self) -> None:
         """
         Checks for button presses and shifts to the proper GameSate
-
+        
         :return:
         """
         for event in pygame.event.get():
@@ -146,25 +152,52 @@ class GameEngine:
                     self.gs.cur_state = GameState.GameStateName.CREDITS
 
     def clean_shutdown(self) -> None:
+        pygame.mixer.music.stop()
+        self.current_music_path = None
         self.gs.running = False
         self.gs.cur_state = GameState.GameStateName.GAME_OVER
 
         # store leaderboard
-        self.lb.store(persistence.LEADERBOARD_FILE_PATH)
+        self.lb.store(persistence.LEADERBOARD_FILENAME)
 
         pygame.quit()
         exit()
 
+    def play_music(self, gs: GameState):
+        """
+        Plays the music file for each game state
+        
+        :return:
+        """
+        target_music_path: str = None
+        loop: int = -1  # Default to loop infinitely
+
+        if gs.cur_state in assets.MUSIC_PATHS:
+            target_music_path = assets.MUSIC_PATHS[gs.cur_state]
+            if gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE:
+                loop = 0  # Play only once
+
+        if target_music_path and self.current_music_path != target_music_path:
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load(target_music_path)
+            pygame.mixer.music.play(loop)
+            self.current_music_path = target_music_path
+        elif not target_music_path and self.current_music_path is not None:
+            pygame.mixer.music.stop()
+            self.current_music_path = None
+
     def run_loop(self) -> None:
         """
         Runs the main game loop
-
+        
         :return:
         """
 
         while self.gs.running:
             # fill the screen with black as a good default
             self.screen.fill(BLACK)
+
+            self.play_music(self.gs)
 
             match self.gs.cur_state:
 
