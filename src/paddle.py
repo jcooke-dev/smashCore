@@ -77,8 +77,7 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         """
         self.rect.x -= pixels
         # Check that the paddle is not going too far (off the screen)
-        if self.rect.x < 0:
-            self.rect.x = 0
+        self.rect.x = max(self.rect.x, 0)
 
     def move_right(self, pixels: int) -> None:
         """
@@ -101,8 +100,5 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         """
         self.rect.centerx = posx
         # Check that the paddle is not going too far (off the screen)
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > constants.WIDTH:
-            self.rect.right = constants.WIDTH
-
+        self.rect.left = max(self.rect.left, 0)
+        self.rect.right = min(self.rect.right, constants.WIDTH)

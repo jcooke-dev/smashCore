@@ -24,3 +24,8 @@ class Score:
 
     def __lt__(self, other):
         return self.score < other.score
+
+    def __eq__(self, other):
+        if isinstance(other, Score):
+            return self.score == other.score and self.level == other.level and self.id == other.id
+        return False
