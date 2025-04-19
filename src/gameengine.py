@@ -140,7 +140,7 @@ class GameEngine:
         self.gs.cur_state = GameState.GameStateName.GAME_OVER
 
         # store leaderboard
-        self.lb.store(persistence.LEADERBOARD_FILE_PATH)
+        self.lb.store(persistence.LEADERBOARD_FILENAME)
 
         pygame.quit()
         exit()
