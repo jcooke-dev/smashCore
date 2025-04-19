@@ -35,7 +35,7 @@ def ui(mock_scaled_image):
     mock_status_font.render.return_value = mock_rendered_text
 
     ui.font_buttons = mock_font_button
-    ui.status_font = mock_status_font
+    ui.font_status = mock_status_font
     return ui
 
 
@@ -100,13 +100,13 @@ def test_draw_status(mock_circle, ui):
     # draw_status expects font_buttons to have a width for status spacing
     mock_rendered_btn = mock.Mock()
     mock_rendered_btn.get_width.return_value = 50
-    ui.status_font.render.return_value = mock_rendered_btn
+    ui.font_status.render.return_value = mock_rendered_btn
 
     ui.draw_status(3, 99, 1)
 
-    ui.status_font.render.assert_any_call("Lives:", True, constants.WHITE)
-    ui.status_font.render.assert_any_call("Level: 1", True, constants.WHITE)
-    ui.status_font.render.assert_any_call("Score: 99", True, constants.WHITE)
+    ui.font_status.render.assert_any_call("Lives:", True, constants.WHITE)
+    ui.font_status.render.assert_any_call("Level: 1", True, constants.WHITE)
+    ui.font_status.render.assert_any_call("Score: 99", True, constants.WHITE)
 
     assert ui.screen.blit.called
     assert mock_circle.call_count == 3
