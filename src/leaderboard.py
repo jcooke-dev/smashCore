@@ -51,7 +51,7 @@ class Leaderboard:
         if len(self.l_top_scores) < constants.LEADERBOARD_SIZE:
             self.l_top_scores.append(score)
         else:
-            # full, so remove lowest scor
+            # full, so remove lowest score
             self.l_top_scores[0] = score
 
         # reset the ui var holding the entered initials
