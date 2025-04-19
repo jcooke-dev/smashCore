@@ -26,26 +26,32 @@ class Levels:
 
     class LevelName(Enum):
         """ Enum with all possible LevelNames for later construction in build_level() """
-        SMASHCORE_1: Enum = auto()
-        SMASHCORE_SOLID_ROWS_1: Enum = auto()
-        SMASHCORE_IMG_CHAMFER_1: Enum = auto()
-        SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1: Enum = auto()
-        SMASHCORE_SOLID_ROWS_SPACERS: Enum = auto()
-        SMASHCORE_MULTIPLIER_1: Enum = auto()
-        SMASHCORE_UNBREAKABLE_1: Enum = auto()
+
+        # changing this from auto() to explicit numbering, since mapping the level number
+        # to this wrapping set of enum LevelNames (that logic in get_level_name_from_num()
+        # needs known enum values here to work reliably)
+        SMASHCORE_1: Enum = 1
+        SMASHCORE_SOLID_ROWS_1: Enum = 2
+        SMASHCORE_IMG_CHAMFER_1: Enum = 3
+        SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1: Enum = 4
+        SMASHCORE_SOLID_ROWS_SPACERS: Enum = 5
+        SMASHCORE_MULTIPLIER_1: Enum = 6
+        SMASHCORE_UNBREAKABLE_1: Enum = 7
 
     def __init__(self):
         pass
 
     @staticmethod
-    def get_next_level(current: int) -> LevelName:
-        current_level = Levels.LevelName(current)
-        level_list = list(Levels.LevelName)
-        index = level_list.index(current_level)
-        if index + 1 < len(level_list):
-            return level_list[index + 1]
-        else:
-            return level_list[0]
+    def get_level_name_from_num(level_num: int) -> LevelName:
+        """
+        Find the proper LevelName from an index/value that must wrap around in this enum.
+
+        :param level_num: the current 1-based level number, so can increase beyond the
+            number of LevelNames
+        :return:
+        """
+        level_val = ((level_num - 1) % len(Levels.LevelName)) + 1
+        return Levels.LevelName(level_val)
 
     @staticmethod
     def build_level(gw_list: list[WorldObject], level_name: LevelName) -> None:
@@ -56,6 +62,7 @@ class Levels:
         :param level_name: LevelName
         :return:
         """
+
         match level_name:
             case Levels.LevelName.SMASHCORE_1:
                 for i in range(10):
