@@ -16,6 +16,7 @@ from gamestate import GameState
 
 ART_DIR: str = 'assets/art/'
 SOUND_DIR: str = 'assets/sound/'
+FONT_DIR: str = 'assets/fonts/'
 
 SPLASH_MUSIC_FILENAME: str = 'splash_music.wav'
 MENU_MUSIC_FILENAME: str = 'menu_music.wav'
