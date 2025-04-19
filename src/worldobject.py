@@ -59,6 +59,13 @@ class WorldObject:
         :return:
         """
 
+    def should_score(self) -> bool:
+        """
+        Inform caller that this WorldObject should be able to score
+        :return:
+        """
+        return False
+
     def should_remove(self) -> bool:
         """
         Inform caller that this WorldObject should be removed from the GameWorld
