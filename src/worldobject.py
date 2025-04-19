@@ -19,7 +19,6 @@ class WorldObject:
     """ This is a parent class for the specific world objects (Ball, Paddle, Bricks) """
 
     def __init__(self) -> None:
-
         self.color: pygame.color = None
         self.value: int = 0
         self.rect: pygame.rect = None
@@ -35,7 +34,6 @@ class WorldObject:
         :param ps:
         :return:
         """
-        pass
 
     def draw_wo(self, screen: pygame.Surface) -> None:
         """
@@ -44,7 +42,6 @@ class WorldObject:
         :param screen:
         :return:
         """
-        pass
 
     def detect_collision(self, hitbox: pygame.rect, gs: gs_.GameState) -> None:
         """
@@ -54,7 +51,6 @@ class WorldObject:
         :param gs: GameState
         :return:
         """
-        pass
 
     def add_collision(self) -> None:
         """
@@ -62,7 +58,6 @@ class WorldObject:
 
         :return:
         """
-        pass
 
     def should_remove(self) -> bool:
         """
@@ -81,8 +76,7 @@ class WorldObject:
         if self.primed_collision:
             self.primed_collision = False
             return True
-        else:
-            return False
+        return False
 
     def prime_for_collision(self) -> None:
         """
