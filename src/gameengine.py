@@ -247,7 +247,7 @@ class GameEngine:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if hasattr(self.ui,
-                                       'how_to_play_back_button_rect') and self.ui.how_to_play_back_button_rect.collidepoint(
+                                       'back_button_rect') and self.ui.back_button_rect.collidepoint(
                                     event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
