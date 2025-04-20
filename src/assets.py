@@ -82,6 +82,7 @@ def load_assets():
     MUSIC_PATHS[GameState.GameStateName.SPLASH] = os.path.join(SOUND_DIR, SPLASH_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.MENU_SCREEN] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.HOW_TO_PLAY] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.SETTINGS] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.CREDITS] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.LEADERBOARD] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.PLAYING] = os.path.join(SOUND_DIR, GAME_MUSIC_FILENAME)

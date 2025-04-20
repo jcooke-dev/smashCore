@@ -22,6 +22,7 @@ class UserInterface:
 
     def __init__(self) -> None:
         # Define Main Menu buttons
+        self.volume_button_rect = None
         self.settings_button_rect = None
         self.quit_button_start_rect = None
         self.leader_button_rect = None
@@ -556,7 +557,7 @@ class UserInterface:
         # draw everything
         self.screen.blit(self.surface, (0, 0))
 
-    def draw_settings_screen(self) -> None:
+    def draw_settings_screen(self, hasSounds: bool) -> None:
         """
         Show the settings screen
 
@@ -567,6 +568,11 @@ class UserInterface:
         title_text = self.font_subtitle_text.render("SETTINGS", True, constants.WHITE)
         self.surface.blit(title_text, title_text.get_rect(center=(constants.WIDTH // 2, 150)))
 
+        bg_sounds_text = self.font_menu_sub.render("Mute Background Music", True, constants.BLACK) if hasSounds else (
+            self.font_menu_sub.render("Unmute Background Music", True, constants.BLACK))
+        self.volume_button_rect = self.draw_button(bg_sounds_text, 50, 225, 330, 50,
+                                                   constants.YELLOW, (200, 200, 0))
+
         # Back button
         back_width = 100
         back_height = 40
@@ -576,5 +582,6 @@ class UserInterface:
         self.back_button_rect = self.draw_button(back_text, back_x, back_y,
                                                  back_width, back_height, constants.YELLOW,
                                                  (200, 200, 0))
+
         # draw everything
         self.screen.blit(self.surface, (0, 0))
