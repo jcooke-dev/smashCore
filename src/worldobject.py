@@ -100,3 +100,11 @@ class WorldObject:
         :return:
         """
         self.primed_collision = True
+
+    def destruction(self, object_list):
+
+        pass
+
+    def animate(self,screen):
+
+        pass
