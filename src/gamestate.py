@@ -30,6 +30,7 @@ class GameState:
         LEADERBOARD: Enum = auto()
         GET_HIGH_SCORE: Enum = auto()
         HOW_TO_PLAY: Enum = auto()
+        SETTINGS: Enum = auto()
 
 
     def __init__(self) -> None:

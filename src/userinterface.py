@@ -22,6 +22,7 @@ class UserInterface:
 
     def __init__(self) -> None:
         # Define Main Menu buttons
+        self.settings_button_rect = None
         self.quit_button_start_rect = None
         self.leader_button_rect = None
         self.credits_button_rect = None
@@ -415,41 +416,44 @@ class UserInterface:
         button_height = start_text.get_height() + 60
 
         self.start_button_rect = self.draw_button(start_text, (constants.WIDTH - button_width) // 2,
-                                                  (constants.HEIGHT - button_height) // 2 + 50, button_width,
+                                                  (constants.HEIGHT - button_height) // 2, button_width,
                                                   button_height,
                                                   constants.GREEN, (0, 200, 0))
 
-        sub_button_width = 200
-        sub_button_height = 40
+        sub_button_width = 250
+        sub_button_height = 50
+        sub_button_spacing = sub_button_height + 15
+        sub_button_x = (constants.WIDTH - sub_button_width) // 2
+        sub_button_y = (constants.HEIGHT // 2) + sub_button_height + 20 # Add or subtract to this to adjust sub_buttons y_position
         # Draw How to Play Button
-        how_to_play_x = (constants.WIDTH - sub_button_width) // 2
-        how_to_play_y = self.start_button_rect.y + button_height + 20
         how_to_play_text = self.font_menu_sub.render("How to Play", True, constants.BLACK)
-        self.how_to_play_button_rect = self.draw_button(how_to_play_text, how_to_play_x, how_to_play_y,
+        self.how_to_play_button_rect = self.draw_button(how_to_play_text, sub_button_x, sub_button_y,
                                                         sub_button_width, sub_button_height, constants.YELLOW,
                                                         (200, 200, 0))
 
-        # Draw Credits button
-        credits_x = 20
-        credits_y = constants.HEIGHT - sub_button_height - 30
-        credits_text = self.font_menu_sub.render("Credits", True, constants.BLACK)
-        self.credits_button_rect = self.draw_button(credits_text, credits_x, credits_y,
-                                                    sub_button_width, sub_button_height, constants.YELLOW,
-                                                    (200, 200, 0))
-
-        leader_x = 20  # a little to the right
-        leader_y = constants.HEIGHT - sub_button_height - sub_button_height - 60  # a little higher
+        # Draw Leaderboards button
         leader_text = self.font_menu_sub.render("Leaderboard", True,
                                                 constants.BLACK)  # same color as the rest of the buttons
-        self.leader_button_rect = self.draw_button(leader_text, leader_x, leader_y,
+        self.leader_button_rect = self.draw_button(leader_text, sub_button_x, sub_button_y + (1 * sub_button_spacing),
                                                    sub_button_width, sub_button_height, constants.YELLOW,
                                                    (200, 200, 0))
 
+        # Draw Settings button
+        settings_text = self.font_menu_sub.render("Settings", True, constants.BLACK)
+        self.settings_button_rect = self.draw_button(settings_text, sub_button_x,
+                                                     sub_button_y + (2 * sub_button_spacing),
+                                                     sub_button_width, sub_button_height, constants.YELLOW,
+                                                     (200, 200, 0))
+
+        # Draw Credits button
+        credits_text = self.font_menu_sub.render("Credits", True, constants.BLACK)
+        self.credits_button_rect = self.draw_button(credits_text, sub_button_x, sub_button_y + (3 * sub_button_spacing),
+                                                    sub_button_width, sub_button_height, constants.YELLOW,
+                                                    (200, 200, 0))
+
         # Draw Quit button
-        quit_x = constants.WIDTH - sub_button_width - 20
-        quit_y = constants.HEIGHT - sub_button_height - 30
         quit_text = self.font_menu_sub.render("Quit", True, constants.BLACK)
-        self.quit_button_start_rect = self.draw_button(quit_text, quit_x, quit_y,
+        self.quit_button_start_rect = self.draw_button(quit_text, sub_button_x, sub_button_y + (4 * sub_button_spacing),
                                                        sub_button_width, sub_button_height, constants.RED,
                                                        (200, 0, 0))
 
@@ -462,7 +466,7 @@ class UserInterface:
             "SmashCore is a brick-breaking game.",
             "Use a mouse, trackpad, or the arrow keys to control the paddle.",
             "Use the paddle to hit the ball.",
-            "Break all the bricks to win.",
+            "Break all the bricks to clear the level.",
             "",
             "ESC to pause.",
             "CTRL-D for dev stats."
@@ -539,6 +543,29 @@ class UserInterface:
             score_rect = score_text.get_rect(center=(constants.WIDTH // 2, y_offset))
             self.surface.blit(score_text, score_rect)
             y_offset += 50
+
+        # Back button
+        back_width = 100
+        back_height = 40
+        back_x = 20
+        back_y = constants.HEIGHT - back_height - 30
+        back_text = self.font_back_btn.render("Back", True, constants.BLACK)
+        self.back_button_rect = self.draw_button(back_text, back_x, back_y,
+                                                 back_width, back_height, constants.YELLOW,
+                                                 (200, 200, 0))
+        # draw everything
+        self.screen.blit(self.surface, (0, 0))
+
+    def draw_settings_screen(self) -> None:
+        """
+        Show the settings screen
+
+        :return:
+        """
+        self.surface.fill(constants.BLACK)
+
+        title_text = self.font_subtitle_text.render("SETTINGS", True, constants.WHITE)
+        self.surface.blit(title_text, title_text.get_rect(center=(constants.WIDTH // 2, 150)))
 
         # Back button
         back_width = 100

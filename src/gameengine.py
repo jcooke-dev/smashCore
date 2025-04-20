@@ -230,6 +230,8 @@ class GameEngine:
                                 self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
                             elif self.ui.credits_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.CREDITS
+                            elif self.ui.settings_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameState.GameStateName.SETTINGS
                             elif self.ui.leader_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.LEADERBOARD
                             elif self.ui.how_to_play_button_rect and self.ui.how_to_play_button_rect.collidepoint(
@@ -271,6 +273,19 @@ class GameEngine:
                 ##############################################################
                 case GameState.GameStateName.LEADERBOARD:
                     self.ui.draw_leaderboard_screen(self.lb)
+                    pygame.mouse.set_visible(True)
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:  # Add this line
+                            self.clean_shutdown()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.back_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
+                ##############################################################
+                # display settings screen
+                ##############################################################
+                case GameState.GameStateName.SETTINGS:
+                    self.ui.draw_settings_screen()
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:  # Add this line
