@@ -89,14 +89,14 @@ class Brick(WorldObject, pygame.sprite.Sprite):
 
     def animate(self, screen):
         if self.image is None:
-            self.rect.inflate_ip(self.rect.width * .5,
-                             self.rect.height * .5)
+            self.rect.inflate_ip(self.rect.width * 0.5,
+                             self.rect.height * 0.5)
             pygame.draw.rect(screen, self.color, self.rect)
             pygame.display.update(self.rect)
 
         else:
             for i in range(0, len(assets.BRICK_ANIMATION)):
                 screen.blit(pygame.transform.scale(assets.BRICK_ANIMATION[int(i)],
-                                                   (self.rect.width * .5, self.rect.height * .5)), self.rect)
+                                                   (self.rect.width * 1.0, self.rect.height * 1.0)), self.rect)
                 pygame.display.update(self)
                 i += .1
