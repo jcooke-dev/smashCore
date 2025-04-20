@@ -48,8 +48,8 @@ class UserInterface:
         self.font_subtitle_text: pygame.font = pygame.font.SysFont("Courier", 60, True)  # high scores
         self.font_buttons: pygame.font = pygame.font.Font(None, 50)
         # font - play screen elements
-        self.font_game_intro: pygame.font = pygame.font.Font(None, 40)
-        self.font_status: pygame.font = pygame.font.Font(None, 36)
+        self.font_game_intro: pygame.font = pygame.font.Font(None, 60)
+        self.font_status: pygame.font = pygame.font.Font(None, 52)
         # not certain this will reliably get a font (especially on diff OSes), but it's supposed to
         # fall back to a default pygame font
         self.font_dev_overlay: pygame.font = pygame.font.SysFont("Courier", 16, True)  # dev overlay font
@@ -222,7 +222,7 @@ class UserInterface:
         backcolor = (255, 255, 255, 192)
         pos = (constants.WIDTH / 2, text_rect2.y + 150)
         text = "---" if len(self.tb_initials_text) == 0 else self.tb_initials_text
-        tb_text = self.font_title_text.render(text, True, color, constants.BLACK)
+        tb_text = self.font_subtitle_text.render(text, True, color, constants.BLACK)
         tb_text_rect = tb_text.get_rect(center=pos)
 
         pygame.draw.rect(self.surface, backcolor, tb_text_rect.inflate(2, 2), 200)
@@ -264,7 +264,7 @@ class UserInterface:
         """
         self.screen.blit(self.font_status.render("Lives:", True, constants.WHITE), (10, 10))
         for i in range(lives):
-            pygame.draw.circle(self.screen, constants.WHITE, (170 + 35 * i, 27), 12)
+            pygame.draw.circle(self.screen, constants.WHITE, (140 + 35 * i, 27), 12)
 
         score_display = self.font_status.render(f"Score: {score}", True, constants.WHITE)
         self.screen.blit(score_display, (constants.WIDTH - score_display.get_width() - 100, 10))
