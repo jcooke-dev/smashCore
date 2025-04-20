@@ -19,14 +19,22 @@ from leaderboard import Leaderboard
 
 
 @pytest.fixture
-def starting_ge():
+def mock_gameworld():
+    class GameWorld:
+        def __init__(self):
+            self.world_objects = []
+    return GameWorld()
+
+
+@pytest.fixture
+def starting_ge(mock_gameworld):
     with mock.patch("src.assets.pygame.image.load") as mock_image_load:
         mock_image = mock.Mock()
         mock_image_load.return_value = mock_image
 
         ui = mock.Mock()
         gs = GameState()
-        gw = mock.Mock()
+        gw = mock_gameworld
         ps = PlayerState()
         lb = Leaderboard()
         ge = GameEngine(lb, ps, gw, gs, ui)
@@ -62,3 +70,12 @@ def test_gamestate_reset(mock_set_visible, mock_mixer_stop, starting_ge):
     assert starting_ge.current_music_path is None
     mock_mixer_stop.assert_called_once()
     mock_set_visible.assert_called_once_with(False)
+
+
+@mock.patch("src.brick.Brick")
+@mock.patch("src.obstacle.Obstacle")
+def test_remove_obstacles(mock_obstacle, mock_brick, starting_ge):
+    starting_ge.world_objects = [mock_brick, mock_brick, mock_obstacle, mock_brick, mock_obstacle, mock_brick, mock_obstacle]
+    starting_ge.remove_obstacles()
+    #for obj in starting_ge.world_objects:
+    #    assert isinstance(obj, mock_brick)
