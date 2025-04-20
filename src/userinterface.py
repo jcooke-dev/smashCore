@@ -450,7 +450,7 @@ class UserInterface:
         font = pygame.font.Font(None, 30)
         text_lines = [
             "SmashCore is a brick-breaking game.",
-            "Use a mouse or trackpad to control the paddle.",
+            "Use a mouse, trackpad, or the arrow keys to control the paddle.",
             "Use the paddle to hit the ball.",
             "Break all the bricks to win.",
             "",

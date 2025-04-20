@@ -50,6 +50,21 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         :param ps: PlayerState
         :return:
         """
+
+        # update pos based on arrow key commands (if using)
+        if gs.paddle_under_key_control_left:
+            self.commanded_pos_x -= constants.PADDLE_KEY_SPEED * gs.tick_time * gs.ball_speed_increased_ratio
+            self.commanded_pos_x = max(self.commanded_pos_x, 0)
+        if gs.paddle_under_key_control_right:
+            self.commanded_pos_x += constants.PADDLE_KEY_SPEED * gs.tick_time * gs.ball_speed_increased_ratio
+            self.commanded_pos_x = min(self.commanded_pos_x, constants.WIDTH)
+
+        # reset this kind of latch so that the mouse can again control the paddle if an arrow key isn't pressed
+        gs.paddle_under_key_control_left = False
+        gs.paddle_under_key_control_right = False
+
+        gs.paddle_pos_x = self.commanded_pos_x
+
         self.move_to_x(self.commanded_pos_x)
 
     def draw_wo(self, screen: pygame.Surface) -> None:
