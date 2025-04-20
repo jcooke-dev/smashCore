@@ -11,7 +11,7 @@
 
 import pygame
 import constants
-from src.worldobject import WorldObject
+from worldobject import WorldObject
 
 class Brick(WorldObject):
     """

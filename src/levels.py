@@ -10,13 +10,13 @@
                         and then built-up in buildLevel.
 """
 
+from random import randrange as rnd
+from random import choice, sample
+from enum import Enum
 import pygame
 import constants
 import assets
-from random import randrange as rnd
-from random import choice, sample
-from enum import Enum, auto
-from src.brick import Brick
+from brick import Brick
 from obstacle import Obstacle
 from worldobject import WorldObject
 
@@ -142,7 +142,13 @@ class Levels:
                             unbreakable: list[tuple[int, int]] = None
                             ):
         """
-        Generates a grid of bricks with optional skip positions and color customization.
+        Generates a grid of bricks with optional skip positions, strong brick positions,
+        unbreakable brick (obstacle) positions, and color customization.
+
+        Order of preference for brick types if overlapping coordinates in brick sets passed in:
+        1. Skip
+        2. Strong
+        3. Unbreakable
 
         :param gw_list: list[WorldObject]
         :param rows: Number of rows for the grid
@@ -155,13 +161,15 @@ class Levels:
         :param unbreakable: (x, y) x, y position of bricks that are unbreakable
 
         """
-        # adjust the distance from the top of the board based on number of rows
-        brk_width = 100
-        brk_height = 50
+        brk_width: int = 100
+        brk_height: int = 50
         grid_margins: list[int] = [10, 120]
-        strong_brick_strength = 5
-        strong_brick_bonus = 10
 
+        # set brick strength and bonus
+        strong_brick_strength: int = 5
+        strong_brick_bonus: int = 10
+
+        # calculate columns and first brick positions based on board width
         columns = int((constants.WIDTH - grid_margins[0]) / (brk_width+5))
 
         pos_x = (constants.WIDTH - grid_margins[0]) / columns
@@ -175,30 +183,38 @@ class Levels:
         if use_random_imgs is False and row_img_colors is not None:
             rows = min(rows, len(row_img_colors))
 
-        if use_random_imgs and row_img_colors is None:  # assign random images, else use colors
+        # assign random images, else use colors
+        if use_random_imgs and row_img_colors is None:
             row_img_colors = sample(assets.BRICK_COLORS, rows)
+
+        # generate columns, rows of bricks
         for i in range(columns):
             for j in range(rows):
-                if skip_positions is not None and (i, j) in skip_positions:
-                    continue  # Skip these specific positions
 
-                if row_colors is None: # randomize colors if not set
+                # Skip these specific positions
+                if skip_positions is not None and (i, j) in skip_positions:
+                    continue
+
+                # randomize  brick color if not set
+                if row_colors is None:
                     row_color = rnd(30, 256), rnd(30, 256), rnd(30, 256)
                 else:
                     row_color = row_colors[j]
 
-                if values is None: # no values, value is the row # descending
+                # no values passed in, value is the row # descending
+                if values is None:
                     value = rows-j
                 else:
                     value = values[j]
 
-                brk_x, brk_y = (grid_margins[0] + pos_x * i,
-                               grid_margins[1] + pos_y * j)  # x,y position for brick
+                # x,y position for brick
+                brk_x, brk_y = (grid_margins[0] + pos_x * i, grid_margins[1] + pos_y * j)
 
-                brk_rect = pygame.Rect(brk_x, brk_y,
-                                       brk_width, brk_height) # create rectangle
+                # create rectangle
+                brk_rect = pygame.Rect(brk_x, brk_y, brk_width, brk_height)
 
-                if strong_bricks is not None and (i, j) in strong_bricks:  # brick is 10X value and 5X strength
+                # brick is 10X value and 5X strength
+                if strong_bricks is not None and (i, j) in strong_bricks:
                     strong_brick = pygame.transform.scale(
                         assets.BRK_GOLD_IMG, (brk_width, brk_height))
                     gw_list.append(Brick(brk_rect,
@@ -207,8 +223,10 @@ class Levels:
                                          value=value,
                                          bonus=strong_brick_bonus,
                                          image=strong_brick))
+                # obstacle bricks
                 elif unbreakable is not None and (i, j) in unbreakable:
                     gw_list.append(Obstacle(brk_rect, constants.GRAY, text="X X X"))
+                # all other bricks
                 else:
                     if row_img_colors is not None:
                         scaled_image = pygame.transform.scale(
