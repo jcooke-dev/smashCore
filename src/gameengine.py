@@ -16,6 +16,7 @@ from obstacle import Obstacle
 from src import assets
 from src.ball import Ball
 from src.brick import Brick
+from src.paddle import Paddle
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
     PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
     BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
@@ -116,6 +117,7 @@ class GameEngine:
             if isinstance(wo, Ball):
                 wo.reset_position()
                 wo.speed_v = BALL_SPEED_VECTOR + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
+                self.gs.ball_speed_increased_ratio = wo.speed_v / BALL_SPEED_VECTOR
                 wo.v_vel = wo.v_vel_unit * wo.speed_v
                 wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
         # builds level in cycles of the 4 levels
@@ -247,7 +249,7 @@ class GameEngine:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if hasattr(self.ui,
-                                       'how_to_play_back_button_rect') and self.ui.how_to_play_back_button_rect.collidepoint(
+                                       'back_button_rect') and self.ui.back_button_rect.collidepoint(
                                     event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
@@ -284,12 +286,33 @@ class GameEngine:
                     # Hide the mouse again when transitioning away from the start screen.
                     pygame.mouse.set_visible(False)
                     # update all objects in GameWorld
+
                     mouse_pos = pygame.mouse.get_pos()
+
+                    # detect mouse motion, since that should shift paddle control from keys back to the mouse
+                    if mouse_pos[0] != self.gs.last_mouse_pos_x:
+                        # mouse is moving
+                        self.gs.paddle_under_mouse_control = True
+
+                    self.gs.last_mouse_pos_x = mouse_pos[0]
+
                     for current_wo in self.gw.world_objects:
-                        # this controls whether the AutoPlay system or the
-                        # player's mouse input is driving the paddle
-                        current_wo.commanded_pos_x = self.gs.cur_ball_x if self.gs.auto_play else mouse_pos[0]
+
+                        if isinstance(current_wo, Paddle):
+                            # this controls whether the AutoPlay system or the
+                            # player's mouse input is driving the paddle
+                            if self.gs.auto_play:
+                                current_wo.commanded_pos_x = self.gs.cur_ball_x
+                            elif self.gs.paddle_under_mouse_control:
+                                current_wo.commanded_pos_x = mouse_pos[0]
+                                self.gs.paddle_under_mouse_control = False
+
+                        if isinstance(current_wo, Ball) and GameState.GameStateName.READY_TO_LAUNCH:
+                            current_wo.commanded_pos_x = self.gs.paddle_pos_x
+
+                        # generic WorldObject update()
                         current_wo.update_wo(self.gs, self.ps, self.lb)
+
                         # test for collisions between world_objects, but ignore
                         # objects that can't be affected (for performance)
                         if current_wo.can_react:
@@ -323,6 +346,7 @@ class GameEngine:
                                                 # VECTOR models
                                                 if isinstance(current_wo, Ball):
                                                     current_wo.speed_v += self.gs.ball_speed_step
+                                                    self.gs.ball_speed_increased_ratio = current_wo.speed_v / BALL_SPEED_VECTOR
                                                     current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
 
                                                 self.gw.world_objects.remove(other_wo)
@@ -479,6 +503,13 @@ class GameEngine:
                     if self.high_score_enter_btn.collidepoint(event.pos):
                         self.lb.add_score(self.ps, self.ui)
                         self.gs.cur_state = GameState.GameStateName.GAME_OVER
+
+            # get the continuously pressed keys, rather than single key press events
+            pressed_keys = pygame.key.get_pressed()
+            if pressed_keys[pygame.K_LEFT]:
+                self.gs.paddle_under_key_control_left = True
+            elif pressed_keys[pygame.K_RIGHT]:
+                self.gs.paddle_under_key_control_right = True
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:

@@ -269,6 +269,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                 v_impulse = pygame.Vector2(0.0, -gs.paddle_impulse_vel_length)
                 self.v_vel += v_impulse
                 self.speed_v = self.v_vel.magnitude()
+                gs.ball_speed_increased_ratio = self.speed_v / constants.BALL_SPEED_VECTOR
                 self.v_vel_unit = self.v_vel.normalize()
 
     def move_to_x(self, pos_x: int) -> None:

@@ -11,7 +11,7 @@
 import pytest
 from unittest import mock
 from score import Score
-from src import Leaderboard, PlayerState, UserInterface
+from src import Leaderboard, PlayerState
 
 
 @pytest.fixture
@@ -43,6 +43,7 @@ def leaderboard_full():
     leaderboard.l_top_scores = score_list
     return leaderboard
 
+
 def test_is_high_score(leaderboard_partial):
     assert leaderboard_partial.is_high_score(1000)
 
@@ -50,8 +51,10 @@ def test_is_high_score(leaderboard_partial):
 def test_is_high_score_without_full_list(leaderboard_partial):
     assert leaderboard_partial.is_high_score(30)
 
+
 def test_is_high_score_without_full_list_same_low_score(leaderboard_partial):
     assert leaderboard_partial.is_high_score(50)
+
 
 def test_is_not_high_score_with_full_list(leaderboard_full):
     assert leaderboard_full.is_high_score(30) is False
