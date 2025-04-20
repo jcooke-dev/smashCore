@@ -12,9 +12,9 @@
 
 import constants
 import assets
-from ball import Ball
-from paddle import Paddle
-from levels import Levels
+from src.ball import Ball
+from src.paddle import Paddle
+from src.levels import Levels
 from worldobject import WorldObject
 
 

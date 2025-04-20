@@ -84,7 +84,7 @@ class GameEngine:
         """
         # does python run auto garbage collection so it's OK to just
         # assign a new gw?
-        self.gw = GameWorld()
+        self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
         self.gs.cur_ball_x = (WIDTH / 2) - (PAD_WIDTH / 2)
