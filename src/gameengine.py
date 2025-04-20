@@ -191,9 +191,11 @@ class GameEngine:
     def run_loop(self) -> None:
         """
         Runs the main game loop
-        
+
         :return:
         """
+        splash_music_played = False
+        gameover_music_played = False
 
         while self.gs.running:
             # fill the screen with black as a good default
@@ -210,10 +212,17 @@ class GameEngine:
                     # placeholder for the splash screen graphic
                     self.ui.draw_splash_screen()
 
+                    splash_music_path = assets.MUSIC_PATHS.get(GameState.GameStateName.SPLASH)
+                    if splash_music_path and not splash_music_played:
+                        pygame.mixer.music.load(splash_music_path)
+                        pygame.mixer.music.play(0)
+                        splash_music_played = True
+
                     # go beyond the splash GameState after desired time
                     cur_ticks = pygame.time.get_ticks()
                     if ((cur_ticks - self.app_start_ticks) / 1000) > SPLASH_TIME_SECS:
                         self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+                        splash_music_played = False # Reset the flag when leaving the state
 
                 ##############################################################
                 # display the MENU SCREEN
@@ -273,7 +282,7 @@ class GameEngine:
                     self.ui.draw_leaderboard_screen(self.lb)
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
-                        if event.type == pygame.QUIT:  # Add this line
+                        if event.type == pygame.QUIT:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.back_button_rect.collidepoint(event.pos):
@@ -398,6 +407,11 @@ class GameEngine:
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
                     self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_game_over_menu()
+                    gameover_music_path = assets.MUSIC_PATHS.get(GameState.GameStateName.GAME_OVER)
+                    if gameover_music_path and not gameover_music_played:
+                        pygame.mixer.music.load(gameover_music_path)
+                        pygame.mixer.music.play(0)
+                        gameover_music_played = True
 
             ##############################################################
             # event handling
