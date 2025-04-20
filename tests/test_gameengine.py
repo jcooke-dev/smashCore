@@ -21,6 +21,35 @@ from obstacle import Obstacle
 
 
 @pytest.fixture
+def mock_pygame():
+    with mock.patch("pygame.mixer.init") as mock_mixer_init, \
+         mock.patch("pygame.mouse.set_visible") as mock_set_visible, \
+         mock.patch("pygame.display.set_caption") as mock_set_caption, \
+         mock.patch("pygame.time.get_ticks", return_value=123456) as mock_get_ticks, \
+         mock.patch("pygame.color") as mock_color, \
+         mock.patch("pygame.rect") as mock_rect, \
+         mock.patch("pygame.time.Clock") as mock_clock, \
+         mock.patch("pygame.Surface") as mock_surface, \
+         mock.patch("pygame.display.set_mode") as mock_set_mode:
+
+        # Setup return values if needed
+        mock_set_mode.return_value = mock.Mock(name="screen")
+        mock_surface.return_value = mock.Mock(name="surface")
+        mock_clock.return_value = mock.Mock(name="clock")
+
+        yield {
+            "set_mode": mock_set_mode,
+            "surface": mock_surface,
+            "clock": mock_clock,
+            "rect": mock_rect,
+            "color": mock_color,
+            "get_ticks": mock_get_ticks,
+            "set_caption": mock_set_caption,
+            "set_visible": mock_set_visible,
+            "mixer_init": mock_mixer_init
+        }
+
+@pytest.fixture
 def mock_gameworld():
     class GameWorld:
         def __init__(self):
@@ -29,71 +58,77 @@ def mock_gameworld():
 
 
 @pytest.fixture
-def starting_ge(mock_gameworld):
+def starting_ge(mock_gameworld, mock_pygame):
     with mock.patch("src.assets.pygame.image.load") as mock_image_load:
         mock_image = mock.Mock()
         mock_image_load.return_value = mock_image
 
         ui = mock.Mock()
-        gs = GameState()
+        gs = mock.Mock()
         gw = mock_gameworld
-        ps = PlayerState()
-        lb = Leaderboard()
+        ps = mock.Mock()
+        lb = mock.Mock()
         ge = GameEngine(lb, ps, gw, gs, ui)
-        return ge
+        return ge, mock_pygame
 
 
-@mock.patch("pygame.mixer.music.stop")
-@mock.patch("pygame.mouse.set_visible")
-def test_gamestate_reset(mock_set_visible, mock_mixer_stop, starting_ge):
+def test_initial_state(starting_ge):
+    ge, mock_pygame = starting_ge
+    mock_pygame["set_visible"].assert_called_once_with(False)
+
+
+def test_gamestate_reset(starting_ge):
     """
     Asserts the initial values are set to restart the game
     :param starting_ge:
     :return:
     """
-    # modify test once multiple levels have been added
-    # self.gw = GameWorld(Levels.LevelName.SMASHCORE_?)
+    ge, mock_pygame = starting_ge
+    ge.fps = 500 # any number is fine as long as it isn't initial FPS
+    ge.gs.cur_state = GameState.GameStateName.GAME_OVER
+    ge.ps.lives = 0
+    ge.ps.score = 90
+    ge.current_music_path = "/assets/music"
 
-    starting_ge.fps = 500 # any number is fine as long as it isn't initial FPS
-    starting_ge.gs.cur_state = GameState.GameStateName.GAME_OVER
-    starting_ge.ps.lives = 0
-    starting_ge.ps.score = 90
-    starting_ge.current_music_path = "/assets/music"
+    ge.reset_game()
 
-    starting_ge.reset_game()
-
-    assert starting_ge.fps == constants.INITIAL_FPS_SIMPLE
+    assert ge.fps == constants.INITIAL_FPS_SIMPLE
     # enums should be compared by identity
     # assert starting_ge.gs.cur_state is GameStates.READY_TO_LAUNCH
     # but it isn't working so comparing by name
-    assert starting_ge.gs.cur_state.name is GameState.GameStateName.READY_TO_LAUNCH.name
-    assert starting_ge.ps.lives == constants.START_LIVES
-    assert starting_ge.ps.score == 0
-    assert starting_ge.current_music_path is None
-    mock_mixer_stop.assert_called_once()
-    mock_set_visible.assert_called_once_with(False)
+    assert ge.gs.cur_state.name is GameState.GameStateName.READY_TO_LAUNCH.name
+    assert ge.ps.lives == constants.START_LIVES
+    assert ge.ps.score == 0
+    assert ge.current_music_path is None
+    mock_pygame["set_visible"].assert_called_with(False)
+    mock_pygame["mixer_init"].assert_called_once()
 
 
 @mock.patch("src.obstacle.pygame.Rect")
 @mock.patch("src.brick.pygame.Rect")
-@mock.patch("pygame.color")
-@mock.patch("pygame.rect")
-def test_remove_obstacles(mock_rec, mock_color, mock_obstacle_rect, mock_brick_rect, starting_ge):
-    obstacle_1 = Obstacle(mock_rec, mock_color)
-    obstacle_2 = Obstacle(mock_rec, mock_color)
-    brick_1 = Brick(mock_rec, mock_color)
-    brick_2 = Brick(mock_rec, mock_color)
-    brick_3 = Brick(mock_rec, mock_color)
+def test_remove_obstacles(mock_obstacle_rect, mock_brick_rect, starting_ge):
+    ge, mock_pygame = starting_ge
+    mock_rect = mock_pygame["rect"]
+    mock_color = mock_pygame["color"]
+    obstacle_1 = Obstacle(mock_rect, mock_color)
+    obstacle_2 = Obstacle(mock_rect, mock_color)
+    brick_1 = Brick(mock_rect, mock_color)
+    brick_2 = Brick(mock_rect, mock_color)
+    brick_3 = Brick(mock_rect, mock_color)
 
     #set world_objects in gameworld
-    starting_ge.gw.world_objects = [obstacle_1, brick_1, brick_2, obstacle_2, brick_3]
+    ge.gw.world_objects = [obstacle_1, brick_1, brick_2, obstacle_2, brick_3]
 
     #remove obstacles from gameworld world_objects
-    starting_ge.remove_obstacles()
+    ge.remove_obstacles()
 
-    assert len(starting_ge.gw.world_objects) == 3
-    assert obstacle_1 not in starting_ge.gw.world_objects
-    assert obstacle_2 not in starting_ge.gw.world_objects
-    assert brick_1 in starting_ge.gw.world_objects
-    assert brick_2 in starting_ge.gw.world_objects
-    assert brick_3 in starting_ge.gw.world_objects
+    assert len(ge.gw.world_objects) == 3
+    assert obstacle_1 not in ge.gw.world_objects
+    assert obstacle_2 not in ge.gw.world_objects
+    assert brick_1 in ge.gw.world_objects
+    assert brick_2 in ge.gw.world_objects
+    assert brick_3 in ge.gw.world_objects
+
+
+def test_next_level(starting_ge):
+    ge, mock_pygame = starting_ge
