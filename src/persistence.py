@@ -22,6 +22,12 @@ LEADERBOARD_FILENAME: str = 'leaderboard.pkl'
 
 
 def find_game_data_path():
+    """
+    Finds the user profile path for the main operating systems targeted (windows, mac, linux)
+    otherwise uses a default directory SMASHCORE_settings
+
+    :return:
+    """
     global GAME_DATA_PATH
 
     op_sys: str = platform.system()
@@ -38,7 +44,15 @@ def find_game_data_path():
         # default to a game-named settings dir in the working directory
         GAME_DATA_PATH = os.path.join(constants.GAME_NAME + '_settings/')
 
+
 def store_object(obj: object, filename: str):
+    """
+    Store serialized object using pickle
+
+    :param obj: the object to store
+    :param filename: the filename to store object to
+    :return:
+    """
 
     if GAME_DATA_PATH is None:
         find_game_data_path()
@@ -49,7 +63,13 @@ def store_object(obj: object, filename: str):
     with open(path, 'wb') as fileOut:
         pickle.dump(obj, fileOut)
 
+
 def read_object(filename: str):
+    """
+    Load serialized file using pickle for reading
+    :param filename: name of the file to read
+    :return:
+    """
 
     if GAME_DATA_PATH is None:
         find_game_data_path()
