@@ -9,35 +9,33 @@
     Module Description: This is the test harness for the GameEngine class.
 """
 
-import pygame.mouse
 import pytest
 import constants
 from unittest import mock
-from src.gameengine import GameEngine
+from gameengine import GameEngine
 from gamestate import GameState
 from playerstate import PlayerState
 from leaderboard import Leaderboard
 
 
-
 @pytest.fixture
-@mock.patch("src.assets.pygame.image.load")
-def starting_ge(mock_image_load):
-    mock_image = mock.Mock()
-    mock_image_load.return_value = mock_image
+def starting_ge():
+    with mock.patch("src.assets.pygame.image.load") as mock_image_load:
+        mock_image = mock.Mock()
+        mock_image_load.return_value = mock_image
 
-    ui = mock.Mock()
-    gs = GameState()
-    #gs = mock.Mock()
-    gw = mock.Mock()
-    ps = PlayerState()
-    #ps = mock.Mock()
-    lb = Leaderboard()
-    ge = GameEngine(lb, ps, gw, gs, ui)
-    return ge
+        ui = mock.Mock()
+        gs = GameState()
+        gw = mock.Mock()
+        ps = PlayerState()
+        lb = Leaderboard()
+        ge = GameEngine(lb, ps, gw, gs, ui)
+        return ge
 
 
-def test_gamestate_reset(starting_ge):
+@mock.patch("pygame.mixer.music.stop")
+@mock.patch("pygame.mouse.set_visible")
+def test_gamestate_reset(mock_set_visible, mock_mixer_stop, starting_ge):
     """
     Asserts the initial values are set to restart the game
     :param starting_ge:
@@ -45,11 +43,12 @@ def test_gamestate_reset(starting_ge):
     """
     # modify test once multiple levels have been added
     # self.gw = GameWorld(Levels.LevelName.SMASHCORE_?)
+
     starting_ge.fps = 500 # any number is fine as long as it isn't initial FPS
     starting_ge.gs.cur_state = GameState.GameStateName.GAME_OVER
     starting_ge.ps.lives = 0
     starting_ge.ps.score = 90
-    pygame.mouse.set_visible(True)
+    starting_ge.current_music_path = "/assets/music"
 
     starting_ge.reset_game()
 
@@ -60,6 +59,6 @@ def test_gamestate_reset(starting_ge):
     assert starting_ge.gs.cur_state.name is GameState.GameStateName.READY_TO_LAUNCH.name
     assert starting_ge.ps.lives == constants.START_LIVES
     assert starting_ge.ps.score == 0
-    assert not pygame.mouse.get_visible()
-
-
+    assert starting_ge.current_music_path is None
+    mock_mixer_stop.assert_called_once()
+    mock_set_visible.assert_called_once_with(False)
