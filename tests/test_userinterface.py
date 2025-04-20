@@ -17,27 +17,30 @@ import constants
 
 
 @pytest.fixture
-@mock.patch("src.userinterface.pygame.transform.scale")
-def ui(mock_scaled_image):
+def ui():
     """
     Set up UserInterface with mocked up members for screen and font_buttons
     :return:
     """
+    pygame.init()
     pygame.font.init()
-    ui = UserInterface()
-    ui.screen = mock.Mock()
-    ui.surface = mock.Mock()
 
-    mock_font_button = mock.Mock()
-    mock_status_font = mock.Mock()
-    mock_rendered_text = mock.Mock()
-    mock_font_button.render.return_value = mock_rendered_text
-    mock_status_font.render.return_value = mock_rendered_text
+    with mock.patch(
+        "src.userinterface.pygame.transform.scale") as mock_scaled_image:
+        ui = UserInterface()
+        ui.screen = mock.Mock()
+        ui.surface = mock.Mock()
 
-    ui.font_buttons = mock_font_button
-    ui.font_status = mock_status_font
-    return ui
+        mock_font_button = mock.Mock()
+        mock_font_status = mock.Mock()
+        mock_rendered_text = mock.Mock()
+        mock_font_button.render.return_value = mock_rendered_text
+        mock_font_status.render.return_value = mock_rendered_text
 
+        ui.font_buttons = mock_font_button
+        ui.font_status = mock_status_font
+        yield ui
+    pygame.quit()
 
 @mock.patch("pygame.draw.rect")
 def test_draw_pause_menu(mock_rect, ui):
@@ -71,7 +74,6 @@ def test_draw_pause_menu(mock_rect, ui):
     assert ui.surface.blit.called
     assert ui.screen.blit.called
     assert mock_rect.call_count == 4  #rect for buttons and text
-    pass
 
 
 def test_game_intro(ui):

@@ -41,16 +41,16 @@ def test_level_smashcore_1(mock_scale_image, mock_image_load, mock_gameworld):
 
 
 def test_next_level_1():
-    next_level = Levels.get_next_level(1)
-    assert next_level is Levels.LevelName.SMASHCORE_SOLID_ROWS_1
+    next_level = Levels.get_level_name_from_num(1)
+    assert next_level is Levels.LevelName.SMASHCORE_1
 
 
 def test_next_level_3():
-    next_level = Levels.get_next_level(3)
-    assert next_level is Levels.LevelName.SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1
+    next_level = Levels.get_level_name_from_num(3)
+    assert next_level is Levels.LevelName.SMASHCORE_IMG_CHAMFER_1
 
 
 def test_next_level_last():
     last_level: Levels.LevelName = list(Levels.LevelName)[-1]
-    next_level = Levels.get_next_level(last_level.value)
+    next_level = Levels.get_level_name_from_num(last_level.value + 1)
     assert next_level is Levels.LevelName.SMASHCORE_1
