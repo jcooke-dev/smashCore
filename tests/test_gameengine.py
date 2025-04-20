@@ -16,6 +16,8 @@ from gameengine import GameEngine
 from gamestate import GameState
 from playerstate import PlayerState
 from leaderboard import Leaderboard
+from brick import Brick
+from obstacle import Obstacle
 
 
 @pytest.fixture
@@ -72,10 +74,26 @@ def test_gamestate_reset(mock_set_visible, mock_mixer_stop, starting_ge):
     mock_set_visible.assert_called_once_with(False)
 
 
-@mock.patch("src.brick.Brick")
-@mock.patch("src.obstacle.Obstacle")
-def test_remove_obstacles(mock_obstacle, mock_brick, starting_ge):
-    starting_ge.world_objects = [mock_brick, mock_brick, mock_obstacle, mock_brick, mock_obstacle, mock_brick, mock_obstacle]
+@mock.patch("src.obstacle.pygame.Rect")
+@mock.patch("src.brick.pygame.Rect")
+@mock.patch("pygame.color")
+@mock.patch("pygame.rect")
+def test_remove_obstacles(mock_rec, mock_color, mock_obstacle_rect, mock_brick_rect, starting_ge):
+    obstacle_1 = Obstacle(mock_rec, mock_color)
+    obstacle_2 = Obstacle(mock_rec, mock_color)
+    brick_1 = Brick(mock_rec, mock_color)
+    brick_2 = Brick(mock_rec, mock_color)
+    brick_3 = Brick(mock_rec, mock_color)
+
+    #set world_objects in gameworld
+    starting_ge.gw.world_objects = [obstacle_1, brick_1, brick_2, obstacle_2, brick_3]
+
+    #remove obstacles from gameworld world_objects
     starting_ge.remove_obstacles()
-    #for obj in starting_ge.world_objects:
-    #    assert isinstance(obj, mock_brick)
+
+    assert len(starting_ge.gw.world_objects) == 3
+    assert obstacle_1 not in starting_ge.gw.world_objects
+    assert obstacle_2 not in starting_ge.gw.world_objects
+    assert brick_1 in starting_ge.gw.world_objects
+    assert brick_2 in starting_ge.gw.world_objects
+    assert brick_3 in starting_ge.gw.world_objects
