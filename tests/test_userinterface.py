@@ -38,7 +38,7 @@ def ui():
         mock_font_status.render.return_value = mock_rendered_text
 
         ui.font_buttons = mock_font_button
-        ui.font_status = mock_status_font
+        ui.font_status = mock_font_status
         yield ui
     pygame.quit()
 
