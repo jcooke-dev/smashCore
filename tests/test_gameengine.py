@@ -23,6 +23,7 @@ from obstacle import Obstacle
 @pytest.fixture
 def mock_pygame():
     with mock.patch("pygame.mixer.init") as mock_mixer_init, \
+         mock.patch("pygame.mixer.music.stop") as mock_mixer_music_stop, \
          mock.patch("pygame.mouse.set_visible") as mock_set_visible, \
          mock.patch("pygame.display.set_caption") as mock_set_caption, \
          mock.patch("pygame.time.get_ticks", return_value=123456) as mock_get_ticks, \
@@ -46,8 +47,10 @@ def mock_pygame():
             "get_ticks": mock_get_ticks,
             "set_caption": mock_set_caption,
             "set_visible": mock_set_visible,
-            "mixer_init": mock_mixer_init
+            "mixer_init": mock_mixer_init,
+            "mixer.music.stop": mock_mixer_music_stop
         }
+
 
 @pytest.fixture
 def mock_gameworld():
@@ -128,7 +131,3 @@ def test_remove_obstacles(mock_obstacle_rect, mock_brick_rect, starting_ge):
     assert brick_1 in ge.gw.world_objects
     assert brick_2 in ge.gw.world_objects
     assert brick_3 in ge.gw.world_objects
-
-
-def test_next_level(starting_ge):
-    ge, mock_pygame = starting_ge
