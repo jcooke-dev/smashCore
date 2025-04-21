@@ -22,6 +22,8 @@ class UserInterface:
 
     def __init__(self) -> None:
         # Define Main Menu buttons
+        self.volume_button_rect = None
+        self.settings_button_rect = None
         self.quit_button_start_rect = None
         self.leader_button_rect = None
         self.credits_button_rect = None
@@ -46,8 +48,8 @@ class UserInterface:
         self.font_subtitle_text: pygame.font = pygame.font.SysFont("Courier", 60, True)  # high scores
         self.font_buttons: pygame.font = pygame.font.Font(None, 50)
         # font - play screen elements
-        self.font_game_intro: pygame.font = pygame.font.Font(None, 40)
-        self.font_status: pygame.font = pygame.font.Font(None, 36)
+        self.font_game_intro: pygame.font = pygame.font.Font(None, 60)
+        self.font_status: pygame.font = pygame.font.Font(None, 52)
         # not certain this will reliably get a font (especially on diff OSes), but it's supposed to
         # fall back to a default pygame font
         self.font_dev_overlay: pygame.font = pygame.font.SysFont("Courier", 16, True)  # dev overlay font
@@ -220,7 +222,7 @@ class UserInterface:
         backcolor = (255, 255, 255, 192)
         pos = (constants.WIDTH / 2, text_rect2.y + 150)
         text = "---" if len(self.tb_initials_text) == 0 else self.tb_initials_text
-        tb_text = self.font_title_text.render(text, True, color, constants.BLACK)
+        tb_text = self.font_subtitle_text.render(text, True, color, constants.BLACK)
         tb_text_rect = tb_text.get_rect(center=pos)
 
         pygame.draw.rect(self.surface, backcolor, tb_text_rect.inflate(2, 2), 200)
@@ -262,7 +264,7 @@ class UserInterface:
         """
         self.screen.blit(self.font_status.render("Lives:", True, constants.WHITE), (10, 10))
         for i in range(lives):
-            pygame.draw.circle(self.screen, constants.WHITE, (170 + 35 * i, 27), 12)
+            pygame.draw.circle(self.screen, constants.WHITE, (140 + 35 * i, 27), 12)
 
         score_display = self.font_status.render(f"Score: {score}", True, constants.WHITE)
         self.screen.blit(score_display, (constants.WIDTH - score_display.get_width() - 100, 10))
@@ -415,41 +417,44 @@ class UserInterface:
         button_height = start_text.get_height() + 60
 
         self.start_button_rect = self.draw_button(start_text, (constants.WIDTH - button_width) // 2,
-                                                  (constants.HEIGHT - button_height) // 2 + 50, button_width,
+                                                  (constants.HEIGHT - button_height) // 2, button_width,
                                                   button_height,
                                                   constants.GREEN, (0, 200, 0))
 
-        sub_button_width = 200
-        sub_button_height = 40
+        sub_button_width = 250
+        sub_button_height = 50
+        sub_button_spacing = sub_button_height + 15
+        sub_button_x = (constants.WIDTH - sub_button_width) // 2
+        sub_button_y = (constants.HEIGHT // 2) + sub_button_height + 20 # Add or subtract to this to adjust sub_buttons y_position
         # Draw How to Play Button
-        how_to_play_x = (constants.WIDTH - sub_button_width) // 2
-        how_to_play_y = self.start_button_rect.y + button_height + 20
         how_to_play_text = self.font_menu_sub.render("How to Play", True, constants.BLACK)
-        self.how_to_play_button_rect = self.draw_button(how_to_play_text, how_to_play_x, how_to_play_y,
+        self.how_to_play_button_rect = self.draw_button(how_to_play_text, sub_button_x, sub_button_y,
                                                         sub_button_width, sub_button_height, constants.YELLOW,
                                                         (200, 200, 0))
 
-        # Draw Credits button
-        credits_x = 20
-        credits_y = constants.HEIGHT - sub_button_height - 30
-        credits_text = self.font_menu_sub.render("Credits", True, constants.BLACK)
-        self.credits_button_rect = self.draw_button(credits_text, credits_x, credits_y,
-                                                    sub_button_width, sub_button_height, constants.YELLOW,
-                                                    (200, 200, 0))
-
-        leader_x = 20  # a little to the right
-        leader_y = constants.HEIGHT - sub_button_height - sub_button_height - 60  # a little higher
+        # Draw Leaderboards button
         leader_text = self.font_menu_sub.render("Leaderboard", True,
                                                 constants.BLACK)  # same color as the rest of the buttons
-        self.leader_button_rect = self.draw_button(leader_text, leader_x, leader_y,
+        self.leader_button_rect = self.draw_button(leader_text, sub_button_x, sub_button_y + (1 * sub_button_spacing),
                                                    sub_button_width, sub_button_height, constants.YELLOW,
                                                    (200, 200, 0))
 
+        # Draw Settings button
+        settings_text = self.font_menu_sub.render("Settings", True, constants.BLACK)
+        self.settings_button_rect = self.draw_button(settings_text, sub_button_x,
+                                                     sub_button_y + (2 * sub_button_spacing),
+                                                     sub_button_width, sub_button_height, constants.YELLOW,
+                                                     (200, 200, 0))
+
+        # Draw Credits button
+        credits_text = self.font_menu_sub.render("Credits", True, constants.BLACK)
+        self.credits_button_rect = self.draw_button(credits_text, sub_button_x, sub_button_y + (3 * sub_button_spacing),
+                                                    sub_button_width, sub_button_height, constants.YELLOW,
+                                                    (200, 200, 0))
+
         # Draw Quit button
-        quit_x = constants.WIDTH - sub_button_width - 20
-        quit_y = constants.HEIGHT - sub_button_height - 30
         quit_text = self.font_menu_sub.render("Quit", True, constants.BLACK)
-        self.quit_button_start_rect = self.draw_button(quit_text, quit_x, quit_y,
+        self.quit_button_start_rect = self.draw_button(quit_text, sub_button_x, sub_button_y + (4 * sub_button_spacing),
                                                        sub_button_width, sub_button_height, constants.RED,
                                                        (200, 0, 0))
 
@@ -462,7 +467,7 @@ class UserInterface:
             "SmashCore is a brick-breaking game.",
             "Use a mouse, trackpad, or the arrow keys to control the paddle.",
             "Use the paddle to hit the ball.",
-            "Break all the bricks to win.",
+            "Break all the bricks to clear the level.",
             "",
             "ESC to pause.",
             "CTRL-D for dev stats."
@@ -549,5 +554,34 @@ class UserInterface:
         self.back_button_rect = self.draw_button(back_text, back_x, back_y,
                                                  back_width, back_height, constants.YELLOW,
                                                  (200, 200, 0))
+        # draw everything
+        self.screen.blit(self.surface, (0, 0))
+
+    def draw_settings_screen(self, hasSounds: bool) -> None:
+        """
+        Show the settings screen
+
+        :return:
+        """
+        self.surface.fill(constants.BLACK)
+
+        title_text = self.font_subtitle_text.render("SETTINGS", True, constants.WHITE)
+        self.surface.blit(title_text, title_text.get_rect(center=(constants.WIDTH // 2, 150)))
+
+        bg_sounds_text = self.font_menu_sub.render("Mute Background Music", True, constants.BLACK) if hasSounds else (
+            self.font_menu_sub.render("Unmute Background Music", True, constants.BLACK))
+        self.volume_button_rect = self.draw_button(bg_sounds_text, 50, 225, 330, 50,
+                                                   constants.YELLOW, (200, 200, 0))
+
+        # Back button
+        back_width = 100
+        back_height = 40
+        back_x = 20
+        back_y = constants.HEIGHT - back_height - 30
+        back_text = self.font_back_btn.render("Back", True, constants.BLACK)
+        self.back_button_rect = self.draw_button(back_text, back_x, back_y,
+                                                 back_width, back_height, constants.YELLOW,
+                                                 (200, 200, 0))
+
         # draw everything
         self.screen.blit(self.surface, (0, 0))

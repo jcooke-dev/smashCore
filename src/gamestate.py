@@ -30,6 +30,7 @@ class GameState:
         LEADERBOARD: Enum = auto()
         GET_HIGH_SCORE: Enum = auto()
         HOW_TO_PLAY: Enum = auto()
+        SETTINGS: Enum = auto()
 
 
     def __init__(self) -> None:
@@ -54,3 +55,4 @@ class GameState:
         self.paddle_under_key_control_left: bool = False
         self.paddle_under_key_control_right: bool = False
         self.paddle_pos_x: int = 0 # used at READY_TO_LAUNCH to keep ball on paddle
+        self.bg_sounds: bool = True

@@ -18,10 +18,10 @@ from src.ball import Ball
 from src.brick import Brick
 from src.paddle import Paddle
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
-    PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
-    BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
-    PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
-    BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
+                           PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+                           BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+                           PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+                           BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
 
 from src.levels import Levels
 from src.gameworld import GameWorld
@@ -171,12 +171,19 @@ class GameEngine:
         
         :return:
         """
-        target_music_path: str = None
+        if not self.gs.bg_sounds:
+            pygame.mixer.music.stop()
+            self.current_music_path = None
+            return
+
+        target_music_path = None
         loop: int = -1  # Default to loop infinitely
 
         if gs.cur_state in assets.MUSIC_PATHS:
             target_music_path = assets.MUSIC_PATHS[gs.cur_state]
-            if gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE:
+            if ((gs.cur_state == GameState.GameStateName.SPLASH) or
+                (gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE) or
+                (gs.cur_state == GameState.GameStateName.GAME_OVER)):
                 loop = 0  # Play only once
 
         if target_music_path and self.current_music_path != target_music_path:
@@ -191,7 +198,7 @@ class GameEngine:
     def run_loop(self) -> None:
         """
         Runs the main game loop
-        
+
         :return:
         """
 
@@ -230,6 +237,8 @@ class GameEngine:
                                 self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
                             elif self.ui.credits_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.CREDITS
+                            elif self.ui.settings_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameState.GameStateName.SETTINGS
                             elif self.ui.leader_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.LEADERBOARD
                             elif self.ui.how_to_play_button_rect and self.ui.how_to_play_button_rect.collidepoint(
@@ -250,7 +259,7 @@ class GameEngine:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if hasattr(self.ui,
                                        'back_button_rect') and self.ui.back_button_rect.collidepoint(
-                                    event.pos):
+                                event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
@@ -273,9 +282,24 @@ class GameEngine:
                     self.ui.draw_leaderboard_screen(self.lb)
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            self.clean_shutdown()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.back_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
+                ##############################################################
+                # display settings screen
+                ##############################################################
+                case GameState.GameStateName.SETTINGS:
+                    self.ui.draw_settings_screen(self.gs.bg_sounds)
+                    pygame.mouse.set_visible(True)
+                    for event in pygame.event.get():
                         if event.type == pygame.QUIT:  # Add this line
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.volume_button_rect.collidepoint(event.pos):
+                                self.gs.bg_sounds = not self.gs.bg_sounds
                             if self.ui.back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
@@ -338,9 +362,12 @@ class GameEngine:
                                                 #  TODO probably need to store this brick rect and set
                                                 #  it to be displayed for some duration because we sometimes don't see
                                                 #  the inflation effect, likely because it's removed before being drawn
-                                                other_wo.rect.inflate_ip(current_wo.rect.width * 3,
-                                                                         current_wo.rect.height * 3)
-                                                pygame.draw.rect(self.screen, other_wo.color, other_wo.rect)
+                                                other_wo.animate(self.screen)
+                                                pygame.display.update(other_wo)
+                                                other_wo.destruction(self.gw.world_objects)
+                                                #other_wo.rect.inflate_ip(current_wo.rect.width * 3,
+                                                #                         current_wo.rect.height * 3)
+                                                #pygame.draw.rect(self.screen, other_wo.color, other_wo.rect)
                                                 current_wo.speed += .20
                                                 # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
                                                 # VECTOR models
@@ -348,8 +375,8 @@ class GameEngine:
                                                     current_wo.speed_v += self.gs.ball_speed_step
                                                     self.gs.ball_speed_increased_ratio = current_wo.speed_v / BALL_SPEED_VECTOR
                                                     current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
+                                                #self.gw.world_objects.remove(other_wo)
 
-                                                self.gw.world_objects.remove(other_wo)
 
                                     else:
                                         # this is the other side of the allow_collision logic above, since
