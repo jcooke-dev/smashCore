@@ -8,25 +8,30 @@
 
     Module Description: This is the test harness for the GameEngine class.
 """
-
+import pygame
 import pytest
+
+import assets
 import constants
 from unittest import mock
 from gameengine import GameEngine
 from gamestate import GameState
 import src
 from src.levels import Levels
+from userinterface import UserInterface
 from playerstate import PlayerState
 from leaderboard import Leaderboard
+from gameworld import GameWorld
 from brick import Brick
 from obstacle import Obstacle
-from ball import Ball
 
 
 @pytest.fixture
 def mock_pygame():
-    with mock.patch("pygame.mixer.init") as mock_mixer_init, \
-         mock.patch("pygame.mixer.music.stop") as mock_mixer_music_stop, \
+    with mock.patch("pygame.quit") as mock_pygame_quit, \
+         mock.patch("pygame.event.get") as mock_event_get,\
+         mock.patch("pygame.mixer.init") as mock_mixer_init, \
+         mock.patch("pygame.mixer.music") as mock_mixer_music, \
          mock.patch("pygame.mouse.set_visible") as mock_set_visible, \
          mock.patch("pygame.display.set_caption") as mock_set_caption, \
          mock.patch("pygame.time.get_ticks", return_value=123456) as mock_get_ticks, \
@@ -37,9 +42,9 @@ def mock_pygame():
          mock.patch("pygame.display.set_mode") as mock_set_mode:
 
         # Setup return values if needed
-        mock_set_mode.return_value = mock.Mock(name="screen")
-        mock_surface.return_value = mock.Mock(name="surface")
-        mock_clock.return_value = mock.Mock(name="clock")
+        mock_set_mode.return_value = mock.MagicMock(name="screen")
+        mock_surface.return_value = mock.MagicMock(name="surface")
+        mock_clock.return_value = mock.MagicMock(name="clock")
 
         yield {
             "set_mode": mock_set_mode,
@@ -51,41 +56,46 @@ def mock_pygame():
             "set_caption": mock_set_caption,
             "set_visible": mock_set_visible,
             "mixer_init": mock_mixer_init,
-            "mixer.music.stop": mock_mixer_music_stop
+            "mixer.music": mock_mixer_music,
+            "event.get": mock_event_get,
+            "quit": mock_pygame_quit
         }
 
 
 @pytest.fixture
-def mock_gameworld():
-    class GameWorld():
-        def __init__(self):
-            self.world_objects = []
-    return GameWorld()
-
-
-@pytest.fixture
-def starting_ge(mock_gameworld, mock_pygame):
+def starting_ge(mock_pygame):
     with mock.patch("src.assets.pygame.image.load") as mock_image_load:
         mock_image = mock.Mock()
         mock_image_load.return_value = mock_image
 
-        ui = mock.Mock()
-        gs = mock.Mock()
-        gw = mock_gameworld
-        ps = mock.Mock()
-        lb = mock.Mock()
+        ui = mock.MagicMock(UserInterface)
+        gs = mock.MagicMock(GameState)
+        gw = mock.MagicMock(GameWorld)
+        ps = mock.MagicMock(PlayerState)
+        lb = mock.MagicMock(Leaderboard)
+
+        ui.start_button_rect = mock.MagicMock()
+        ui.credits_button_rect = mock.MagicMock()
+
         ge = GameEngine(lb, ps, gw, gs, ui)
         return ge, mock_pygame
 
 
 def test_initial_state(starting_ge):
+    """
+    Test the initial state set the mouse pointer to not visible
+
+    :param starting_ge:
+    :return:
+    """
     ge, mock_pygame = starting_ge
     mock_pygame["set_visible"].assert_called_once_with(False)
 
 
 def test_gamestate_reset(starting_ge):
     """
-    Asserts the initial values are set to restart the game
+    Tests game is reset to initial values
+
     :param starting_ge:
     :return:
     """
@@ -113,6 +123,14 @@ def test_gamestate_reset(starting_ge):
 @mock.patch("src.obstacle.pygame.Rect")
 @mock.patch("src.brick.pygame.Rect")
 def test_remove_obstacles(mock_obstacle_rect, mock_brick_rect, starting_ge):
+    """
+    Tests that all Obstacles are removed from world_objects
+
+    :param mock_obstacle_rect:
+    :param mock_brick_rect:
+    :param starting_ge:
+    :return:
+    """
     ge, mock_pygame = starting_ge
     mock_rect = mock_pygame["rect"]
     mock_color = mock_pygame["color"]
@@ -140,6 +158,16 @@ def test_remove_obstacles(mock_obstacle_rect, mock_brick_rect, starting_ge):
 @mock.patch("src.ball.pygame.Rect")
 @mock.patch("src.ball.Ball", spec=src.ball.Ball)
 def test_next_level(mock_ball, mock_rect, mock_image, starting_ge):
+    """
+    Tests that ball position is reset, ball speed is increased based on predefined increment,
+    the next level number is retrieved, the levels are built for the level number,
+    FPS is reset, and GameState is set to READY_TO_LAUNCH
+    :param mock_ball:
+    :param mock_rect:
+    :param mock_image:
+    :param starting_ge:
+    :return:
+    """
     ge, mock_pygame = starting_ge
     mock_ball.v_vel_unit = 1
     ge.gw.world_objects = [mock_ball]
@@ -153,9 +181,6 @@ def test_next_level(mock_ball, mock_rect, mock_image, starting_ge):
 
     # Call next_level
     ge.next_level()
-
-    # Ensure obstacles are removed
-    #ge.gw.world_objects = [obj for obj in ge.gw.world_objects if not isinstance(obj, Ball)]
 
     # Ball reset position and speed assertions
     mock_ball.reset_position.assert_called_once()
@@ -172,3 +197,156 @@ def test_next_level(mock_ball, mock_rect, mock_image, starting_ge):
     assert ge.fps == constants.INITIAL_FPS_SIMPLE
     assert ge.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH
 
+
+def test_draw_world_and_status(starting_ge):
+    """
+    Test that draw_wo is called on world objects and ui.draw_status is called
+
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+    mock_wo = mock.MagicMock()
+    mock_wo.draw_wo.return_value = None
+    ge.gw.world_objects = [mock_wo]
+    ge.ps.lives = 2
+    ge.ps.score = 320
+    ge.ps.level = 1
+
+    # Call draw_world_and_status
+    ge.draw_world_and_status()
+
+    # Ensure draw_wo was called once
+    # Ensure draw_status was called on UI with player status
+    mock_wo.draw_wo.assert_called_once_with(ge.screen)
+    ge.ui.draw_status.assert_called_once_with(2, 320, 1)
+
+
+def test_menu_screen_handler_start_btn(starting_ge):
+    """
+    Test that clicking the "Start" button transitions the game state to READY_TO_LAUNCH.
+    """
+    ge, mock_pygame = starting_ge
+
+    # Simulate a MOUSEBUTTONDOWN event on the start button
+    mock_event = mock.MagicMock()
+    mock_event.type = pygame.MOUSEBUTTONDOWN
+    mock_event.pos = (100, 100)  # Example position
+    mock_pygame['event.get'].return_value = [mock_event]
+
+    # Mock the start button's collidepoint method to return True
+    ge.ui.start_button_rect.collidepoint.return_value = True
+    ge.ui.credits_button_rect.collidepoint.return_value = False
+
+    # Call the method under test
+    ge.menu_screen_handler()
+
+    # Assert that the game state was updated to READY_TO_LAUNCH
+    assert ge.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH
+
+
+def test_menu_screen_handler_credits_btn(starting_ge):
+    """
+    Test that clicking the "Credits" button transitions the game state to CREDITS.
+    """
+    ge, mock_pygame = starting_ge
+
+    # Simulate a MOUSEBUTTONDOWN event on the start button
+    mock_event = mock.MagicMock()
+    mock_event.type = pygame.MOUSEBUTTONDOWN
+    mock_event.pos = (100, 100)  # Example position
+    mock_pygame['event.get'].return_value = [mock_event]
+
+    # Mock the credit button's collidepoint method to return True
+    ge.ui.start_button_rect.collidepoint.return_value = False
+    ge.ui.credits_button_rect.collidepoint.return_value = True
+
+    # Call the method under test
+    ge.menu_screen_handler()
+
+    # Assert that the game state was updated to READY_TO_LAUNCH
+    assert ge.gs.cur_state == GameState.GameStateName.CREDITS
+
+
+@mock.patch("builtins.exit")
+def test_clean_shutdown(mock_exit, starting_ge):
+    """
+    Tests that clean_shutdown stops the music, sets the current_music_path to None,
+    sets the GameState to GAME_OVER, calls pygame.quit, and exit()
+    :param mock_exit:
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+
+    ge.clean_shutdown()
+
+    mock_pygame["mixer.music"].stop.assert_called_once()
+    assert ge.current_music_path is None
+    assert ge.gs.running is False
+    assert ge.gs.cur_state == GameState.GameStateName.GAME_OVER
+
+    ge.lb.store.assert_called_once()
+    mock_pygame['quit'].assert_called_once()
+    mock_exit.assert_called_once()
+
+
+def test_play_music_bg_sound_off(starting_ge):
+    """
+    Tests that when bg_sounds is False, the music is stopped
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+
+    #Set GameState background sounds to False
+    ge.gs.bg_sounds = False
+
+    # Play Music
+    ge.play_music(ge.gs)
+
+    # Assert that music is stopped
+    mock_pygame["mixer.music"].stop.assert_called_once()
+    assert ge.current_music_path is None
+
+
+def test_play_music_correct_file(starting_ge):
+    """
+    Tests that music plays correct music for the current game state
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+
+    ge.gs.bg_sounds = True
+    ge.gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
+    music_path = '/path/to/music.wav'
+    assets.MUSIC_PATHS[GameState.GameStateName.GET_HIGH_SCORE] = music_path
+
+    ge.play_music(ge.gs)
+
+    mock_pygame['mixer.music'].load.assert_called_once_with(music_path)
+    mock_pygame['mixer.music'].play.assert_called_once_with(0)
+    assert ge.current_music_path == music_path
+
+def test_play_music_no_music_path(starting_ge):
+    """
+    Tests that music plays correct music for the current game state
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+
+    ge.gs.bg_sounds = True
+    ge.gs.cur_state = GameState.GameStateName.HOW_TO_PLAY
+    ge.current_music_path = "/path/to/current_music.wav"
+
+
+    # Ensure no MUSIC_PATH is defined for this state
+    if GameState.GameStateName.HOW_TO_PLAY in assets.MUSIC_PATHS:
+        del assets.MUSIC_PATHS[GameState.GameStateName.HOW_TO_PLAY]
+
+    ge.play_music(ge.gs)
+
+    mock_pygame['mixer.music'].stop.assert_called_once()
+    assert ge.current_music_path is None
