@@ -10,18 +10,19 @@
                         GameState, UI, etc.) and runs the main game loop.
 """
 import pygame
+
 import utils
 import persistence
-from obstacle import Obstacle
 from src import assets
 from src.ball import Ball
 from src.brick import Brick
 from src.paddle import Paddle
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
-                           PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
-                           BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
-                           PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
-                           BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
+                            PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+                            BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+                            PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+                            BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
+                            MUSIC_VOLUME_INITIAL, MUSIC_VOLUME_STEP)
 
 from src.levels import Levels
 from src.gameworld import GameWorld
@@ -95,16 +96,6 @@ class GameEngine:
         pygame.mixer.music.stop()
         self.current_music_path = None
 
-    def remove_obstacles(self) -> None:
-        """
-        Removes any obstacles from the list of gw.world_objects
-        
-        :return:
-        """
-        wo_to_keep = [wo for wo in self.gw.world_objects if
-                      not isinstance(wo, Obstacle)]
-        self.gw.world_objects = wo_to_keep
-
     def next_level(self) -> None:
         """
         Builds the next level, resets the ball position and initial speed
@@ -112,7 +103,9 @@ class GameEngine:
         
         :return:
         """
-        self.remove_obstacles()
+        self.gw.remove_obstacles()
+        self.gw.remove_bricks()
+
         for wo in self.gw.world_objects:
             if isinstance(wo, Ball):
                 wo.reset_position()
@@ -120,13 +113,12 @@ class GameEngine:
                 self.gs.ball_speed_increased_ratio = wo.speed_v / BALL_SPEED_VECTOR
                 wo.v_vel = wo.v_vel_unit * wo.speed_v
                 wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
-        # builds level in cycles of the 4 levels
+        # builds the next level
         next_level = Levels.get_level_name_from_num(self.ps.level)
         Levels.build_level(self.gw.world_objects, next_level)
 
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
-        #self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
 
     def draw_world_and_status(self) -> None:
         """
@@ -139,19 +131,6 @@ class GameEngine:
             world_object.draw_wo(self.screen)
         # draw any status overlays
         self.ui.draw_status(self.ps.lives, self.ps.score, self.ps.level)
-
-    def menu_screen_handler(self) -> None:
-        """
-        Checks for button presses and shifts to the proper GameSate
-        
-        :return:
-        """
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.ui.start_button_rect.collidepoint(event.pos):
-                    self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
-                elif self.ui.credits_button_rect.collidepoint(event.pos):
-                    self.gs.cur_state = GameState.GameStateName.CREDITS
 
     def clean_shutdown(self) -> None:
         pygame.mixer.music.stop()
@@ -176,7 +155,7 @@ class GameEngine:
             self.current_music_path = None
             return
 
-        target_music_path = None
+        target_music_path: str = None
         loop: int = -1  # Default to loop infinitely
 
         if gs.cur_state in assets.MUSIC_PATHS:
@@ -189,6 +168,7 @@ class GameEngine:
         if target_music_path and self.current_music_path != target_music_path:
             pygame.mixer.music.stop()
             pygame.mixer.music.load(target_music_path)
+            pygame.mixer.music.set_volume(self.gs.music_volume)
             pygame.mixer.music.play(loop)
             self.current_music_path = target_music_path
         elif not target_music_path and self.current_music_path is not None:
@@ -207,6 +187,9 @@ class GameEngine:
             self.screen.fill(BLACK)
 
             self.play_music(self.gs)
+
+            # get all events from queue for handling
+            events = pygame.event.get()
 
             match self.gs.cur_state:
 
@@ -228,9 +211,7 @@ class GameEngine:
                 case GameState.GameStateName.MENU_SCREEN:
                     self.ui.draw_start_screen()
                     pygame.mouse.set_visible(True)
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            self.clean_shutdown()
+                    for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.start_button_rect.collidepoint(event.pos):
                                 self.reset_game()
@@ -253,13 +234,11 @@ class GameEngine:
                 case GameState.GameStateName.HOW_TO_PLAY:
                     self.ui.draw_how_to_play_screen()
                     pygame.mouse.set_visible(True)
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            self.clean_shutdown()
+                    for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if hasattr(self.ui,
                                        'back_button_rect') and self.ui.back_button_rect.collidepoint(
-                                event.pos):
+                                    event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
@@ -268,9 +247,7 @@ class GameEngine:
                 case GameState.GameStateName.CREDITS:
                     self.ui.draw_credits_screen()
                     pygame.mouse.set_visible(True)
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            self.clean_shutdown()
+                    for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
@@ -281,9 +258,7 @@ class GameEngine:
                 case GameState.GameStateName.LEADERBOARD:
                     self.ui.draw_leaderboard_screen(self.lb)
                     pygame.mouse.set_visible(True)
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            self.clean_shutdown()
+                    for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
@@ -294,12 +269,11 @@ class GameEngine:
                 case GameState.GameStateName.SETTINGS:
                     self.ui.draw_settings_screen(self.gs.bg_sounds)
                     pygame.mouse.set_visible(True)
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:  # Add this line
-                            self.clean_shutdown()
+                    for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.volume_button_rect.collidepoint(event.pos):
                                 self.gs.bg_sounds = not self.gs.bg_sounds
+                                self.gs.music_volume = MUSIC_VOLUME_INITIAL if self.gs.bg_sounds else 0.0
                             if self.ui.back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
@@ -430,7 +404,7 @@ class GameEngine:
             # event handling
             ##############################################################
 
-            for event in pygame.event.get():
+            for event in events:
                 if event.type == pygame.QUIT:
                     self.clean_shutdown()
 
@@ -503,6 +477,29 @@ class GameEngine:
                                     self.gs.motion_model = MotionModels.VECTOR_1
                                 case MotionModels.VECTOR_1:
                                     self.gs.motion_model = MotionModels.SIMPLE_1
+
+                    # detect the CTRL+'=' and CTRL+'-' key combos to adjust music volume
+                    if event.key == pygame.K_EQUALS:
+                        if event.mod & pygame.KMOD_CTRL:
+                            self.gs.bg_sounds = True
+                            self.gs.music_volume += MUSIC_VOLUME_STEP
+                            self.gs.music_volume = min(self.gs.music_volume, 1.0)
+                            pygame.mixer.music.set_volume(self.gs.music_volume)
+
+                    # detect the CTRL+'+' and CTRL+'-' key combos to adjust music volume
+                    if event.key == pygame.K_MINUS:
+                        if event.mod & pygame.KMOD_CTRL:
+                            self.gs.music_volume -= MUSIC_VOLUME_STEP
+                            self.gs.music_volume = max(self.gs.music_volume, 0.0)
+                            if self.gs.music_volume < 0.01:
+                                self.gs.bg_sounds = False
+                            pygame.mixer.music.set_volume(self.gs.music_volume)
+
+                    # detect the CTRL+l to force-load next level in sequence
+                    if event.key == pygame.K_l:
+                        if event.mod & pygame.KMOD_CTRL:
+                            self.ps.level += 1
+                            self.next_level()
 
                     # handle initials textbox input
                     if self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE:

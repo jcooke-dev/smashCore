@@ -22,17 +22,20 @@ One especially helpful feature is **AutoPlay** (enabled with **CTRL+a**).  With 
 ### Key Combinations
 This is a list of all parameters that can be toggled/adjusted in game, along with their key combinations.
 
-| Key Combo            | Action                                                                |
-|----------------------|-----------------------------------------------------------------------|
-| **CTRL + d**         | Toggle the Developer Overlay On/Off                                   |
-| **CTRL + a**         | Toggle AutoPlay On/Off                                                |
-| **CTRL + p**         | Increase the Paddle Impulse (vertical push against the ball)          |
-| **CTRL + SHIFT + p** | Decrease the Paddle Impulse (vertical push against the ball)          |
-| **CTRL + g**         | Increase the Gravity                                                  |
-| **CTRL + SHIFT + g** | Decrease the Gravity                                                  |
-| **CTRL + s**         | Increase the Speed Step (speed added to ball after breaking bricks)   |
-| **CTRL + SHIFT + s** | Decrease the Speed Step (speed added to ball after breaking bricks)   |
-| **CTRL + m**         | Cycles through motion calculation models (only SIMPLE_1 and VECTOR_1) |
+| Key Combo            | Action                                                                  |
+|----------------------|-------------------------------------------------------------------------|
+| **CTRL + d**         | Toggle the Developer Overlay On/Off                                     |
+| **CTRL + a**         | Toggle AutoPlay On/Off                                                  |
+| **CTRL + p**         | Increase the Paddle Impulse (vertical push against the ball)            |
+| **CTRL + SHIFT + p** | Decrease the Paddle Impulse (vertical push against the ball)            |
+| **CTRL + g**         | Increase the Gravity                                                    |
+| **CTRL + SHIFT + g** | Decrease the Gravity                                                    |
+| **CTRL + s**         | Increase the Speed Step (speed added to ball after breaking bricks)     |
+| **CTRL + SHIFT + s** | Decrease the Speed Step (speed added to ball after breaking bricks)     |
+| **CTRL + m**         | Cycles through motion calculation models (only SIMPLE_1 and VECTOR_1)   |
+| **CTRL + =**         | (the '+' key) Increase the overall volume                               |
+| **CTRL + -**         | Decrease the overall volume                                             |
+| **CTRL + l**         | Cycles through all available levels (can use to force load a new level) |
 
 
 ## Development Environment
