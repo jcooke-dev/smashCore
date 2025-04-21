@@ -14,10 +14,13 @@ import constants
 from unittest import mock
 from gameengine import GameEngine
 from gamestate import GameState
+import src
+from src.levels import Levels
 from playerstate import PlayerState
 from leaderboard import Leaderboard
 from brick import Brick
 from obstacle import Obstacle
+from ball import Ball
 
 
 @pytest.fixture
@@ -54,7 +57,7 @@ def mock_pygame():
 
 @pytest.fixture
 def mock_gameworld():
-    class GameWorld:
+    class GameWorld():
         def __init__(self):
             self.world_objects = []
     return GameWorld()
@@ -131,3 +134,41 @@ def test_remove_obstacles(mock_obstacle_rect, mock_brick_rect, starting_ge):
     assert brick_1 in ge.gw.world_objects
     assert brick_2 in ge.gw.world_objects
     assert brick_3 in ge.gw.world_objects
+
+
+@mock.patch("src.ball.pygame.image")
+@mock.patch("src.ball.pygame.Rect")
+@mock.patch("src.ball.Ball", spec=src.ball.Ball)
+def test_next_level(mock_ball, mock_rect, mock_image, starting_ge):
+    ge, mock_pygame = starting_ge
+    mock_ball.v_vel_unit = 1
+    ge.gw.world_objects = [mock_ball]
+
+    # Set initial player state and level
+    ge.ps.level = 1
+
+    # Mock Levels module methods
+    Levels.get_level_name_from_num = mock.MagicMock(return_value="Level_2")
+    Levels.build_level = mock.MagicMock()
+
+    # Call next_level
+    ge.next_level()
+
+    # Ensure obstacles are removed
+    #ge.gw.world_objects = [obj for obj in ge.gw.world_objects if not isinstance(obj, Ball)]
+
+    # Ball reset position and speed assertions
+    mock_ball.reset_position.assert_called_once()
+    expected_ball_speed_v = constants.BALL_SPEED_VECTOR + (ge.ps.level * constants.BALL_SPEED_LEVEL_INCREMENT)
+    assert mock_ball.speed_v == expected_ball_speed_v
+    assert ge.gs.ball_speed_increased_ratio == expected_ball_speed_v / constants.BALL_SPEED_VECTOR
+    assert mock_ball.speed == constants.BALL_SPEED_SIMPLE + (ge.ps.level * constants.BALL_SPEED_LEVEL_INCREMENT)
+
+    # Ensure the level is built
+    Levels.get_level_name_from_num.assert_called_once_with(ge.ps.level)
+    Levels.build_level.assert_called()
+
+    # Ensure FPS is reset and game state is ready to launch
+    assert ge.fps == constants.INITIAL_FPS_SIMPLE
+    assert ge.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH
+
