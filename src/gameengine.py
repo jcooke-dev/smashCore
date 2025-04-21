@@ -176,7 +176,9 @@ class GameEngine:
 
         if gs.cur_state in assets.MUSIC_PATHS:
             target_music_path = assets.MUSIC_PATHS[gs.cur_state]
-            if gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE:
+            if ((gs.cur_state == GameState.GameStateName.SPLASH) or
+                (gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE) or
+                (gs.cur_state == GameState.GameStateName.GAME_OVER)):
                 loop = 0  # Play only once
 
         if target_music_path and self.current_music_path != target_music_path:
@@ -191,7 +193,7 @@ class GameEngine:
     def run_loop(self) -> None:
         """
         Runs the main game loop
-        
+
         :return:
         """
 
@@ -273,7 +275,7 @@ class GameEngine:
                     self.ui.draw_leaderboard_screen(self.lb)
                     pygame.mouse.set_visible(True)
                     for event in pygame.event.get():
-                        if event.type == pygame.QUIT:  # Add this line
+                        if event.type == pygame.QUIT:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.back_button_rect.collidepoint(event.pos):
