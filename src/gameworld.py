@@ -12,11 +12,11 @@
 
 import constants
 import assets
-from src.brick import Brick
+from brick import Brick
 from obstacle import Obstacle
-from src.ball import Ball
-from src.paddle import Paddle
-from src.levels import Levels
+from ball import Ball
+from paddle import Paddle
+from levels import Levels
 from worldobject import WorldObject
 
 

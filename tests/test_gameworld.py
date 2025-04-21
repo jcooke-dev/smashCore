@@ -10,9 +10,9 @@
 """
 
 from gameworld import GameWorld
-from src.ball import Ball
-from src.paddle import Paddle
-from src.brick import Brick
+from ball import Ball
+from paddle import Paddle
+from brick import Brick
 
 
 def test_gameworld_init():
