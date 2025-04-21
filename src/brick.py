@@ -11,9 +11,10 @@
 
 import pygame
 import constants
-from worldobject import WorldObject
+from src import assets
+from src.worldobject import WorldObject
 
-class Brick(WorldObject):
+class Brick(WorldObject, pygame.sprite.Sprite):
     """
     Brick to be lined up in rows and columns for the board
     They disappear when hit
@@ -31,6 +32,7 @@ class Brick(WorldObject):
         :param value: The score value of the brick.
         """
         super().__init__()
+        pygame.sprite.Sprite.__init__(self)
 
         self.rect: pygame.rect = pygame.Rect(rect)
         self.color: pygame.color = color
@@ -80,3 +82,21 @@ class Brick(WorldObject):
         :return: bool indicating whether Brick should be removed
         """
         return self.strength <= 0
+
+    def destruction(self, object_list):
+
+            object_list.remove(self)
+
+    def animate(self, screen):
+        if self.image is None:
+            self.rect.inflate_ip(self.rect.width * 0.5,
+                             self.rect.height * 0.5)
+            pygame.draw.rect(screen, self.color, self.rect)
+            pygame.display.update(self.rect)
+
+        else:
+            for i in range(0, len(assets.BRICK_ANIMATION)):
+                screen.blit(pygame.transform.scale(assets.BRICK_ANIMATION[int(i)],
+                                                   (self.rect.width * 1.0, self.rect.height * 1.0)), self.rect)
+                pygame.display.update(self)
+                i += .1
