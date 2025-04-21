@@ -18,10 +18,10 @@ from src.ball import Ball
 from src.brick import Brick
 from src.paddle import Paddle
 from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
-    PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
-    BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
-    PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
-    BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
+                           PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+                           BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+                           PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+                           BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX)
 
 from src.levels import Levels
 from src.gameworld import GameWorld
@@ -171,7 +171,12 @@ class GameEngine:
         
         :return:
         """
-        target_music_path: str = None
+        if not self.gs.bg_sounds:
+            pygame.mixer.music.stop()
+            self.current_music_path = None
+            return
+
+        target_music_path = None
         loop: int = -1  # Default to loop infinitely
 
         if gs.cur_state in assets.MUSIC_PATHS:
@@ -232,6 +237,8 @@ class GameEngine:
                                 self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
                             elif self.ui.credits_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.CREDITS
+                            elif self.ui.settings_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameState.GameStateName.SETTINGS
                             elif self.ui.leader_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.LEADERBOARD
                             elif self.ui.how_to_play_button_rect and self.ui.how_to_play_button_rect.collidepoint(
@@ -252,7 +259,7 @@ class GameEngine:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if hasattr(self.ui,
                                        'back_button_rect') and self.ui.back_button_rect.collidepoint(
-                                    event.pos):
+                                event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
@@ -278,6 +285,21 @@ class GameEngine:
                         if event.type == pygame.QUIT:
                             self.clean_shutdown()
                         if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.back_button_rect.collidepoint(event.pos):
+                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
+                ##############################################################
+                # display settings screen
+                ##############################################################
+                case GameState.GameStateName.SETTINGS:
+                    self.ui.draw_settings_screen(self.gs.bg_sounds)
+                    pygame.mouse.set_visible(True)
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:  # Add this line
+                            self.clean_shutdown()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.volume_button_rect.collidepoint(event.pos):
+                                self.gs.bg_sounds = not self.gs.bg_sounds
                             if self.ui.back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
