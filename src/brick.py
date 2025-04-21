@@ -11,8 +11,8 @@
 
 import pygame
 import constants
-from src import assets
-from src.worldobject import WorldObject
+import assets
+from worldobject import WorldObject
 
 class Brick(WorldObject, pygame.sprite.Sprite):
     """
