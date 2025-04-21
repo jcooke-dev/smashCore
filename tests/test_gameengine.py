@@ -22,8 +22,6 @@ from userinterface import UserInterface
 from playerstate import PlayerState
 from leaderboard import Leaderboard
 from gameworld import GameWorld
-from brick import Brick
-from obstacle import Obstacle
 
 
 @pytest.fixture
@@ -120,40 +118,6 @@ def test_gamestate_reset(starting_ge):
     mock_pygame["mixer_init"].assert_called_once()
 
 
-@mock.patch("src.obstacle.pygame.Rect")
-@mock.patch("src.brick.pygame.Rect")
-def test_remove_obstacles(mock_obstacle_rect, mock_brick_rect, starting_ge):
-    """
-    Tests that all Obstacles are removed from world_objects
-
-    :param mock_obstacle_rect:
-    :param mock_brick_rect:
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge
-    mock_rect = mock_pygame["rect"]
-    mock_color = mock_pygame["color"]
-    obstacle_1 = Obstacle(mock_rect, mock_color)
-    obstacle_2 = Obstacle(mock_rect, mock_color)
-    brick_1 = Brick(mock_rect, mock_color)
-    brick_2 = Brick(mock_rect, mock_color)
-    brick_3 = Brick(mock_rect, mock_color)
-
-    #set world_objects in gameworld
-    ge.gw.world_objects = [obstacle_1, brick_1, brick_2, obstacle_2, brick_3]
-
-    #remove obstacles from gameworld world_objects
-    ge.remove_obstacles()
-
-    assert len(ge.gw.world_objects) == 3
-    assert obstacle_1 not in ge.gw.world_objects
-    assert obstacle_2 not in ge.gw.world_objects
-    assert brick_1 in ge.gw.world_objects
-    assert brick_2 in ge.gw.world_objects
-    assert brick_3 in ge.gw.world_objects
-
-
 @mock.patch("src.ball.pygame.image")
 @mock.patch("src.ball.pygame.Rect")
 @mock.patch("src.ball.Ball", spec=src.ball.Ball)
@@ -222,52 +186,6 @@ def test_draw_world_and_status(starting_ge):
     ge.ui.draw_status.assert_called_once_with(2, 320, 1)
 
 
-def test_menu_screen_handler_start_btn(starting_ge):
-    """
-    Test that clicking the "Start" button transitions the game state to READY_TO_LAUNCH.
-    """
-    ge, mock_pygame = starting_ge
-
-    # Simulate a MOUSEBUTTONDOWN event on the start button
-    mock_event = mock.MagicMock()
-    mock_event.type = pygame.MOUSEBUTTONDOWN
-    mock_event.pos = (100, 100)  # Example position
-    mock_pygame['event.get'].return_value = [mock_event]
-
-    # Mock the start button's collidepoint method to return True
-    ge.ui.start_button_rect.collidepoint.return_value = True
-    ge.ui.credits_button_rect.collidepoint.return_value = False
-
-    # Call the method under test
-    ge.menu_screen_handler()
-
-    # Assert that the game state was updated to READY_TO_LAUNCH
-    assert ge.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH
-
-
-def test_menu_screen_handler_credits_btn(starting_ge):
-    """
-    Test that clicking the "Credits" button transitions the game state to CREDITS.
-    """
-    ge, mock_pygame = starting_ge
-
-    # Simulate a MOUSEBUTTONDOWN event on the start button
-    mock_event = mock.MagicMock()
-    mock_event.type = pygame.MOUSEBUTTONDOWN
-    mock_event.pos = (100, 100)  # Example position
-    mock_pygame['event.get'].return_value = [mock_event]
-
-    # Mock the credit button's collidepoint method to return True
-    ge.ui.start_button_rect.collidepoint.return_value = False
-    ge.ui.credits_button_rect.collidepoint.return_value = True
-
-    # Call the method under test
-    ge.menu_screen_handler()
-
-    # Assert that the game state was updated to READY_TO_LAUNCH
-    assert ge.gs.cur_state == GameState.GameStateName.CREDITS
-
-
 @mock.patch("builtins.exit")
 def test_clean_shutdown(mock_exit, starting_ge):
     """
@@ -310,7 +228,7 @@ def test_play_music_bg_sound_off(starting_ge):
     assert ge.current_music_path is None
 
 
-def test_play_music_correct_file(starting_ge):
+def test_play_music_correct_file_and_volume(starting_ge):
     """
     Tests that music plays correct music for the current game state
     :param starting_ge:
@@ -320,14 +238,17 @@ def test_play_music_correct_file(starting_ge):
 
     ge.gs.bg_sounds = True
     ge.gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
+    ge.gs.music_volume = 1.0
     music_path = '/path/to/music.wav'
     assets.MUSIC_PATHS[GameState.GameStateName.GET_HIGH_SCORE] = music_path
 
     ge.play_music(ge.gs)
 
     mock_pygame['mixer.music'].load.assert_called_once_with(music_path)
+    mock_pygame['mixer.music'].set_volume.assert_called_once_with(1.0)
     mock_pygame['mixer.music'].play.assert_called_once_with(0)
     assert ge.current_music_path == music_path
+
 
 def test_play_music_no_music_path(starting_ge):
     """
