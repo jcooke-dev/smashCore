@@ -30,6 +30,7 @@ class GameState:
         LEADERBOARD: Enum = auto()
         GET_HIGH_SCORE: Enum = auto()
         HOW_TO_PLAY: Enum = auto()
+        SETTINGS: Enum = auto()
 
 
     def __init__(self) -> None:
@@ -48,3 +49,10 @@ class GameState:
         self.v_gravity_acc: pygame.Vector2 = self.v_gravity_unit * self.gravity_acc_length
         self.paddle_impulse_vel_length: float = constants.PADDLE_IMPULSE
         self.ball_speed_step: float = constants.BALL_SPEED_STEP
+        self.ball_speed_increased_ratio: float = 1.0 # used to adjust the key-control paddle speed according to ball speed
+        self.last_mouse_pos_x: int = 0
+        self.paddle_under_mouse_control: bool = False
+        self.paddle_under_key_control_left: bool = False
+        self.paddle_under_key_control_right: bool = False
+        self.paddle_pos_x: int = 0 # used at READY_TO_LAUNCH to keep ball on paddle
+        self.bg_sounds: bool = True

@@ -22,23 +22,30 @@ class Leaderboard:
 
     @classmethod
     def create_persisted_object(cls):
-        lb = cls.load(persistence.LEADERBOARD_FILE_PATH)
+        lb = cls.load(persistence.LEADERBOARD_FILENAME)
         if lb is None:
             lb = Leaderboard()
         return lb
 
     @classmethod
-    def load(cls, path: str):
-        return persistence.read_object(path)
+    def load(cls, filename: str):
+        return persistence.read_object(filename)
 
-    def store(self, path: str):
-        persistence.store_object(self, path)
+    def store(self, filename: str):
+        persistence.store_object(self, filename)
 
     def is_high_score(self, score: int) -> bool:
-        return (score >= min(scr.score for scr in self.l_top_scores)) if len(self.l_top_scores) >= constants.LEADERBOARD_SIZE else True
+        return (score > min(scr.score for scr in self.l_top_scores)) if len(self.l_top_scores) >= constants.LEADERBOARD_SIZE else True
 
     def add_score(self, ps, ui):
-
+        """
+        Called after it is determined player has achieved a high score.
+        Adds player's high score to the leaderboard
+        If leaderboard is full, bumps a player off and resorts.
+        :param ps: PlayerState
+        :param ui: UserInterface
+        :return:
+        """
         score = Score(ps.score, ps.level, ui.tb_initials_text)
 
         if len(self.l_top_scores) < constants.LEADERBOARD_SIZE:

@@ -17,24 +17,30 @@ import constants
 
 
 @pytest.fixture
-@mock.patch("src.userinterface.pygame.transform.scale")
-def ui(mock_scaled_image):
+def ui():
     """
     Set up UserInterface with mocked up members for screen and font_buttons
     :return:
     """
+    pygame.init()
     pygame.font.init()
-    ui = UserInterface()
-    ui.screen = mock.Mock()
-    ui.surface = mock.Mock()
 
-    mock_font_button = mock.Mock()
-    mock_rendered_text = mock.Mock()
-    mock_font_button.render.return_value = mock_rendered_text
+    with mock.patch(
+        "src.userinterface.pygame.transform.scale") as mock_scaled_image:
+        ui = UserInterface()
+        ui.screen = mock.Mock()
+        ui.surface = mock.Mock()
 
-    ui.font_buttons = mock_font_button
-    return ui
+        mock_font_button = mock.Mock()
+        mock_font_status = mock.Mock()
+        mock_rendered_text = mock.Mock()
+        mock_font_button.render.return_value = mock_rendered_text
+        mock_font_status.render.return_value = mock_rendered_text
 
+        ui.font_buttons = mock_font_button
+        ui.font_status = mock_font_status
+        yield ui
+    pygame.quit()
 
 @mock.patch("pygame.draw.rect")
 def test_draw_pause_menu(mock_rect, ui):
@@ -50,13 +56,17 @@ def test_draw_pause_menu(mock_rect, ui):
     :param ui:
     :return:
     """
-    ui.font_game_over = mock.Mock()
+    ui.font_title1_text = mock.Mock()
+    ui.font_title2_text = mock.Mock()
 
     ui.draw_pause_menu()
-    called_args_game_over = ui.font_game_over.render.call_args
+    called_args_title1 = ui.font_title1_text.render.call_args
+    called_args_title2 = ui.font_title2_text.render.call_args
 
-    if called_args_game_over:
-        assert called_args_game_over[0][0] == "Game Paused: ESC to Resume"
+    if called_args_title1:
+        assert called_args_title1[0][0] == "Game Paused:"
+    if called_args_title2:
+        assert called_args_title2[0][0] == "Press ESC to Resume"
 
     ui.font_buttons.render.assert_any_call("Restart", mock.ANY, mock.ANY)
     ui.font_buttons.render.assert_any_call("Main Menu", mock.ANY, mock.ANY)
@@ -64,7 +74,6 @@ def test_draw_pause_menu(mock_rect, ui):
     assert ui.surface.blit.called
     assert ui.screen.blit.called
     assert mock_rect.call_count == 4  #rect for buttons and text
-    pass
 
 
 def test_game_intro(ui):
@@ -93,13 +102,13 @@ def test_draw_status(mock_circle, ui):
     # draw_status expects font_buttons to have a width for status spacing
     mock_rendered_btn = mock.Mock()
     mock_rendered_btn.get_width.return_value = 50
-    ui.font_buttons.render.return_value = mock_rendered_btn
+    ui.font_status.render.return_value = mock_rendered_btn
 
-    ui.draw_status(3, "99", "1")
+    ui.draw_status(3, 99, 1)
 
-    ui.font_buttons.render.assert_any_call("Lives:", True, constants.WHITE)
-    ui.font_buttons.render.assert_any_call("Level: 1", True, constants.WHITE)
-    ui.font_buttons.render.assert_any_call("Score: 99", True, constants.WHITE)
+    ui.font_status.render.assert_any_call("Lives:", True, constants.WHITE)
+    ui.font_status.render.assert_any_call("Level: 1", True, constants.WHITE)
+    ui.font_status.render.assert_any_call("Score: 99", True, constants.WHITE)
 
     assert ui.screen.blit.called
     assert mock_circle.call_count == 3

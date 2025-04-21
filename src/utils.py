@@ -32,5 +32,3 @@ def calculate_timing_averages(fps: float, loop_time: float) -> tuple:
     fps_q.appendleft(fps)
     loop_time_q.appendleft(loop_time)
     return statistics.mean(fps_q), statistics.mean(loop_time_q)
-
-
