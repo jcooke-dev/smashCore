@@ -12,6 +12,8 @@
 
 import constants
 import assets
+from src.brick import Brick
+from obstacle import Obstacle
 from src.ball import Ball
 from src.paddle import Paddle
 from src.levels import Levels
@@ -40,3 +42,24 @@ class GameWorld:
 
         # set up the initial bricks level
         Levels.build_level(self.world_objects, Levels.LevelName.SMASHCORE_1 if level_name is None else level_name)
+
+    def remove_obstacles(self) -> None:
+        """
+        Removes any obstacles from the list of world_objects
+
+        :return:
+        """
+        wo_to_keep = [wo for wo in self.world_objects if
+                      not isinstance(wo, Obstacle)]
+        self.world_objects = wo_to_keep
+
+    def remove_bricks(self) -> None:
+        """
+        Removes any remaining bricks from the list of world_objects (used mostly
+            when forcing a new level load)
+
+        :return:
+        """
+        wo_to_keep = [wo for wo in self.world_objects if
+                      not isinstance(wo, Brick)]
+        self.world_objects = wo_to_keep
