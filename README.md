@@ -64,6 +64,7 @@ Configure PyCharm for pytest
 Download the full source code directory structure from GitHub: https://github.com/jcooke-dev/smashCore
 After installing PyInstaller, in your working Python IDE's terminal window (ensuring the Python scripts are available), execute the OS-specific build script for your current OS in the project root directory:
 * bundle_mac.sh
+* bundle_linux.sh
 * bundle_windows.ps1
 
 This will generate the single executable file for your OS and can be found in the ./dist/ sub-directory.
