@@ -16,6 +16,12 @@ from gamestate import GameState
 
 
 def asset_path(directory, filename):
+    """
+    Handles creating paths to assets depending on how application is run (from installation or from pycharm)
+    :param directory:
+    :param filename:
+    :return:
+    """
     try:
         # PyInstaller creates a temp directory inside the onefile executable
         base_path = sys._MEIPASS
