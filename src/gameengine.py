@@ -9,6 +9,7 @@
     Module Description: This brings together the various modules that make up the game (GameWorld,
                         GameState, UI, etc.) and runs the main game loop.
 """
+from sys import exit
 import pygame
 
 import utils
