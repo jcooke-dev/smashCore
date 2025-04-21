@@ -91,7 +91,6 @@ def test_draw_wo_with_image(mock_surface, mock_image):
     pygame.init()
     rect = pygame.Rect(0, 0, 100, 50)
     brick_with_image = Brick(rect = rect, color = WHITE, value = 1, image = mock_image)
-    print(brick_with_image.value)
     brick_with_image.draw_wo(mock_surface)
     pygame.quit()
 

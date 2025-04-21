@@ -22,17 +22,20 @@ One especially helpful feature is **AutoPlay** (enabled with **CTRL+a**).  With 
 ### Key Combinations
 This is a list of all parameters that can be toggled/adjusted in game, along with their key combinations.
 
-| Key Combo            | Action                                                                |
-|----------------------|-----------------------------------------------------------------------|
-| **CTRL + d**         | Toggle the Developer Overlay On/Off                                   |
-| **CTRL + a**         | Toggle AutoPlay On/Off                                                |
-| **CTRL + p**         | Increase the Paddle Impulse (vertical push against the ball)          |
-| **CTRL + SHIFT + p** | Decrease the Paddle Impulse (vertical push against the ball)          |
-| **CTRL + g**         | Increase the Gravity                                                  |
-| **CTRL + SHIFT + g** | Decrease the Gravity                                                  |
-| **CTRL + s**         | Increase the Speed Step (speed added to ball after breaking bricks)   |
-| **CTRL + SHIFT + s** | Decrease the Speed Step (speed added to ball after breaking bricks)   |
-| **CTRL + m**         | Cycles through motion calculation models (only SIMPLE_1 and VECTOR_1) |
+| Key Combo            | Action                                                                  |
+|----------------------|-------------------------------------------------------------------------|
+| **CTRL + d**         | Toggle the Developer Overlay On/Off                                     |
+| **CTRL + a**         | Toggle AutoPlay On/Off                                                  |
+| **CTRL + p**         | Increase the Paddle Impulse (vertical push against the ball)            |
+| **CTRL + SHIFT + p** | Decrease the Paddle Impulse (vertical push against the ball)            |
+| **CTRL + g**         | Increase the Gravity                                                    |
+| **CTRL + SHIFT + g** | Decrease the Gravity                                                    |
+| **CTRL + s**         | Increase the Speed Step (speed added to ball after breaking bricks)     |
+| **CTRL + SHIFT + s** | Decrease the Speed Step (speed added to ball after breaking bricks)     |
+| **CTRL + m**         | Cycles through motion calculation models (only SIMPLE_1 and VECTOR_1)   |
+| **CTRL + =**         | (the '+' key) Increase the overall volume                               |
+| **CTRL + -**         | Decrease the overall volume                                             |
+| **CTRL + l**         | Cycles through all available levels (can use to force load a new level) |
 
 
 ## Development Environment
@@ -44,8 +47,8 @@ We're developing SmashCore in Python, intending to target releases to Windows, m
 * **pylint 3.3.6** - a static code analyzer (https://pypi.org/project/pylint/)
 * **pydoc** - an automatic documentation generator (https://docs.python.org/3/library/pydoc.html)
 * **bandit 1.8.3** - tool to scan all Python source files and generate a security report (https://pypi.org/project/bandit/)
+* **pickle** - library to support Python object serialization (https://docs.python.org/3/library/pickle.html)
 * **PyInstaller 6.12.0** - a tool that helps package and distribute a Python application for desktop execution (https://pyinstaller.org/)
-* **Nuitka 2.6.6** - compiles Python source files, data, and all dependencies into a single executable for simpler distribution (https://nuitka.net/)
 * **pygbag 0.9.2** - tool that packages Python/pygame applications for running in a web browser (https://pypi.org/project/pygbag/)
 
 ## Configuration/Setup Instructions for Specific Libraries and Tools
@@ -59,6 +62,15 @@ Configure PyCharm for pytest
 * Save
 * In the project panel, right click on src. Mark Directory As: Sources Root
 * Do the same for tests but mark it Test Sources Root
+
+## Building the Source Code for Distribution
+Download the full source code directory structure from GitHub: https://github.com/jcooke-dev/smashCore
+After installing PyInstaller, in your working Python IDE's terminal window (ensuring the Python scripts are available), execute the OS-specific build script for your current OS in the project root directory:
+* bundle_mac.sh
+* bundle_linux.sh
+* bundle_windows.ps1
+
+This will generate the single executable file for your OS and can be found in the ./dist/ sub-directory.
 
 ## GitHub for Issue Tracking, Code Review, and Version and Change Control
 We've created a public GitHub site to serve as our project's git repository:  

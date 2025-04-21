@@ -24,7 +24,9 @@ from leaderboard import Leaderboard
 @pytest.fixture
 def ball():
     pygame.init()
-    return Ball(x=10, y=10)
+    ball = Ball(x=10, y=10)
+    yield ball
+    pygame.quit()
 
 
 @pytest.fixture

@@ -10,9 +10,25 @@
 """
 
 import os
+import sys
 import pygame
-
 from gamestate import GameState
+
+
+def asset_path(directory, filename):
+    """
+    Handles creating paths to assets depending on how application is run (from installation or from pycharm)
+    :param directory:
+    :param filename:
+    :return:
+    """
+    try:
+        # PyInstaller creates a temp directory inside the onefile executable
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, directory, filename)
+
 
 ART_DIR: str = 'assets/art/'
 SOUND_DIR: str = 'assets/sound/'
@@ -90,55 +106,55 @@ def load_assets():
     global ANIMATE_BRICK_12_IMG, ANIMATE_BRICK_13_IMG, ANIMATE_BRICK_14_IMG, ANIMATE_BRICK_15_IMG, ANIMATE_BRICK_16_IMG
     global MUSIC_PATHS
 
-    BACKGROUND_IMG = pygame.image.load(os.path.join(ART_DIR, BACKGROUND_FILENAME))
-    BRK_YELLOW_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_YELLOW_FILENAME))
-    BRK_BLUE_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_BLUE_FILENAME))
-    BRK_GREEN_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_GREEN_FILENAME))
-    BRK_RED_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_RED_FILENAME))
-    BRK_PINK_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_PINK_FILENAME))
-    BRK_ORANGE_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_ORANGE_FILENAME))
-    BRK_LTBLUE_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_LTBLUE_FILENAME))
-    BRK_PURPLE_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_PURPLE_FILENAME))
-    BRK_TEAL_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_TEAL_FILENAME))
-    BRK_LAVENDER_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_LAVENDER_FILENAME))
-    BRK_GOLD_IMG = pygame.image.load(os.path.join(ART_DIR, BRK_GOLD_FILENAME))  # do not put in array of BRICK_COLORS
-    BALL_IMG = pygame.image.load(os.path.join(ART_DIR, BALL_FILENAME))
-    PADDLE_IMG = pygame.image.load(os.path.join(ART_DIR, PADDLE_FILENAME))
+    BACKGROUND_IMG = pygame.image.load(asset_path(ART_DIR, BACKGROUND_FILENAME))
+    BRK_YELLOW_IMG = pygame.image.load(asset_path(ART_DIR, BRK_YELLOW_FILENAME))
+    BRK_BLUE_IMG = pygame.image.load(asset_path(ART_DIR, BRK_BLUE_FILENAME))
+    BRK_GREEN_IMG = pygame.image.load(asset_path(ART_DIR, BRK_GREEN_FILENAME))
+    BRK_RED_IMG = pygame.image.load(asset_path(ART_DIR, BRK_RED_FILENAME))
+    BRK_PINK_IMG = pygame.image.load(asset_path(ART_DIR, BRK_PINK_FILENAME))
+    BRK_ORANGE_IMG = pygame.image.load(asset_path(ART_DIR, BRK_ORANGE_FILENAME))
+    BRK_LTBLUE_IMG = pygame.image.load(asset_path(ART_DIR, BRK_LTBLUE_FILENAME))
+    BRK_PURPLE_IMG = pygame.image.load(asset_path(ART_DIR, BRK_PURPLE_FILENAME))
+    BRK_TEAL_IMG = pygame.image.load(asset_path(ART_DIR, BRK_TEAL_FILENAME))
+    BRK_LAVENDER_IMG = pygame.image.load(asset_path(ART_DIR, BRK_LAVENDER_FILENAME))
+    BRK_GOLD_IMG = pygame.image.load(asset_path(ART_DIR, BRK_GOLD_FILENAME))  # do not put in array of BRICK_COLORS
+    BALL_IMG = pygame.image.load(asset_path(ART_DIR, BALL_FILENAME))
+    PADDLE_IMG = pygame.image.load(asset_path(ART_DIR, PADDLE_FILENAME))
 
-    ANIMATE_BRICK_0_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_0_FILENAME))
-    ANIMATE_BRICK_1_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_1_FILENAME))
-    ANIMATE_BRICK_2_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_2_FILENAME))
-    ANIMATE_BRICK_3_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_3_FILENAME))
-    ANIMATE_BRICK_4_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_4_FILENAME))
-    ANIMATE_BRICK_5_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_5_FILENAME))
-    ANIMATE_BRICK_6_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_6_FILENAME))
-    ANIMATE_BRICK_7_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_7_FILENAME))
-    ANIMATE_BRICK_8_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_8_FILENAME))
-    ANIMATE_BRICK_9_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_9_FILENAME))
-    ANIMATE_BRICK_10_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_10_FILENAME))
-    ANIMATE_BRICK_11_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_11_FILENAME))
-    ANIMATE_BRICK_12_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_12_FILENAME))
-    ANIMATE_BRICK_13_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_13_FILENAME))
-    ANIMATE_BRICK_14_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_14_FILENAME))
-    ANIMATE_BRICK_15_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_15_FILENAME))
-    ANIMATE_BRICK_16_IMG = pygame.image.load(os.path.join(ART_DIR, ANIMATE_BRICK_16_FILENAME))
+    ANIMATE_BRICK_0_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_0_FILENAME))
+    ANIMATE_BRICK_1_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_1_FILENAME))
+    ANIMATE_BRICK_2_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_2_FILENAME))
+    ANIMATE_BRICK_3_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_3_FILENAME))
+    ANIMATE_BRICK_4_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_4_FILENAME))
+    ANIMATE_BRICK_5_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_5_FILENAME))
+    ANIMATE_BRICK_6_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_6_FILENAME))
+    ANIMATE_BRICK_7_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_7_FILENAME))
+    ANIMATE_BRICK_8_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_8_FILENAME))
+    ANIMATE_BRICK_9_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_9_FILENAME))
+    ANIMATE_BRICK_10_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_10_FILENAME))
+    ANIMATE_BRICK_11_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_11_FILENAME))
+    ANIMATE_BRICK_12_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_12_FILENAME))
+    ANIMATE_BRICK_13_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_13_FILENAME))
+    ANIMATE_BRICK_14_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_14_FILENAME))
+    ANIMATE_BRICK_15_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_15_FILENAME))
+    ANIMATE_BRICK_16_IMG = pygame.image.load(asset_path(ART_DIR, ANIMATE_BRICK_16_FILENAME))
 
     BRICK_COLORS = [BRK_YELLOW_IMG, BRK_BLUE_IMG, BRK_GREEN_IMG, BRK_RED_IMG, BRK_PINK_IMG, BRK_ORANGE_IMG,
                     BRK_LTBLUE_IMG, BRK_PURPLE_IMG, BRK_TEAL_IMG, BRK_LAVENDER_IMG]
 
-    BRICK_ANIMATION = [ANIMATE_BRICK_1_IMG, ANIMATE_BRICK_2_IMG, ANIMATE_BRICK_3_IMG, ANIMATE_BRICK_4_IMG,
+    BRICK_ANIMATION = [ANIMATE_BRICK_0_IMG, ANIMATE_BRICK_1_IMG, ANIMATE_BRICK_2_IMG, ANIMATE_BRICK_3_IMG, ANIMATE_BRICK_4_IMG,
                        ANIMATE_BRICK_5_IMG, ANIMATE_BRICK_6_IMG, ANIMATE_BRICK_7_IMG, ANIMATE_BRICK_8_IMG,
                        ANIMATE_BRICK_9_IMG, ANIMATE_BRICK_10_IMG, ANIMATE_BRICK_11_IMG, ANIMATE_BRICK_12_IMG,
                        ANIMATE_BRICK_13_IMG, ANIMATE_BRICK_14_IMG, ANIMATE_BRICK_15_IMG, ANIMATE_BRICK_16_IMG]
 
     # music
-    MUSIC_PATHS[GameState.GameStateName.SPLASH] = os.path.join(SOUND_DIR, SPLASH_MUSIC_FILENAME)
-    MUSIC_PATHS[GameState.GameStateName.MENU_SCREEN] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
-    MUSIC_PATHS[GameState.GameStateName.HOW_TO_PLAY] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
-    MUSIC_PATHS[GameState.GameStateName.SETTINGS] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
-    MUSIC_PATHS[GameState.GameStateName.CREDITS] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
-    MUSIC_PATHS[GameState.GameStateName.LEADERBOARD] = os.path.join(SOUND_DIR, MENU_MUSIC_FILENAME)
-    MUSIC_PATHS[GameState.GameStateName.PLAYING] = os.path.join(SOUND_DIR, GAME_MUSIC_FILENAME)
-    MUSIC_PATHS[GameState.GameStateName.GAME_OVER] = os.path.join(SOUND_DIR, GAME_OVER_MUSIC_FILENAME)
-    MUSIC_PATHS[GameState.GameStateName.GET_HIGH_SCORE] = os.path.join(SOUND_DIR, SCORE_MUSIC_FILENAME)
-    MUSIC_PATHS[GameState.GameStateName.READY_TO_LAUNCH] = os.path.join(SOUND_DIR, GAME_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.SPLASH] = asset_path(SOUND_DIR, SPLASH_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.MENU_SCREEN] = asset_path(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.HOW_TO_PLAY] = asset_path(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.SETTINGS] = asset_path(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.CREDITS] = asset_path(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.LEADERBOARD] = asset_path(SOUND_DIR, MENU_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.PLAYING] = asset_path(SOUND_DIR, GAME_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.GAME_OVER] = asset_path(SOUND_DIR, GAME_OVER_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.GET_HIGH_SCORE] = asset_path(SOUND_DIR, SCORE_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.READY_TO_LAUNCH] = asset_path(SOUND_DIR, GAME_MUSIC_FILENAME)
