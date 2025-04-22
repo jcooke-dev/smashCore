@@ -68,6 +68,11 @@ Configure PyCharm for pytest
 * Save
 * In the project panel, right click on src. Mark Directory As: Sources Root
 * Do the same for tests but mark it Test Sources Root
+
+To view the unit test code coverage, pycov can be used by running the following command to generate HTML output detailing the test coverage:
+
+   ```PYTHONPATH=src pytest --cov=src tests/ --cov-report html```
+
 ### pdoc
 To use pdoc to auto-generate a set of HTML files for navigating the program code:
 * Ensure pdoc (not pdoc3) is installed
@@ -90,7 +95,7 @@ This will generate the single executable file for your OS and can be found in th
 We've created a public GitHub site to serve as our project's git repository:  
 https://github.com/jcooke-dev/smashCore
 
-This GitHub site provides much of the helpful project and code management support that helps us develop SmashCore quickly and with quality, but also transparency among our group members.  We're taking advantage of issue tracking, linked branches, pull requests, integrated code reviews, and controlled merges into our 'main', deployable code base branch.  GitHub 'Project Views' also aid us in visualizing our development load and expected timeline.
+This GitHub site provides much of the helpful project and code management support that helps us develop SmashCore quickly and with quality, but also transparency among our group members.  We're taking advantage of issue tracking, linked branches, pull requests, integrated code reviews, and controlled merges into our 'main', deployable code base branch.  GitHub 'Project Views' also aid us in visualizing our development load and expected timeline. We are also taking advantage of Workflows in GitHub to run unit tests, pylint, and bandit on pull request. This ensures that any pull request merged into the main code branch has been had unit tests, pylint, and bandit run against it. 
 
 ## Source Code Organization
 SmashCore's code base is organized into separate folders for source code (\\src\\), assets (\\src\\assets\\), and tests (\\tests\\). We've ensured the primary abstract objects, as well as logical/functional providers, are broken into separate Python source files or modules.  You can browse our code base here: https://github.com/jcooke-dev/smashCore/tree/main/src
