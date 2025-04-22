@@ -82,7 +82,6 @@ To use pdoc to auto-generate a set of HTML files for navigating the program code
 * The documentation will be generated in the ```.docs``` folder
 
 
-
 ## Building the Source Code for Distribution
 Download the full source code directory structure from GitHub: https://github.com/jcooke-dev/smashCore
 After installing PyInstaller, in your working Python IDE's terminal window (ensuring the Python scripts are available), execute the OS-specific build script for your current OS in the project root directory:
