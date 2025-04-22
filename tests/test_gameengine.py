@@ -202,16 +202,16 @@ def test_clean_shutdown(mock_exit, starting_ge):
     mock_exit.assert_called_once()
 
 
-def test_play_music_bg_sound_off(starting_ge):
+def test_play_music_bgm_sound_off(starting_ge):
     """
-    Tests that when bg_sounds is False, the music is stopped
+    Tests that when bgm_sounds is False, the music is stopped
     :param starting_ge:
     :return:
     """
     ge, mock_pygame = starting_ge
 
     #Set GameState background sounds to False
-    ge.gs.bg_sounds = False
+    ge.gs.bgm_sounds = False
 
     # Play Music
     ge.play_music(ge.gs)
@@ -229,7 +229,7 @@ def test_play_music_correct_file_and_volume(starting_ge):
     """
     ge, mock_pygame = starting_ge
 
-    ge.gs.bg_sounds = True
+    ge.gs.bgm_sounds = True
     ge.gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
     ge.gs.music_volume = 1.0
     music_path = '/path/to/music.wav'
@@ -251,7 +251,7 @@ def test_play_music_no_music_path(starting_ge):
     """
     ge, mock_pygame = starting_ge
 
-    ge.gs.bg_sounds = True
+    ge.gs.bgm_sounds = True
     ge.gs.cur_state = GameState.GameStateName.HOW_TO_PLAY
     ge.current_music_path = "/path/to/current_music.wav"
 
