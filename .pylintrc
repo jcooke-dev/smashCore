@@ -1,0 +1,14 @@
+[MASTER]
+source-roots=src
+
+[DESIGN]
+max-args=10
+
+[FORMAT]
+max-line-length=240
+
+# Maximum number of lines in a module.
+max-module-lines=1000
+
+[refactoring]
+max-positional-arguments = 10
