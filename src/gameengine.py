@@ -268,13 +268,15 @@ class GameEngine:
                 # display settings screen
                 ##############################################################
                 case GameState.GameStateName.SETTINGS:
-                    self.ui.draw_settings_screen(self.gs.bg_sounds)
+                    self.ui.draw_settings_screen(self.gs.bg_sounds, self.gs.sfx_sounds, self.gs.music_volume, self.gs.music_volume)
                     pygame.mouse.set_visible(True)
                     for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.volume_button_rect.collidepoint(event.pos):
+                            if self.ui.volume_bgbutton_rect.collidepoint(event.pos):
                                 self.gs.bg_sounds = not self.gs.bg_sounds
-                                self.gs.music_volume = MUSIC_VOLUME_INITIAL if self.gs.bg_sounds else 0.0
+                                # self.gs.music_volume = MUSIC_VOLUME_INITIAL if self.gs.bg_sounds else 0.0
+                            if self.ui.volume_sfbutton_rect.collidepoint(event.pos):
+                                self.gs.sfx_sounds = not self.gs.sfx_sounds
                             if self.ui.back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
