@@ -23,6 +23,10 @@ from leaderboard import Leaderboard
 
 @pytest.fixture
 def ball():
+    """
+    Create a ball to be used for testing
+    :return:
+    """
     pygame.init()
     ball = Ball(x=10, y=10)
     yield ball
@@ -31,6 +35,10 @@ def ball():
 
 @pytest.fixture
 def paddle():
+    """
+    Create paddle to be used in testing
+    :return:
+    """
     a_paddle = Paddle(WHITE, 100, 50)
     a_paddle.rect = pygame.Rect(90, 90, 10, 10)
     return a_paddle
@@ -38,6 +46,10 @@ def paddle():
 
 @pytest.fixture
 def playerstate():
+    """
+    Set up a playerstate for tests
+    :return:
+    """
     class PlayerState:
         def __init__(self):
             self.lives = 3
@@ -47,6 +59,10 @@ def playerstate():
 
 @pytest.fixture
 def gamestate():
+    """
+    Set up gamestate for tests
+    :return:
+    """
     class GameState:
         class GameStateName(Enum):
             PLAYING: Enum = auto()
@@ -61,15 +77,26 @@ def gamestate():
 
 @pytest.fixture
 def leaderboard():
+    """
+    Setup leaderboard for tests
+    :return:
+    """
     class Leaderboard:
         def __init__(self):
             self.l_top_scores = []
+
         def is_high_score(self, score):
             return False
+
     return Leaderboard()
 
 
 def test_initial_state(ball):
+    """
+    Test initial state of ball on creation
+    :param ball:
+    :return:
+    """
     assert ball.can_react is True
     assert ball.radius == BALL_RADIUS
     assert ball.x == 10 - BALL_RADIUS
@@ -86,6 +113,12 @@ def test_initial_state(ball):
 
 
 def test_update_wo_position_update_simple(ball, gamestate):
+    """
+    Test the ball position is updated based on gamestate
+    :param ball:
+    :param gamestate:
+    :return:
+    """
     gs = gamestate
     gs.motion_model = MotionModels.SIMPLE_1
 
@@ -96,6 +129,12 @@ def test_update_wo_position_update_simple(ball, gamestate):
 
 
 def test_update_wo_wall_collision_left_simple(ball, gamestate):
+    """
+    Test the ball direction on collision from left
+    :param ball:
+    :param gamestate:
+    :return:
+    """
     gs = gamestate
     gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.SIMPLE_1
@@ -109,6 +148,12 @@ def test_update_wo_wall_collision_left_simple(ball, gamestate):
 
 
 def test_update_wo_wall_collision_right_simple(ball, gamestate):
+    """
+    Test ball direction on collision from right
+    :param ball:
+    :param gamestate:
+    :return:
+    """
     gs = gamestate
     gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.SIMPLE_1
@@ -122,6 +167,12 @@ def test_update_wo_wall_collision_right_simple(ball, gamestate):
 
 
 def test_update_wo_wall_collision_top_simple(ball, gamestate):
+    """
+    Test ball direction on collision from top
+    :param ball:
+    :param gamestate:
+    :return:
+    """
     gs = gamestate
     gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.SIMPLE_1
@@ -133,6 +184,12 @@ def test_update_wo_wall_collision_top_simple(ball, gamestate):
 
 
 def test_update_wo_gravity_application_vector(ball, gamestate):
+    """
+    Test ball velocity
+    :param ball:
+    :param gamestate:
+    :return:
+    """
     gs = gamestate
     gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.VECTOR_1
@@ -147,6 +204,12 @@ def test_update_wo_gravity_application_vector(ball, gamestate):
 
 
 def test_update_wo_game_state_ready_to_launch(ball, gamestate):
+    """
+    Test ball position on READY_TO_LAUNCH state
+    :param ball:
+    :param gamestate:
+    :return:
+    """
     gs = gamestate
     gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
 
@@ -156,6 +219,14 @@ def test_update_wo_game_state_ready_to_launch(ball, gamestate):
 
 
 def test_update_wo_game_state_game_over(ball, gamestate, playerstate, leaderboard):
+    """
+    Test game state is GAME_OVER when ball goes below window
+    :param ball:
+    :param gamestate:
+    :param playerstate:
+    :param leaderboard:
+    :return:
+    """
     gs = gamestate
     ps = playerstate
     lb = leaderboard
@@ -168,6 +239,12 @@ def test_update_wo_game_state_game_over(ball, gamestate, playerstate, leaderboar
 
 
 def test_simple_horizontal_collision(ball, gamestate):
+    """
+    Test ball direction for horizontal collision
+    :param ball:
+    :param gamestate:
+    :return:
+    """
     ball.paddle_impulse_vel_length = 0
 
     gs = gamestate
@@ -184,6 +261,12 @@ def test_simple_horizontal_collision(ball, gamestate):
 
 
 def test_simple_vertical_collision(ball, gamestate):
+    """
+    Test ball y position after vertical collision
+    :param ball:
+    :param gamestate:
+    :return:
+    """
     gs = gamestate
     gs.motion_model = MotionModels.SIMPLE_1
     ball.dy = 1  # moving down
@@ -198,6 +281,12 @@ def test_simple_vertical_collision(ball, gamestate):
 
 
 def test_simple_diagonal_collision(ball, gamestate):
+    """
+    Test ball position after diagonal collision
+    :param ball:
+    :param gamestate:
+    :return:
+    """
     gs = gamestate
     gs.motion_model = MotionModels.SIMPLE_1
     ball.dx = 1  # moving right
@@ -214,6 +303,13 @@ def test_simple_diagonal_collision(ball, gamestate):
 
 
 def test_paddle_impulse(ball, gamestate, paddle):
+    """
+    Test ball velocity changes after collision when impulse is set
+    :param ball:
+    :param gamestate:
+    :param paddle:
+    :return:
+    """
     gs = gamestate
     gs.paddle_impulse_vel_length = 0
     gs.motion_model = MotionModels.VECTOR_1
@@ -226,12 +322,22 @@ def test_paddle_impulse(ball, gamestate, paddle):
 
 
 def test_reset_position(ball):
+    """
+    Test ball resets position
+    :param ball:
+    :return:
+    """
     initial_position = ball.rect.center
     ball.reset_position()
     assert ball.rect.center != initial_position  # position should reset
 
 
 def test_move_to_x(ball):
+    """
+    Test ball moves to correct X position
+    :param ball:
+    :return:
+    """
     ball.move_to_x(90)
     assert ball.rect.x == 90
     assert ball.v_pos.x == 90
@@ -241,12 +347,22 @@ def test_move_to_x(ball):
 
 
 def test_move_to_x_stays_onscreen_left(ball):
+    """
+    Test ball stays on screen when x position is not on screen
+    :param ball:
+    :return:
+    """
     ball.move_to_x(50)
     assert ball.rect.left > 0
     assert ball.rect.right < WIDTH
 
 
 def test_move_to_x_stays_onscreen_right(ball):
+    """
+    Test ball stays on screen when x position is not on screen
+    :param ball:
+    :return:
+    """
     ball.move_to_x(WIDTH+1)
     assert ball.rect.left > 0
     assert ball.rect.right < WIDTH
