@@ -16,7 +16,7 @@ from enum import Enum
 import pygame
 import constants
 import assets
-from src.brick import Brick
+from brick import Brick
 from obstacle import Obstacle
 from worldobject import WorldObject
 

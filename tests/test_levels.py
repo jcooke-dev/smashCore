@@ -14,7 +14,7 @@ from unittest.mock import patch
 import pygame
 import assets
 from obstacle import Obstacle
-from src.brick import Brick
+from brick import Brick
 from levels import Levels
 
 

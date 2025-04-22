@@ -12,12 +12,11 @@ from unittest import mock
 import pytest
 
 from gameworld import GameWorld
-from src.levels import Levels
-from src.ball import Ball
-from src.paddle import Paddle
-from src.brick import Brick
+from ball import Ball
+from paddle import Paddle
+from brick import Brick
 from obstacle import Obstacle
-
+from levels import Levels
 
 @pytest.fixture
 def gameworld():
