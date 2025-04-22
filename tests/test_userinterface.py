@@ -17,6 +17,34 @@ import constants
 
 
 @pytest.fixture
+def mock_pygame():
+    with mock.patch("pygame.mouse") as mock_mouse, \
+         mock.patch("pygame.rect") as mock_rect, \
+         mock.patch("pygame.draw.rect") as mock_draw_rect, \
+         mock.patch("pygame.color") as mock_color, \
+         mock.patch("pygame.Surface") as mock_surface:
+
+        # Setup return values if needed
+        #mock_set_mode.return_value = mock.MagicMock(name="screen")
+        #mock_surface.return_value = mock.MagicMock(name="surface")
+        #mock_clock.return_value = mock.MagicMock(name="clock")
+
+        yield {
+            "set_mode": mock_set_mode,
+            "surface": mock_surface,
+            "clock": mock_clock,
+            "rect": mock_rect,
+            "color": mock_color,
+            "get_ticks": mock_get_ticks,
+            "set_caption": mock_set_caption,
+            "set_visible": mock_set_visible,
+            "mixer_init": mock_mixer_init,
+            "mixer.music": mock_mixer_music,
+            "event.get": mock_event_get,
+            "quit": mock_pygame_quit
+        }
+
+@pytest.fixture
 def ui():
     """
     Set up UserInterface with mocked up members for screen and font_buttons
@@ -41,6 +69,67 @@ def ui():
         ui.font_status = mock_font_status
         yield ui
     pygame.quit()
+
+
+@pytest.fixture
+def ui():
+    """Fixture to create a UserInterface instance with mocked pygame dependencies."""
+    with patch("pygame.font.Font") as MockFont, patch("pygame.Surface") as MockSurface:
+        MockFont.return_value.render = Mock(return_value=MockSurface())
+        MockSurface().get_rect = Mock(return_value=pygame.Rect(0, 0, 100, 50))
+        ui = UserInterface()
+        ui.surface = MockSurface()
+        ui.screen = MockSurface()
+        return ui
+
+
+def test_draw_button(ui):
+    """Test the draw_button method."""
+    with patch("pygame.mouse.get_pos", return_value=(50, 50)), \
+         patch("pygame.mouse.get_pressed", return_value=(1, 0, 0)):
+        mock_action = Mock()
+        rect = ui.draw_button(Mock(), 40, 40, 100, 50, pygame.Color("blue"), pygame.Color("red"), mock_action)
+        assert rect.topleft == (40, 40)
+        assert mock_action.call_count == 1  # Action should be called when clicked
+
+
+def test_initialize_background_elements(ui):
+    """Test initialization of background elements."""
+    ui.initialize_background_elements()
+    assert len(ui.background_balls) == 8  # Check if 8 balls are created
+    assert len(ui.background_bricks) > 0  # Ensure bricks are initialized
+
+
+def test_draw_pause_menu(ui):
+    """Test rendering of the pause menu."""
+    with patch("pygame.draw.rect"), patch("pygame.Surface.blit"):
+        restart_rect, main_menu_rect, quit_rect = ui.draw_pause_menu()
+        assert isinstance(restart_rect, pygame.Rect)
+        assert isinstance(main_menu_rect, pygame.Rect)
+        assert isinstance(quit_rect, pygame.Rect)
+
+
+def test_update_background_elements(ui):
+    """Test background element updates."""
+    ui.initialize_background_elements()
+    initial_positions = [ball["rect"].topleft for ball in ui.background_balls]
+    ui.update_background_elements()
+    updated_positions = [ball["rect"].topleft for ball in ui.background_balls]
+    assert initial_positions != updated_positions  # Ensure positions are updated
+
+
+def test_draw_status(ui):
+    """Test status rendering."""
+    with patch("pygame.Surface.blit"):
+        ui.draw_status(lives=3, score=100, level=2)
+        # Check if rendering occurs without exceptions
+
+
+def test_draw_game_intro(ui):
+    """Test game intro rendering."""
+    with patch("pygame.Surface.blit"):
+        ui.draw_game_intro()
+        # Check if rendering occurs without exceptions
 
 @mock.patch("pygame.draw.rect")
 def test_draw_pause_menu(mock_rect, ui):
