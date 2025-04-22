@@ -10,20 +10,25 @@
 """
 
 import pytest
+
+import assets
 import constants
 from unittest import mock
 from gameengine import GameEngine
 from gamestate import GameState
+from userinterface import UserInterface
 from playerstate import PlayerState
 from leaderboard import Leaderboard
-from brick import Brick
-from obstacle import Obstacle
+from gameworld import GameWorld
+from ball import Ball
 
 
 @pytest.fixture
 def mock_pygame():
-    with mock.patch("pygame.mixer.init") as mock_mixer_init, \
-         mock.patch("pygame.mixer.music.stop") as mock_mixer_music_stop, \
+    with mock.patch("pygame.quit") as mock_pygame_quit, \
+         mock.patch("pygame.event.get") as mock_event_get,\
+         mock.patch("pygame.mixer.init") as mock_mixer_init, \
+         mock.patch("pygame.mixer.music") as mock_mixer_music, \
          mock.patch("pygame.mouse.set_visible") as mock_set_visible, \
          mock.patch("pygame.display.set_caption") as mock_set_caption, \
          mock.patch("pygame.time.get_ticks", return_value=123456) as mock_get_ticks, \
@@ -34,9 +39,9 @@ def mock_pygame():
          mock.patch("pygame.display.set_mode") as mock_set_mode:
 
         # Setup return values if needed
-        mock_set_mode.return_value = mock.Mock(name="screen")
-        mock_surface.return_value = mock.Mock(name="surface")
-        mock_clock.return_value = mock.Mock(name="clock")
+        mock_set_mode.return_value = mock.MagicMock(name="screen")
+        mock_surface.return_value = mock.MagicMock(name="surface")
+        mock_clock.return_value = mock.MagicMock(name="clock")
 
         yield {
             "set_mode": mock_set_mode,
@@ -48,41 +53,46 @@ def mock_pygame():
             "set_caption": mock_set_caption,
             "set_visible": mock_set_visible,
             "mixer_init": mock_mixer_init,
-            "mixer.music.stop": mock_mixer_music_stop
+            "mixer.music": mock_mixer_music,
+            "event.get": mock_event_get,
+            "quit": mock_pygame_quit
         }
 
 
 @pytest.fixture
-def mock_gameworld():
-    class GameWorld:
-        def __init__(self):
-            self.world_objects = []
-    return GameWorld()
-
-
-@pytest.fixture
-def starting_ge(mock_gameworld, mock_pygame):
-    with mock.patch("src.assets.pygame.image.load") as mock_image_load:
+def starting_ge(mock_pygame):
+    with mock.patch("assets.pygame.image.load") as mock_image_load:
         mock_image = mock.Mock()
         mock_image_load.return_value = mock_image
 
-        ui = mock.Mock()
-        gs = mock.Mock()
-        gw = mock_gameworld
-        ps = mock.Mock()
-        lb = mock.Mock()
+        ui = mock.MagicMock(UserInterface)
+        gs = mock.MagicMock(GameState)
+        gw = mock.MagicMock(GameWorld)
+        ps = mock.MagicMock(PlayerState)
+        lb = mock.MagicMock(Leaderboard)
+
+        ui.start_button_rect = mock.MagicMock()
+        ui.credits_button_rect = mock.MagicMock()
+
         ge = GameEngine(lb, ps, gw, gs, ui)
         return ge, mock_pygame
 
 
 def test_initial_state(starting_ge):
+    """
+    Test the initial state set the mouse pointer to not visible
+
+    :param starting_ge:
+    :return:
+    """
     ge, mock_pygame = starting_ge
     mock_pygame["set_visible"].assert_called_once_with(False)
 
 
 def test_gamestate_reset(starting_ge):
     """
-    Asserts the initial values are set to restart the game
+    Tests game is reset to initial values
+
     :param starting_ge:
     :return:
     """
@@ -107,27 +117,150 @@ def test_gamestate_reset(starting_ge):
     mock_pygame["mixer_init"].assert_called_once()
 
 
-@mock.patch("src.obstacle.pygame.Rect")
-@mock.patch("src.brick.pygame.Rect")
-def test_remove_obstacles(mock_obstacle_rect, mock_brick_rect, starting_ge):
+def test_next_level(starting_ge):
+    """
+    Tests that ball position is reset, ball speed is increased based on predefined increment,
+    the next level number is retrieved, the levels are built for the level number,
+    FPS is reset, and GameState is set to READY_TO_LAUNCH
+    :param starting_ge:
+    :return:
+    """
     ge, mock_pygame = starting_ge
-    mock_rect = mock_pygame["rect"]
-    mock_color = mock_pygame["color"]
-    obstacle_1 = Obstacle(mock_rect, mock_color)
-    obstacle_2 = Obstacle(mock_rect, mock_color)
-    brick_1 = Brick(mock_rect, mock_color)
-    brick_2 = Brick(mock_rect, mock_color)
-    brick_3 = Brick(mock_rect, mock_color)
+    with mock.patch("gameengine.Levels.get_level_name_from_num", return_value="Level_2") as mock_get_level_name, \
+            mock.patch("gameengine.Levels.build_level") as mock_build_level:
 
-    #set world_objects in gameworld
-    ge.gw.world_objects = [obstacle_1, brick_1, brick_2, obstacle_2, brick_3]
+        mock_ball = mock.MagicMock(Ball)
+        mock_ball.v_vel_unit = 1
+        ge.gw.world_objects = [mock_ball]
 
-    #remove obstacles from gameworld world_objects
-    ge.remove_obstacles()
+        # Set initial player state and level
+        ge.ps.level = 1
 
-    assert len(ge.gw.world_objects) == 3
-    assert obstacle_1 not in ge.gw.world_objects
-    assert obstacle_2 not in ge.gw.world_objects
-    assert brick_1 in ge.gw.world_objects
-    assert brick_2 in ge.gw.world_objects
-    assert brick_3 in ge.gw.world_objects
+        # Call next_level
+        ge.next_level()
+
+        # Ball reset position and speed assertions
+        mock_ball.reset_position.assert_called_once()
+        expected_ball_speed_v = constants.BALL_SPEED_VECTOR + (ge.ps.level * constants.BALL_SPEED_LEVEL_INCREMENT)
+        assert mock_ball.speed_v == expected_ball_speed_v
+        assert ge.gs.ball_speed_increased_ratio == expected_ball_speed_v / constants.BALL_SPEED_VECTOR
+        assert mock_ball.speed == constants.BALL_SPEED_SIMPLE + (ge.ps.level * constants.BALL_SPEED_LEVEL_INCREMENT)
+
+        # Ensure the level is built
+        mock_get_level_name.assert_called_once_with(ge.ps.level)
+        mock_build_level.assert_called()
+
+        # Ensure FPS is reset and game state is ready to launch
+        assert ge.fps == constants.INITIAL_FPS_SIMPLE
+        assert ge.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH
+
+
+def test_draw_world_and_status(starting_ge):
+    """
+    Test that draw_wo is called on world objects and ui.draw_status is called
+
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+    mock_wo = mock.MagicMock()
+    mock_wo.draw_wo.return_value = None
+    ge.gw.world_objects = [mock_wo]
+    ge.ps.lives = 2
+    ge.ps.score = 320
+    ge.ps.level = 1
+
+    # Call draw_world_and_status
+    ge.draw_world_and_status()
+
+    # Ensure draw_wo was called once
+    # Ensure draw_status was called on UI with player status
+    mock_wo.draw_wo.assert_called_once_with(ge.screen)
+    ge.ui.draw_status.assert_called_once_with(2, 320, 1)
+
+
+@mock.patch("gameengine.exit")
+def test_clean_shutdown(mock_exit, starting_ge):
+    """
+    Tests that clean_shutdown stops the music, sets the current_music_path to None,
+    sets the GameState to GAME_OVER, calls pygame.quit, and exit()
+    :param mock_exit:
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+
+    ge.clean_shutdown()
+
+    mock_pygame["mixer.music"].stop.assert_called_once()
+    assert ge.current_music_path is None
+    assert ge.gs.running is False
+    assert ge.gs.cur_state == GameState.GameStateName.GAME_OVER
+
+    ge.lb.store.assert_called_once()
+    mock_pygame['quit'].assert_called_once()
+    mock_exit.assert_called_once()
+
+
+def test_play_music_bg_sound_off(starting_ge):
+    """
+    Tests that when bg_sounds is False, the music is stopped
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+
+    #Set GameState background sounds to False
+    ge.gs.bg_sounds = False
+
+    # Play Music
+    ge.play_music(ge.gs)
+
+    # Assert that music is stopped
+    mock_pygame["mixer.music"].stop.assert_called_once()
+    assert ge.current_music_path is None
+
+
+def test_play_music_correct_file_and_volume(starting_ge):
+    """
+    Tests that music plays correct music for the current game state
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+
+    ge.gs.bg_sounds = True
+    ge.gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
+    ge.gs.music_volume = 1.0
+    music_path = '/path/to/music.wav'
+    assets.MUSIC_PATHS[GameState.GameStateName.GET_HIGH_SCORE] = music_path
+
+    ge.play_music(ge.gs)
+
+    mock_pygame['mixer.music'].load.assert_called_once_with(music_path)
+    mock_pygame['mixer.music'].set_volume.assert_called_once_with(1.0)
+    mock_pygame['mixer.music'].play.assert_called_once_with(0)
+    assert ge.current_music_path == music_path
+
+
+def test_play_music_no_music_path(starting_ge):
+    """
+    Tests that music plays correct music for the current game state
+    :param starting_ge:
+    :return:
+    """
+    ge, mock_pygame = starting_ge
+
+    ge.gs.bg_sounds = True
+    ge.gs.cur_state = GameState.GameStateName.HOW_TO_PLAY
+    ge.current_music_path = "/path/to/current_music.wav"
+
+
+    # Ensure no MUSIC_PATH is defined for this state
+    if GameState.GameStateName.HOW_TO_PLAY in assets.MUSIC_PATHS:
+        del assets.MUSIC_PATHS[GameState.GameStateName.HOW_TO_PLAY]
+
+    ge.play_music(ge.gs)
+
+    mock_pygame['mixer.music'].stop.assert_called_once()
+    assert ge.current_music_path is None

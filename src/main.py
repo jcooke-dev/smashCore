@@ -13,19 +13,17 @@ import pygame
 
 import assets
 from leaderboard import Leaderboard
-from src.gamestate import GameState
-from src.playerstate import PlayerState
-from src.userinterface import UserInterface
-from src.gameworld import GameWorld
-from src.gameengine import GameEngine
-
-
-pygame.init()
-
-# setup various game objects
-
+from gamestate import GameState
+from playerstate import PlayerState
+from userinterface import UserInterface
+from gameworld import GameWorld
+from gameengine import GameEngine
 
 if __name__ == "__main__":
+
+    pygame.init()
+
+    # setup various game objects
     assets.load_assets()
     ui = UserInterface()
     gs = GameState()

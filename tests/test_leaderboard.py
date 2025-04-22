@@ -11,7 +11,8 @@
 import pytest
 from unittest import mock
 from score import Score
-from src import Leaderboard, PlayerState
+from leaderboard import Leaderboard
+from playerstate import PlayerState
 
 
 @pytest.fixture
