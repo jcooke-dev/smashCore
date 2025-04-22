@@ -12,3 +12,6 @@ max-module-lines=1000
 
 [refactoring]
 max-positional-arguments = 10
+
+[messages control]
+disable = c-extension-no-member
