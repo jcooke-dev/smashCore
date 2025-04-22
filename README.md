@@ -106,7 +106,7 @@ You can view the source code API, automatically generated with pdoc, here: https
 
 ## Credits
 
-**Sound Effects:**
+**Sound Effects and Music:**
 * Free sound effects obtained from [Mixkit](https://mixkit.co/free-sound-effects/game/).
 
 **Game Logo:**
