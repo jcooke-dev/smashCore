@@ -75,7 +75,7 @@ To use pdoc to auto-generate a set of HTML files for navigating the program code
   * PYTHONPATH = [absolute path on your machine to the root SmashCore src\ directory] (for example: ```e:\Users\justin\Documents\UMUC\CMSC495\code\github\smashCore\src```)
 * From the PyCharm terminal, run this command from your project/repo root (for example: ```e:\Users\justin\Documents\UMUC\CMSC495\code\github\smashCore```): ```pdoc -o ./docs src/```
 * The documentation will be generated in the ```.docs``` folder
-* Note that once any documentation changes are merged into the `main` branch, the'll be available here: https://jcooke-dev.github.io/smashCore/src.html
+* Note that once any documentation changes are merged into the `main` branch, they'll be available here: https://jcooke-dev.github.io/smashCore/src.html
 
 ## Building the Source Code for Distribution
 Download the full source code directory structure from GitHub: https://github.com/jcooke-dev/smashCore
