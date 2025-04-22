@@ -22,6 +22,10 @@ class Leaderboard:
 
     @classmethod
     def create_persisted_object(cls):
+        """
+        Creates a leaderbard file if none exist
+        :return:
+        """
         lb = cls.load(persistence.LEADERBOARD_FILENAME)
         if lb is None:
             lb = Leaderboard()
@@ -29,12 +33,27 @@ class Leaderboard:
 
     @classmethod
     def load(cls, filename: str):
+        """
+        Loads leaderboard file
+        :param filename:
+        :return:
+        """
         return persistence.read_object(filename)
 
     def store(self, filename: str):
+        """
+        Stores leaderboard file
+        :param filename:
+        :return:
+        """
         persistence.store_object(self, filename)
 
     def is_high_score(self, score: int) -> bool:
+        """
+        Tests if score is within the top high scores
+        :param score:
+        :return:
+        """
         return (score > min(scr.score for scr in self.l_top_scores)) if len(self.l_top_scores) >= constants.LEADERBOARD_SIZE else True
 
     def add_score(self, ps, ui):

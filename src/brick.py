@@ -40,6 +40,7 @@ class Brick(WorldObject, pygame.sprite.Sprite):
         self.image: pygame.image = image
         self.strength: int = strength  # Number of hits required to break the brick
         self.bonus = bonus
+        self.font_strength = None
 
     def _add_strength_indicator(self, screen: pygame.Surface) -> None:
         if self.bonus > 0:
@@ -84,8 +85,7 @@ class Brick(WorldObject, pygame.sprite.Sprite):
         return self.strength <= 0
 
     def destruction(self, object_list):
-
-            object_list.remove(self)
+        object_list.remove(self)
 
     def animate(self, screen):
         if self.image is None:

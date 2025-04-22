@@ -284,10 +284,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         self.rect.x = pos_x
 
         # Check that the paddle is not going too far (off the screen)
-        if self.rect.left < (constants.PAD_WIDTH // 2) - self.radius:
-            self.rect.left = (constants.PAD_WIDTH // 2) - self.radius
-        if self.rect.right > constants.WIDTH - (constants.PAD_WIDTH // 2) + self.radius:
-            self.rect.right = constants.WIDTH - (constants.PAD_WIDTH // 2) + self.radius
+        self.rect.left = max(self.rect.left, constants.PAD_WIDTH // 2 - self.radius)
+        self.rect.right = min(self.rect.right, constants.WIDTH - constants.PAD_WIDTH // 2 + self.radius)
 
         self.v_pos.x = self.rect.x
         self.x = self.rect.x

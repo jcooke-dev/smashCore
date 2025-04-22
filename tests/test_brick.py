@@ -18,6 +18,10 @@ from constants import WHITE
 
 @pytest.fixture
 def brick():
+    """
+    Create brick for testing
+    :return:
+    """
     pygame.init()
     rect = pygame.Rect(0, 0, 100, 50)
     brick = Brick(rect, WHITE, 3)
@@ -100,15 +104,30 @@ def test_draw_wo_with_image(mock_surface, mock_image):
 
 
 def test_add_collision(brick):
+    """
+    Test brick strength is reduced after collision
+    :param brick:
+    :return:
+    """
     brick.add_collision()
     assert brick.strength == 0
 
 
 def test_should_score(brick):
+    """
+    Test that bricks should score
+    :param brick:
+    :return:
+    """
     assert brick.should_score() is True
 
 
 def test_should_remove(brick):
+    """
+    Test if a brick should be removed based on strength
+    :param brick:
+    :return:
+    """
     assert brick.should_remove() is False
     brick.strength = 0
     assert brick.should_remove() is True

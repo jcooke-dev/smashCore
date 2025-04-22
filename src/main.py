@@ -20,6 +20,10 @@ from gameworld import GameWorld
 from gameengine import GameEngine
 
 def main() -> None:
+    """
+    Initializes pygame, loads the assets, initializes all dependencies, and loads/creates the leaderboard
+    :return:
+    """
     pygame.init()
 
     # setup various game objects
