@@ -92,7 +92,7 @@ class GameEngine:
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
-        self.gs.cur_ball_x = (WIDTH / 2) - (PAD_WIDTH / 2)
+        self.gs.cur_ball_x = (WIDTH // 2) - (PAD_WIDTH // 2)
         self.ps.lives = START_LIVES
         self.ps.score = START_SCORE
         self.ps.level = 1
