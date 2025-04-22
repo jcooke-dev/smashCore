@@ -58,3 +58,4 @@ class GameState:
         self.bg_sounds: bool = True
         self.sfx_sounds: bool = True
         self.music_volume = constants.MUSIC_VOLUME_INITIAL
+        self.sfx_volume = constants.SFX_VOLUME_INITIAL
