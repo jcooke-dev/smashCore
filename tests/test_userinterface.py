@@ -12,6 +12,7 @@
 import pytest
 import pygame
 from unittest import mock
+from unittest.mock import MagicMock
 from userinterface import UserInterface
 import constants
 
@@ -21,118 +22,81 @@ def mock_pygame():
     with mock.patch("pygame.mouse") as mock_mouse, \
          mock.patch("pygame.rect") as mock_rect, \
          mock.patch("pygame.draw.rect") as mock_draw_rect, \
+         mock.patch("pygame.transform.scale") as mock_transform_scale, \
+         mock.patch("pygame.font") as mock_font, \
          mock.patch("pygame.color") as mock_color, \
+         mock.patch("pygame.SRCALPHA") as mock_srcalpha, \
          mock.patch("pygame.Surface") as mock_surface:
 
         # Setup return values if needed
         #mock_set_mode.return_value = mock.MagicMock(name="screen")
-        #mock_surface.return_value = mock.MagicMock(name="surface")
-        #mock_clock.return_value = mock.MagicMock(name="clock")
+        mock_surface.return_value = MagicMock(name="surface")
+        mock_surface().get_rect = MagicMock(return_value=pygame.Rect(0, 0, 100, 50))
+        mock_font.return_value.render = MagicMock(return_value=pygame.Surface)
+        mock_mouse.get_pos.return_value = (50,50)
+        mock_mouse.get_pressed.return_value = (1, 0, 0)
+
 
         yield {
-            "set_mode": mock_set_mode,
             "surface": mock_surface,
-            "clock": mock_clock,
-            "rect": mock_rect,
+            "srcalpha": mock_srcalpha,
             "color": mock_color,
-            "get_ticks": mock_get_ticks,
-            "set_caption": mock_set_caption,
-            "set_visible": mock_set_visible,
-            "mixer_init": mock_mixer_init,
-            "mixer.music": mock_mixer_music,
-            "event.get": mock_event_get,
-            "quit": mock_pygame_quit
+            "font": mock_font,
+            "transform.scale": mock_transform_scale,
+            "draw.rect": mock_draw_rect,
+            "rect": mock_rect,
+            "mouse": mock_mouse
         }
 
 @pytest.fixture
-def ui():
+def ui_fixture(mock_pygame):
     """
-    Set up UserInterface with mocked up members for screen and font_buttons
+    Set up UserInterface with mock dependencies
     :return:
     """
-    pygame.init()
-    pygame.font.init()
+    ui = UserInterface()
+    ui.screen = mock.Mock()
+    ui.surface = mock_pygame['surface']
 
-    with mock.patch(
-        "userinterface.pygame.transform.scale") as mock_scaled_image:
-        ui = UserInterface()
-        ui.screen = mock.Mock()
-        ui.surface = mock.Mock()
+    mock_font_button = mock.Mock()
+    mock_font_status = mock.Mock()
+    mock_rendered_text = mock.Mock()
+    mock_font_button.render.return_value = mock_rendered_text
+    mock_font_status.render.return_value = mock_rendered_text
 
-        mock_font_button = mock.Mock()
-        mock_font_status = mock.Mock()
-        mock_rendered_text = mock.Mock()
-        mock_font_button.render.return_value = mock_rendered_text
-        mock_font_status.render.return_value = mock_rendered_text
+    ui.font_title_text = mock_pygame['font'].title
+    ui.font_title_text.return_value = MagicMock(return_value=pygame.Rect(0, 0, 100, 50))
 
-        ui.font_buttons = mock_font_button
-        ui.font_status = mock_font_status
-        yield ui
-    pygame.quit()
+    ui.font_buttons = mock_font_button
+    ui.font_status = mock_font_status
+    return ui, mock_pygame
 
 
-@pytest.fixture
-def ui():
-    """Fixture to create a UserInterface instance with mocked pygame dependencies."""
-    with patch("pygame.font.Font") as MockFont, patch("pygame.Surface") as MockSurface:
-        MockFont.return_value.render = Mock(return_value=MockSurface())
-        MockSurface().get_rect = Mock(return_value=pygame.Rect(0, 0, 100, 50))
-        ui = UserInterface()
-        ui.surface = MockSurface()
-        ui.screen = MockSurface()
-        return ui
-
-
-def test_draw_button(ui):
-    """Test the draw_button method."""
-    with patch("pygame.mouse.get_pos", return_value=(50, 50)), \
-         patch("pygame.mouse.get_pressed", return_value=(1, 0, 0)):
-        mock_action = Mock()
-        rect = ui.draw_button(Mock(), 40, 40, 100, 50, pygame.Color("blue"), pygame.Color("red"), mock_action)
-        assert rect.topleft == (40, 40)
-        assert mock_action.call_count == 1  # Action should be called when clicked
-
-
-def test_initialize_background_elements(ui):
+def test_initialize_background_elements(ui_fixture):
     """Test initialization of background elements."""
-    ui.initialize_background_elements()
+    ui, mock_pygame = ui_fixture
     assert len(ui.background_balls) == 8  # Check if 8 balls are created
     assert len(ui.background_bricks) > 0  # Ensure bricks are initialized
 
 
-def test_draw_pause_menu(ui):
-    """Test rendering of the pause menu."""
-    with patch("pygame.draw.rect"), patch("pygame.Surface.blit"):
-        restart_rect, main_menu_rect, quit_rect = ui.draw_pause_menu()
-        assert isinstance(restart_rect, pygame.Rect)
-        assert isinstance(main_menu_rect, pygame.Rect)
-        assert isinstance(quit_rect, pygame.Rect)
+def test_draw_button(ui_fixture):
+    """
+    Tests draw_button to ensure correct placement and if collidepoint intersects
+    mouse position then the action is called.
+    :param ui_fixture:
+    :return:
+    """
+    ui, mock_pygame = ui_fixture
+    with mock.patch("pygame.mouse.get_pos", return_value=(45, 45)), \
+            mock.patch("pygame.mouse.get_pressed", return_value=(1, 0, 0)):
+        mock_surface = mock_pygame['surface']
+        mock_action = MagicMock()
+        rect = ui.draw_button(mock_surface, 40, 40, 100, 50, pygame.Color("blue"), pygame.Color("red"), mock_action)
+        assert rect.topleft == (40, 40)
+        assert mock_action.call_count == 1  # Action should be called when clicked
 
 
-def test_update_background_elements(ui):
-    """Test background element updates."""
-    ui.initialize_background_elements()
-    initial_positions = [ball["rect"].topleft for ball in ui.background_balls]
-    ui.update_background_elements()
-    updated_positions = [ball["rect"].topleft for ball in ui.background_balls]
-    assert initial_positions != updated_positions  # Ensure positions are updated
-
-
-def test_draw_status(ui):
-    """Test status rendering."""
-    with patch("pygame.Surface.blit"):
-        ui.draw_status(lives=3, score=100, level=2)
-        # Check if rendering occurs without exceptions
-
-
-def test_draw_game_intro(ui):
-    """Test game intro rendering."""
-    with patch("pygame.Surface.blit"):
-        ui.draw_game_intro()
-        # Check if rendering occurs without exceptions
-
-@mock.patch("pygame.draw.rect")
-def test_draw_pause_menu(mock_rect, ui):
+def test_draw_pause_menu(ui_fixture):
     """
     Asserts the correct text and buttons were rendered and blitted
     Assert "Game Paused: ESC to Resume" was rendered
@@ -140,13 +104,14 @@ def test_draw_pause_menu(mock_rect, ui):
     Assert "Quit Game" was rendered
     Assert surface was blitted
     Assert screen was blitted
-    Assert pygame.draw.rect was called 3 times
+    Assert pygame.draw.rect was called 4 times
     :param mock_rect:
     :param ui:
     :return:
     """
-    ui.font_title1_text = mock.Mock()
-    ui.font_title2_text = mock.Mock()
+    ui, mock_pygame = ui_fixture
+    ui.font_title1_text = mock_pygame['font']
+    ui.font_title2_text = mock_pygame['font']
 
     ui.draw_pause_menu()
     called_args_title1 = ui.font_title1_text.render.call_args
@@ -162,15 +127,50 @@ def test_draw_pause_menu(mock_rect, ui):
     ui.font_buttons.render.assert_any_call("Quit", mock.ANY,mock.ANY)
     assert ui.surface.blit.called
     assert ui.screen.blit.called
-    assert mock_rect.call_count == 4  #rect for buttons and text
+    assert mock_pygame["draw.rect"].call_count == 4  #rect for buttons and text
 
 
-def test_game_intro(ui):
+def test_draw_game_over_menu(ui_fixture):
+    """
+    Asserts the correct text and buttons were rendered and blitted
+    Assert "YOU GOT SMASHED!" was rendered
+    Assert "Try Again" was rendered
+    Assert "Restart Game" was rendered
+    Assert "Quit Game" was rendered
+    Assert surface was blitted
+    Assert screen was blitted
+    Assert pygame.draw.rect was called 4 times
+    :param mock_rect:
+    :param ui:
+    :return:
+    """
+    ui, mock_pygame = ui_fixture
+
+    mock_action = MagicMock()
+
+    ui.draw_game_over_menu(mock_action)
+    called_args_title = ui.font_title_text.render.call_args
+
+    assert called_args_title[0][0]  == "YOU GOT SMASHED!"
+    ui.font_buttons.render.assert_any_call("Try Again", mock.ANY,mock.ANY)
+    ui.font_buttons.render.assert_any_call("Main Menu", mock.ANY, mock.ANY)
+    ui.font_buttons.render.assert_any_call("Quit", mock.ANY,mock.ANY)
+
+    assert mock_pygame['mouse'].set_visible
+
+    assert ui.surface.blit.called
+    assert ui.screen.blit.called
+    assert mock_pygame["draw.rect"].call_count == 4  #rect for buttons and text
+
+
+def test_game_intro(ui_fixture):
     """
     Asserts "Press SPACEBAR to start" was rendered and is blitted
     :param ui:
     :return:
     """
+    ui, mock_pygame = ui_fixture
+
     ui.draw_game_intro()
     called_args = ui.font_buttons.render.call_args
     if called_args:
@@ -180,7 +180,7 @@ def test_game_intro(ui):
 
 
 @mock.patch("pygame.draw.circle")
-def test_draw_status(mock_circle, ui):
+def test_draw_status(mock_circle, ui_fixture):
     """
     Asserts that "Lives:" label was rendered and blitted
     Asserts that pygame.draw.circle was called 3 times
@@ -189,6 +189,8 @@ def test_draw_status(mock_circle, ui):
     :return:
     """
     # draw_status expects font_buttons to have a width for status spacing
+    ui, mock_pygame = ui_fixture
+
     mock_rendered_btn = mock.Mock()
     mock_rendered_btn.get_width.return_value = 50
     ui.font_status.render.return_value = mock_rendered_btn
@@ -203,3 +205,10 @@ def test_draw_status(mock_circle, ui):
     assert mock_circle.call_count == 3
 
 
+def test_update_background_elements(ui_fixture):
+    """Test background element updates."""
+    ui, mock_pygame = ui_fixture
+    initial_positions = [ball["rect"].topleft for ball in ui.background_balls]
+    ui.update_background_elements()
+    updated_positions = [ball["rect"].topleft for ball in ui.background_balls]
+    assert initial_positions != updated_positions  # Ensure positions are updated
