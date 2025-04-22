@@ -154,7 +154,7 @@ class GameEngine:
         
         :return:
         """
-        if not self.gs.bg_sounds:
+        if not self.gs.bgm_sounds:
             pygame.mixer.music.stop()
             self.current_music_path = None
             return
@@ -271,21 +271,21 @@ class GameEngine:
                 # display settings screen
                 ##############################################################
                 case GameState.GameStateName.SETTINGS:
-                    self.ui.draw_settings_screen(self.gs.bg_sounds, self.gs.sfx_sounds, self.gs.music_volume, self.gs.sfx_volume)
+                    self.ui.draw_settings_screen(self.gs.bgm_sounds, self.gs.sfx_sounds, self.gs.music_volume, self.gs.sfx_volume)
                     pygame.mouse.set_visible(True)
 
                     for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.volume_bgbutton_rect.collidepoint(event.pos):
-                                self.gs.bg_sounds = not self.gs.bg_sounds
-                                if not self.gs.bg_sounds and self.gs.music_volume <= 0:
-                                    self.gs.bg_sounds = True
+                                self.gs.bgm_sounds = not self.gs.bgm_sounds
+                                if not self.gs.bgm_sounds and self.gs.music_volume <= 0:
+                                    self.gs.bgm_sounds = True
                                     self.gs.music_volume = 0.2
                                     pygame.mixer.music.set_volume(self.gs.music_volume)
                             elif self.ui.volume_sfbutton_rect.collidepoint(event.pos):
                                 self.gs.sfx_sounds = not self.gs.sfx_sounds
-                                if not self.gs.sf_sounds and self.gs.sfx_volume <= 0:
-                                    self.gs.sf_sounds = True
+                                if not self.gs.sfx_sounds and self.gs.sfx_volume <= 0:
+                                    self.gs.sfx_sounds = True
                                     self.gs.sfx_volume = 0.2
                                     pygame.mixer.music.set_volume(self.gs.sfx_volume)
                             elif self.ui.back_button_rect.collidepoint(event.pos):
@@ -511,7 +511,7 @@ class GameEngine:
                     # detect the CTRL+'=' and CTRL+'-' key combos to adjust music volume
                     if event.key == pygame.K_EQUALS:
                         if event.mod & pygame.KMOD_CTRL:
-                            self.gs.bg_sounds = True
+                            self.gs.bgm_sounds = True
                             self.gs.music_volume += MUSIC_VOLUME_STEP
                             self.gs.music_volume = min(self.gs.music_volume, 1.0)
                             pygame.mixer.music.set_volume(self.gs.music_volume)
@@ -522,7 +522,7 @@ class GameEngine:
                             self.gs.music_volume -= MUSIC_VOLUME_STEP
                             self.gs.music_volume = max(self.gs.music_volume, 0.0)
                             if self.gs.music_volume < 0.01:
-                                self.gs.bg_sounds = False
+                                self.gs.bgm_sounds = False
                             pygame.mixer.music.set_volume(self.gs.music_volume)
 
                     # detect the CTRL+l to force-load next level in sequence

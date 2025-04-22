@@ -55,7 +55,7 @@ class GameState:
         self.paddle_under_key_control_left: bool = False
         self.paddle_under_key_control_right: bool = False
         self.paddle_pos_x: int = 0 # used at READY_TO_LAUNCH to keep ball on paddle
-        self.bg_sounds: bool = True
+        self.bgm_sounds: bool = True
         self.sfx_sounds: bool = True
         self.music_volume = constants.MUSIC_VOLUME_INITIAL
         self.sfx_volume = constants.SFX_VOLUME_INITIAL
