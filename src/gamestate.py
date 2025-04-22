@@ -8,12 +8,11 @@
 
     Module Description: Consolidate the game state flags and parameters into a single class.
 """
+from enum import Enum, auto
 import pygame
 import constants
-
-from enum import Enum, auto
-
 from motionmodels import MotionModels
+
 
 class GameState:
     """ This maintains the current GameState """

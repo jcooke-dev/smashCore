@@ -45,11 +45,11 @@ class WorldObject:
         :return:
         """
 
-    def detect_collision(self, hitbox: pygame.rect, gs: gs_.GameState) -> None:
+    def detect_collision(self, wo: pygame.rect, gs: gs_.GameState) -> None:
         """
         Function to detect collisions
 
-        :param hitbox: the other Rect in the collision detection check
+        :param wo: the other Rect in the collision detection check
         :param gs: GameState
         :return:
         """
