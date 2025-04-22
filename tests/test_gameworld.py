@@ -37,15 +37,15 @@ def test_gameworld_init():
     Test the gameworld has a ball, paddle, and at least one brick
     :return:
     """
-    Levels.build_level = mock.MagicMock()
+    with mock.patch("gameengine.Levels.build_level") as mock_build_level:
 
-    gw = GameWorld()
+        gw = GameWorld()
 
-    ball_found = any(isinstance(obj, Ball) for obj in gw.world_objects)
-    paddle_found = any(isinstance(obj, Paddle) for obj in gw.world_objects)
-    assert ball_found
-    assert paddle_found
-    Levels.build_level.assert_called()
+        ball_found = any(isinstance(obj, Ball) for obj in gw.world_objects)
+        paddle_found = any(isinstance(obj, Paddle) for obj in gw.world_objects)
+        assert ball_found
+        assert paddle_found
+        mock_build_level.assert_called()
 
 
 def test_remove_obstacles(gameworld):

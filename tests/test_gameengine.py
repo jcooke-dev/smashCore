@@ -8,7 +8,7 @@
 
     Module Description: This is the test harness for the GameEngine class.
 """
-import pygame
+
 import pytest
 
 import assets
@@ -16,12 +16,11 @@ import constants
 from unittest import mock
 from gameengine import GameEngine
 from gamestate import GameState
-import src
-from src.levels import Levels
 from userinterface import UserInterface
 from playerstate import PlayerState
 from leaderboard import Leaderboard
 from gameworld import GameWorld
+from ball import Ball
 
 
 @pytest.fixture
@@ -62,7 +61,7 @@ def mock_pygame():
 
 @pytest.fixture
 def starting_ge(mock_pygame):
-    with mock.patch("src.assets.pygame.image.load") as mock_image_load:
+    with mock.patch("assets.pygame.image.load") as mock_image_load:
         mock_image = mock.Mock()
         mock_image_load.return_value = mock_image
 
@@ -118,48 +117,42 @@ def test_gamestate_reset(starting_ge):
     mock_pygame["mixer_init"].assert_called_once()
 
 
-@mock.patch("src.ball.pygame.image")
-@mock.patch("src.ball.pygame.Rect")
-@mock.patch("src.ball.Ball", spec=src.ball.Ball)
-def test_next_level(mock_ball, mock_rect, mock_image, starting_ge):
+def test_next_level(starting_ge):
     """
     Tests that ball position is reset, ball speed is increased based on predefined increment,
     the next level number is retrieved, the levels are built for the level number,
     FPS is reset, and GameState is set to READY_TO_LAUNCH
-    :param mock_ball:
-    :param mock_rect:
-    :param mock_image:
     :param starting_ge:
     :return:
     """
     ge, mock_pygame = starting_ge
-    mock_ball.v_vel_unit = 1
-    ge.gw.world_objects = [mock_ball]
+    with mock.patch("gameengine.Levels.get_level_name_from_num", return_value="Level_2") as mock_get_level_name, \
+            mock.patch("gameengine.Levels.build_level") as mock_build_level:
 
-    # Set initial player state and level
-    ge.ps.level = 1
+        mock_ball = mock.MagicMock(Ball)
+        mock_ball.v_vel_unit = 1
+        ge.gw.world_objects = [mock_ball]
 
-    # Mock Levels module methods
-    Levels.get_level_name_from_num = mock.MagicMock(return_value="Level_2")
-    Levels.build_level = mock.MagicMock()
+        # Set initial player state and level
+        ge.ps.level = 1
 
-    # Call next_level
-    ge.next_level()
+        # Call next_level
+        ge.next_level()
 
-    # Ball reset position and speed assertions
-    mock_ball.reset_position.assert_called_once()
-    expected_ball_speed_v = constants.BALL_SPEED_VECTOR + (ge.ps.level * constants.BALL_SPEED_LEVEL_INCREMENT)
-    assert mock_ball.speed_v == expected_ball_speed_v
-    assert ge.gs.ball_speed_increased_ratio == expected_ball_speed_v / constants.BALL_SPEED_VECTOR
-    assert mock_ball.speed == constants.BALL_SPEED_SIMPLE + (ge.ps.level * constants.BALL_SPEED_LEVEL_INCREMENT)
+        # Ball reset position and speed assertions
+        mock_ball.reset_position.assert_called_once()
+        expected_ball_speed_v = constants.BALL_SPEED_VECTOR + (ge.ps.level * constants.BALL_SPEED_LEVEL_INCREMENT)
+        assert mock_ball.speed_v == expected_ball_speed_v
+        assert ge.gs.ball_speed_increased_ratio == expected_ball_speed_v / constants.BALL_SPEED_VECTOR
+        assert mock_ball.speed == constants.BALL_SPEED_SIMPLE + (ge.ps.level * constants.BALL_SPEED_LEVEL_INCREMENT)
 
-    # Ensure the level is built
-    Levels.get_level_name_from_num.assert_called_once_with(ge.ps.level)
-    Levels.build_level.assert_called()
+        # Ensure the level is built
+        mock_get_level_name.assert_called_once_with(ge.ps.level)
+        mock_build_level.assert_called()
 
-    # Ensure FPS is reset and game state is ready to launch
-    assert ge.fps == constants.INITIAL_FPS_SIMPLE
-    assert ge.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH
+        # Ensure FPS is reset and game state is ready to launch
+        assert ge.fps == constants.INITIAL_FPS_SIMPLE
+        assert ge.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH
 
 
 def test_draw_world_and_status(starting_ge):
