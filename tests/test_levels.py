@@ -14,7 +14,7 @@ from unittest.mock import patch
 import pygame
 import assets
 from obstacle import Obstacle
-from src.brick import Brick
+from brick import Brick
 from levels import Levels
 
 
@@ -41,8 +41,7 @@ def test_get_level_name_from_num(input_level, expected_enum):
     assert result == expected_enum
 
 
-
-@mock.patch("src.assets.pygame.image.load")
+@mock.patch("assets.pygame.image.load")
 @mock.patch("pygame.transform.scale")
 def test_level_smashcore_1(mock_scale_image, mock_image_load, mock_gameworld):
     assets.load_assets()
@@ -69,7 +68,7 @@ def test_build_level(level_name, expected_brick_count):
 
 
 # Test generate_grid_level with mock data results in 11 columns
-@patch("src.levels.constants.WIDTH", 1200)
+@patch("levels.constants.WIDTH", 1200)
 def test_generate_grid_level_basic():
     gw_list = []
     rows = 5
@@ -92,7 +91,7 @@ def test_generate_grid_level_basic():
 
 
 # Test generate_grid_level with width of 600 results in 5 columns
-@patch("src.levels.constants.WIDTH", 600)
+@patch("levels.constants.WIDTH", 600)
 def test_generate_grid_level_basic_width_600():
     gw_list = []
     rows = 5
@@ -115,7 +114,7 @@ def test_generate_grid_level_basic_width_600():
 
 
 # test generate_grid_level with not enough row_colors results in 3 rows
-@patch("src.levels.constants.WIDTH", 1200)
+@patch("levels.constants.WIDTH", 1200)
 def test_generate_grid_level_three_rows_colors():
     gw_list = []
     rows = 5
@@ -138,7 +137,7 @@ def test_generate_grid_level_three_rows_colors():
 
 
 # test generate_grid_level with not enough values results in 4 rows
-@patch("src.levels.constants.WIDTH", 1200)
+@patch("levels.constants.WIDTH", 1200)
 def test_generate_grid_level_four_values():
     gw_list = []
     rows = 5
@@ -167,7 +166,7 @@ def test_generate_grid_level_with_skipped_positions():
     columns = 11
     skip_positions = [(2, 2), (3, 3)]
 
-    with patch("src.levels.constants.WIDTH", 1200):
+    with patch("levels.constants.WIDTH", 1200):
         Levels.generate_grid_level(
             gw_list=gw_list,
             rows=rows,
@@ -188,7 +187,7 @@ def test_generate_grid_level_with_strong_bricks(mock_scaled_image):
     rows = 5
     strong_bricks = [(1, 1), (3, 2)]
 
-    with patch("src.levels.constants.WIDTH", 1200):
+    with patch("levels.constants.WIDTH", 1200):
         Levels.generate_grid_level(
             gw_list=gw_list,
             rows=rows,
@@ -207,7 +206,7 @@ def test_generate_grid_level_with_obstacle_bricks():
     rows = 5
     obstacle_bricks = [(1, 1), (3, 2)]
 
-    with patch("src.levels.constants.WIDTH", 1200):
+    with patch("levels.constants.WIDTH", 1200):
         Levels.generate_grid_level(
             gw_list=gw_list,
             rows=rows,

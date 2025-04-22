@@ -1,4 +1,4 @@
-$pyinstaller_cmd = "pyinstaller --windowed src/__init__.py --paths=src/ --add-data src/assets:./assets --onefile --distpath ./dist --name SmashCore_win"
+$pyinstaller_cmd = "pyinstaller --windowed src/main.py --add-data src/assets:./assets --onefile --distpath ./dist --name SmashCore_win"
 Write-Output "Preparing to build SmashCore for Windows install"
 
 Invoke-Expression $pyinstaller_cmd

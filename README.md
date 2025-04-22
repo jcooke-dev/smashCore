@@ -52,6 +52,12 @@ We're developing SmashCore in Python, intending to target releases to Windows, m
 * **pygbag 0.9.2** - tool that packages Python/pygame applications for running in a web browser (https://pypi.org/project/pygbag/)
 
 ## Configuration/Setup Instructions for Specific Libraries and Tools
+
+### Dependencies
+
+This project uses a requirements.txt file to manage dependencies. To install the required libraries, including Pygame and others, run this command in your terminal:                       
+pip install -r requirements.txt
+
 ### Pytest
 Configure PyCharm for pytest
 * Settings/Python Integrated Tools/Default Test Runner: pytest
@@ -62,6 +68,8 @@ Configure PyCharm for pytest
 * Save
 * In the project panel, right click on src. Mark Directory As: Sources Root
 * Do the same for tests but mark it Test Sources Root
+
+
 
 ## Building the Source Code for Distribution
 Download the full source code directory structure from GitHub: https://github.com/jcooke-dev/smashCore

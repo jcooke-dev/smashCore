@@ -14,20 +14,18 @@ import pygame
 
 import utils
 import persistence
-from constants import KNOB_RADIUS
-from src import assets
-from src.ball import Ball
-from src.brick import Brick
-from src.paddle import Paddle
-from src.constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
+import assets
+from ball import Ball
+from brick import Brick
+from paddle import Paddle
+from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
                             PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
                             BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
                             PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
                             BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
-                            MUSIC_VOLUME_STEP, SLIDER_WIDTH)
-
-from src.levels import Levels
-from src.gameworld import GameWorld
+                            MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS)
+from levels import Levels
+from gameworld import GameWorld
 from userinterface import UserInterface
 from playerstate import PlayerState
 from leaderboard import Leaderboard

@@ -26,7 +26,7 @@ def ui():
     pygame.font.init()
 
     with mock.patch(
-        "src.userinterface.pygame.transform.scale") as mock_scaled_image:
+        "userinterface.pygame.transform.scale") as mock_scaled_image:
         ui = UserInterface()
         ui.screen = mock.Mock()
         ui.surface = mock.Mock()
