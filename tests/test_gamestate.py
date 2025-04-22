@@ -17,6 +17,10 @@ from constants import PADDLE_IMPULSE, BALL_SPEED_STEP
 
 
 def test_gamestate_init():
+    """
+    Test initial gamestate
+    :return:
+    """
     gs = GameState()
     assert gs.running is True
     assert gs.cur_state == GameState.GameStateName.SPLASH
