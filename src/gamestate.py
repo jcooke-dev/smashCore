@@ -20,17 +20,17 @@ class GameState:
 
     class GameStateName(Enum):
         """ Enum with all possible GameState values """
-        SPLASH: Enum = auto()
-        MENU_SCREEN: Enum = auto()
-        READY_TO_LAUNCH: Enum = auto()
-        PLAYING: Enum = auto()
-        PAUSED: Enum = auto()
-        GAME_OVER: Enum = auto()
-        CREDITS: Enum = auto()
-        LEADERBOARD: Enum = auto()
-        GET_HIGH_SCORE: Enum = auto()
-        HOW_TO_PLAY: Enum = auto()
-        SETTINGS: Enum = auto()
+        SPLASH = auto()
+        MENU_SCREEN = auto()
+        READY_TO_LAUNCH = auto()
+        PLAYING = auto()
+        PAUSED = auto()
+        GAME_OVER = auto()
+        CREDITS = auto()
+        LEADERBOARD = auto()
+        GET_HIGH_SCORE = auto()
+        HOW_TO_PLAY = auto()
+        SETTINGS = auto()
 
 
     def __init__(self) -> None:
@@ -43,7 +43,7 @@ class GameState:
         self.auto_play: bool = False
         self.motion_model: MotionModels = MotionModels.VECTOR_1
         self.tick_time: int = 0
-        self.cur_ball_x: int = (constants.WIDTH / 2) - (constants.PAD_WIDTH / 2) # used for the auto-play mode that matches paddle pos to the ball pos
+        self.cur_ball_x: int = (constants.WIDTH // 2) - (constants.PAD_WIDTH // 2) # used for the auto-play mode that matches paddle pos to the ball pos
         self.gravity_acc_length: float = constants.WORLD_GRAVITY_ACC
         self.v_gravity_unit: pygame.Vector2 = pygame.Vector2(0.0, 1.0)
         self.v_gravity_acc: pygame.Vector2 = self.v_gravity_unit * self.gravity_acc_length
@@ -55,5 +55,7 @@ class GameState:
         self.paddle_under_key_control_left: bool = False
         self.paddle_under_key_control_right: bool = False
         self.paddle_pos_x: int = 0 # used at READY_TO_LAUNCH to keep ball on paddle
-        self.bg_sounds: bool = True
+        self.bgm_sounds: bool = True
+        self.sfx_sounds: bool = True
         self.music_volume = constants.MUSIC_VOLUME_INITIAL
+        self.sfx_volume = constants.SFX_VOLUME_INITIAL

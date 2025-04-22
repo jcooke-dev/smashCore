@@ -19,6 +19,8 @@ class WorldObject:
     """ This is a parent class for the specific world objects (Ball, Paddle, Bricks) """
 
     def __init__(self) -> None:
+        self.speed = None
+        self.bonus = None
         self.color: pygame.color = None
         self.value: int = 0
         self.rect: pygame.rect = None

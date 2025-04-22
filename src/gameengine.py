@@ -23,8 +23,7 @@ from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
                             BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
                             PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
                             BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
-                            MUSIC_VOLUME_INITIAL, MUSIC_VOLUME_STEP)
-
+                            MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS)
 from levels import Levels
 from gameworld import GameWorld
 from userinterface import UserInterface
@@ -77,6 +76,8 @@ class GameEngine:
         # Initialize game music and paths
         pygame.mixer.init()
         self.current_music_path = None
+        self.dragging_bgm_slider = False
+        self.dragging_sfx_slider = False
 
     def reset_game(self) -> None:
         """
@@ -89,7 +90,7 @@ class GameEngine:
         self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
-        self.gs.cur_ball_x = (WIDTH / 2) - (PAD_WIDTH / 2)
+        self.gs.cur_ball_x = (WIDTH // 2) - (PAD_WIDTH // 2)
         self.ps.lives = START_LIVES
         self.ps.score = START_SCORE
         self.ps.level = 1
@@ -151,12 +152,12 @@ class GameEngine:
         
         :return:
         """
-        if not self.gs.bg_sounds:
+        if not self.gs.bgm_sounds:
             pygame.mixer.music.stop()
             self.current_music_path = None
             return
 
-        target_music_path: str = None
+        target_music_path: str = ""
         loop: int = -1  # Default to loop infinitely
 
         if gs.cur_state in assets.MUSIC_PATHS:
@@ -268,15 +269,42 @@ class GameEngine:
                 # display settings screen
                 ##############################################################
                 case GameState.GameStateName.SETTINGS:
-                    self.ui.draw_settings_screen(self.gs.bg_sounds)
+                    self.ui.draw_settings_screen(self.gs.bgm_sounds, self.gs.sfx_sounds, self.gs.music_volume, self.gs.sfx_volume)
                     pygame.mouse.set_visible(True)
+
                     for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.volume_button_rect.collidepoint(event.pos):
-                                self.gs.bg_sounds = not self.gs.bg_sounds
-                                self.gs.music_volume = MUSIC_VOLUME_INITIAL if self.gs.bg_sounds else 0.0
-                            if self.ui.back_button_rect.collidepoint(event.pos):
+                            if self.ui.volume_bgbutton_rect.collidepoint(event.pos):
+                                self.gs.bgm_sounds = not self.gs.bgm_sounds
+                                if not self.gs.bgm_sounds and self.gs.music_volume <= 0:
+                                    self.gs.bgm_sounds = True
+                                    self.gs.music_volume = 0.2
+                                    pygame.mixer.music.set_volume(self.gs.music_volume)
+                            elif self.ui.volume_sfbutton_rect.collidepoint(event.pos):
+                                self.gs.sfx_sounds = not self.gs.sfx_sounds
+                                if not self.gs.sfx_sounds and self.gs.sfx_volume <= 0:
+                                    self.gs.sfx_sounds = True
+                                    self.gs.sfx_volume = 0.2
+                                    pygame.mixer.music.set_volume(self.gs.sfx_volume)
+                            elif self.ui.back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+                            elif self.ui.knob_bg_rect.collidepoint(event.pos):
+                                self.dragging_bgm_slider = True
+                            elif self.ui.knob_sf_rect.collidepoint(event.pos):
+                                self.dragging_sfx_slider = True
+                        elif event.type == pygame.MOUSEMOTION:
+                            if self.dragging_bgm_slider:
+                                slider_bg_x = self.ui.volume_bgbutton_rect.centerx + 75
+                                new_vol = (event.pos[0] - (slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
+                                self.gs.music_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                                pygame.mixer.music.set_volume(self.gs.music_volume)
+                            if self.dragging_sfx_slider:
+                                slider_sf_x = self.ui.volume_sfbutton_rect.centerx + 75
+                                new_vol = (event.pos[0] - (slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
+                                self.gs.sfx_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                        elif event.type == pygame.MOUSEBUTTONUP:
+                            self.dragging_bgm_slider = False
+                            self.dragging_sfx_slider = False
 
                 ##############################################################
                 # display the PLAYING gameplay screen
@@ -338,7 +366,7 @@ class GameEngine:
                                                 #  it to be displayed for some duration because we sometimes don't see
                                                 #  the inflation effect, likely because it's removed before being drawn
                                                 other_wo.animate(self.screen)
-                                                pygame.display.update(other_wo)
+                                                pygame.display.update(other_wo.rect)
                                                 other_wo.destruction(self.gw.world_objects)
                                                 #other_wo.rect.inflate_ip(current_wo.rect.width * 3,
                                                 #                         current_wo.rect.height * 3)
@@ -351,7 +379,6 @@ class GameEngine:
                                                     self.gs.ball_speed_increased_ratio = current_wo.speed_v / BALL_SPEED_VECTOR
                                                     current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
                                                 #self.gw.world_objects.remove(other_wo)
-
 
                                     else:
                                         # this is the other side of the allow_collision logic above, since
@@ -482,7 +509,7 @@ class GameEngine:
                     # detect the CTRL+'=' and CTRL+'-' key combos to adjust music volume
                     if event.key == pygame.K_EQUALS:
                         if event.mod & pygame.KMOD_CTRL:
-                            self.gs.bg_sounds = True
+                            self.gs.bgm_sounds = True
                             self.gs.music_volume += MUSIC_VOLUME_STEP
                             self.gs.music_volume = min(self.gs.music_volume, 1.0)
                             pygame.mixer.music.set_volume(self.gs.music_volume)
@@ -493,7 +520,7 @@ class GameEngine:
                             self.gs.music_volume -= MUSIC_VOLUME_STEP
                             self.gs.music_volume = max(self.gs.music_volume, 0.0)
                             if self.gs.music_volume < 0.01:
-                                self.gs.bg_sounds = False
+                                self.gs.bgm_sounds = False
                             pygame.mixer.music.set_volume(self.gs.music_volume)
 
                     # detect the CTRL+l to force-load next level in sequence

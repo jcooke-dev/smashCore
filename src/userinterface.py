@@ -22,7 +22,10 @@ class UserInterface:
 
     def __init__(self) -> None:
         # Define Main Menu buttons
-        self.volume_button_rect = None
+        self.knob_sf_rect = None
+        self.knob_bg_rect = None
+        self.volume_sfbutton_rect = None
+        self.volume_bgbutton_rect = None
         self.settings_button_rect = None
         self.quit_button_start_rect = None
         self.leader_button_rect = None
@@ -54,20 +57,20 @@ class UserInterface:
         # fall back to a default pygame font
         self.font_dev_overlay: pygame.font = pygame.font.SysFont("Courier", 16, True)  # dev overlay font
 
-        self.surface: pygame.surface = None
+        self.surface: pygame.Surface = pygame.Surface((constants.WIDTH, constants.HEIGHT), pygame.SRCALPHA)
         self.screen: pygame.surface = None
         self.tb_initials_text: str = ""
         self.background_balls = []
         self.background_bricks = []
         self.initialize_background_elements()
 
-    def draw_button(self, text: pygame.Surface, x: int, y: int, width: int, height: int, color: pygame.color,
+    def draw_button(self, btn_surface: pygame.Surface, x: int, y: int, width: int, height: int, color: pygame.color,
                     hover_color: pygame.color, action: Callable = None, corner_radius: int = 10) -> pygame.Rect:
         """
         Draw a button and return its Rect.
 
         :param corner_radius:
-        :param text: button text
+        :param btn_surface: button text
         :param x: Rect x
         :param y: Rect y
         :param width: Rect width
@@ -88,9 +91,8 @@ class UserInterface:
         else:
             pygame.draw.rect(self.surface, color, rect, border_radius=corner_radius)
 
-        #text_surface = self.font_buttons.render(text, True, (0, 0, 0))
-        text_rect = text.get_rect(center=rect.center)
-        self.surface.blit(text, text_rect)
+        text_rect = btn_surface.get_rect(center=rect.center)
+        self.surface.blit(btn_surface, text_rect)
         return rect
 
     def draw_pause_menu(self) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
@@ -557,21 +559,69 @@ class UserInterface:
         # draw everything
         self.screen.blit(self.surface, (0, 0))
 
-    def draw_settings_screen(self, hasSounds: bool) -> None:
+    def draw_settings_screen(self, hasbgm: bool, hassfx: bool, vol_bgm: float, vol_sfx: float) -> None:
         """
         Show the settings screen
 
+        :param hassfx: determines if bgm is toggled on
+        :param hassfx: determines if sfx is toggled on
+        :param vol_bgm: current volume of bgm
+        :param vol_sfx: current volume of sfx
+
         :return:
         """
+        bg_sound = assets.VOLUME_ICON.convert_alpha() if hasbgm and vol_bgm > 0 else assets.MUTE_ICON.convert_alpha()
+        sfx_sound = assets.VOLUME_ICON.convert_alpha() if hassfx and vol_sfx > 0 else assets.MUTE_ICON.convert_alpha()
+
         self.surface.fill(constants.BLACK)
 
         title_text = self.font_subtitle_text.render("SETTINGS", True, constants.WHITE)
-        self.surface.blit(title_text, title_text.get_rect(center=(constants.WIDTH // 2, 150)))
+        self.surface.blit(title_text, title_text.get_rect(center=(constants.WIDTH // 2, 100)))
 
-        bg_sounds_text = self.font_menu_sub.render("Mute Background Music", True, constants.BLACK) if hasSounds else (
-            self.font_menu_sub.render("Unmute Background Music", True, constants.BLACK))
-        self.volume_button_rect = self.draw_button(bg_sounds_text, 50, 225, 330, 50,
-                                                   constants.YELLOW, (200, 200, 0))
+        #icon_width, icon_height default = 330, 50
+        icon_width, icon_height = 75, 75
+        icon_x = constants.WIDTH // 6
+        knob_radius = constants.KNOB_RADIUS
+
+        #draw the bgm volume icons and sliders to the surface
+        bg_icon_y = (constants.HEIGHT // 3) - (icon_height // 2)
+        bg_sound = pygame.transform.scale(bg_sound, (icon_width, icon_height))
+
+        bgm_text = self.font_leaderboard.render('BGM Volume', True, constants.WHITE)
+        self.surface.blit(bgm_text, bgm_text.get_rect(bottomleft=(icon_x, bg_icon_y - 10)))
+        self.volume_bgbutton_rect = self.draw_button(bg_sound, icon_x, bg_icon_y, icon_width, icon_height,
+                                                     (0, 0, 0, 0), (200, 200, 200, 0))
+
+        slider_bg_x = self.volume_bgbutton_rect.centerx + 75
+        slider_bg_y = self.volume_bgbutton_rect.centery - (constants.SLIDER_HEIGHT // 2)
+        knob_bg_x = slider_bg_x - knob_radius + int(vol_bgm * constants.SLIDER_WIDTH) if hasbgm else slider_bg_x - knob_radius
+        knob_bg_y = slider_bg_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
+
+        slider_bgm_rect = pygame.Rect(slider_bg_x, slider_bg_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
+        pygame.draw.rect(self.surface, constants.WHITE, slider_bgm_rect, border_radius=20)
+        knob_bg = pygame.Surface((knob_radius * 2, knob_radius * 2), pygame.SRCALPHA)
+        self.knob_bg_rect = self.draw_button(knob_bg, knob_bg_x, knob_bg_y, knob_radius * 2, knob_radius * 2,
+                                             constants.GRAY, (100, 100, 100), corner_radius=knob_radius)
+
+        # draws the sfx volume icons and sliders to the surface
+        sfx_icon_y = bg_icon_y + icon_height + 100
+        sfx_sound = pygame.transform.scale(sfx_sound, (icon_width, icon_height))
+        
+        sfx_text = self.font_leaderboard.render('SFX Volume', True, constants.WHITE)
+        self.surface.blit(sfx_text, sfx_text.get_rect(bottomleft=(icon_x, sfx_icon_y - 10)))
+        self.volume_sfbutton_rect = self.draw_button(sfx_sound, icon_x, sfx_icon_y, icon_width, icon_height,
+                                                     (0, 0, 0, 0), (200, 200, 200, 0))
+
+        slider_sf_x = self.volume_sfbutton_rect.centerx + 75
+        slider_sf_y = self.volume_sfbutton_rect.centery - (constants.SLIDER_HEIGHT // 2)
+        knob_sf_x = slider_sf_x - knob_radius + int(vol_sfx * constants.SLIDER_WIDTH) if hassfx else slider_sf_x - knob_radius
+        knob_sf_y = slider_sf_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
+
+        slider_sfx_rect = pygame.Rect(slider_sf_x, slider_sf_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
+        pygame.draw.rect(self.surface, constants.WHITE, slider_sfx_rect, border_radius=20)
+        knob_sf = pygame.Surface((knob_radius * 2, knob_radius * 2), pygame.SRCALPHA)
+        self.knob_sf_rect = self.draw_button(knob_sf, knob_sf_x, knob_sf_y, knob_radius * 2, knob_radius * 2,
+                                             constants.GRAY, (100, 100, 100), corner_radius=knob_radius)
 
         # Back button
         back_width = 100
