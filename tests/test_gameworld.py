@@ -20,6 +20,10 @@ from levels import Levels
 
 @pytest.fixture
 def gameworld():
+    """
+    set up world objects for tests
+    :return:
+    """
     with mock.patch("pygame.Rect") as mock_rect, mock.patch("pygame.color") as mock_color:
         obstacle_1 = Obstacle(mock_rect, mock_color)
         obstacle_2 = Obstacle(mock_rect, mock_color)

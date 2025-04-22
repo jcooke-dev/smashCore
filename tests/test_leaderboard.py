@@ -17,6 +17,10 @@ from playerstate import PlayerState
 
 @pytest.fixture
 def leaderboard_partial():
+    """
+    Set up partially full leaderboard
+    :return:
+    """
     score_list: list[Score] = [Score(50, 1, "ddd"),
                                Score(100, 1, "ccc"),
                                Score(300, 1, "bbb"),
@@ -28,6 +32,10 @@ def leaderboard_partial():
 
 @pytest.fixture
 def leaderboard_full():
+    """
+    Set up full leaderboard
+    :return:
+    """
     score_list: list[Score] = [
         Score(50, 1, "iii"),
         Score(100, 1, "ccc"),
@@ -46,30 +54,65 @@ def leaderboard_full():
 
 
 def test_is_high_score(leaderboard_partial):
+    """
+    Test that score of 1000 is within partial high score leaderboard
+    :param leaderboard_partial:
+    :return:
+    """
     assert leaderboard_partial.is_high_score(1000)
 
 
 def test_is_high_score_without_full_list(leaderboard_partial):
+    """
+    Test that score of 30 is within partial high score leaderboard
+    :param leaderboard_partial:
+    :return:
+    """
     assert leaderboard_partial.is_high_score(30)
 
 
 def test_is_high_score_without_full_list_same_low_score(leaderboard_partial):
+    """
+    Test that 50 is within partial high score leaderboard
+    :param leaderboard_partial:
+    :return:
+    """
     assert leaderboard_partial.is_high_score(50)
 
 
 def test_is_not_high_score_with_full_list(leaderboard_full):
+    """
+    Test that 30 is not within full high score leaderboard
+    :param leaderboard_full:
+    :return:
+    """
     assert leaderboard_full.is_high_score(30) is False
 
 
 def test_is_not_high_score_with_full_list_same_min_score(leaderboard_full):
+    """
+    Test that 50 is not within full high score leaderboard
+    :param leaderboard_full:
+    :return:
+    """
     assert leaderboard_full.is_high_score(50) is False
 
 
 def test_is_high_score_with_full_list(leaderboard_full):
+    """
+    Test that 400 is within full high score leaderboard
+    :param leaderboard_full:
+    :return:
+    """
     assert leaderboard_full.is_high_score(400)
 
 
 def test_add_score_to_parial_list(leaderboard_partial):
+    """
+    Test that score is added to a partial list
+    :param leaderboard_partial:
+    :return:
+    """
     ps = PlayerState()
     ps.score = 400
     ps.level = 2
@@ -88,6 +131,11 @@ def test_add_score_to_parial_list(leaderboard_partial):
 
 
 def test_add_score_to_full_list(leaderboard_full):
+    """
+    Test that score is added to a full list and lowest score is no longer present in the list
+    :param leaderboard_full:
+    :return:
+    """
     ps = PlayerState()
     ps.score = 400
     ps.level = 2

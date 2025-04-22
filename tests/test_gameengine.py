@@ -25,6 +25,10 @@ from ball import Ball
 
 @pytest.fixture
 def mock_pygame():
+    """
+    Set up mock pygame object dependencies
+    :return:
+    """
     with mock.patch("pygame.quit") as mock_pygame_quit, \
          mock.patch("pygame.event.get") as mock_event_get,\
          mock.patch("pygame.mixer.init") as mock_mixer_init, \
@@ -61,6 +65,11 @@ def mock_pygame():
 
 @pytest.fixture
 def starting_ge(mock_pygame):
+    """
+    Create initial gameengine for testing
+    :param mock_pygame:
+    :return:
+    """
     with mock.patch("assets.pygame.image.load") as mock_image_load:
         mock_image = mock.Mock()
         mock_image_load.return_value = mock_image

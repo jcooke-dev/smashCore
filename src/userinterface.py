@@ -606,7 +606,6 @@ class UserInterface:
         # draws the sfx volume icons and sliders to the surface
         sfx_icon_y = bg_icon_y + icon_height + 100
         sfx_sound = pygame.transform.scale(sfx_sound, (icon_width, icon_height))
-        
         sfx_text = self.font_leaderboard.render('SFX Volume', True, constants.WHITE)
         self.surface.blit(sfx_text, sfx_text.get_rect(bottomleft=(icon_x, sfx_icon_y - 10)))
         self.volume_sfbutton_rect = self.draw_button(sfx_sound, icon_x, sfx_icon_y, icon_width, icon_height,

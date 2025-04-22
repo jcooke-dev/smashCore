@@ -1,0 +1,23 @@
+[MASTER]
+source-roots=src
+ignore-patterns=tests/*
+
+[DESIGN]
+max-args=10
+
+[FORMAT]
+max-line-length=240
+
+# Maximum number of lines in a module.
+max-module-lines=1000
+
+[refactoring]
+max-args=10
+max-branches=20
+max-attributes=20
+max-statements=80
+
+
+[messages control]
+disable=c-extension-no-member
+extension-pkg-whitelist=pygame

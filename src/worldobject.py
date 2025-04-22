@@ -45,11 +45,11 @@ class WorldObject:
         :return:
         """
 
-    def detect_collision(self, hitbox: pygame.rect, gs: gs_.GameState) -> None:
+    def detect_collision(self, wo: pygame.rect, gs: gs_.GameState) -> None:
         """
         Function to detect collisions
 
-        :param hitbox: the other Rect in the collision detection check
+        :param wo: the other Rect in the collision detection check
         :param gs: GameState
         :return:
         """
@@ -60,13 +60,6 @@ class WorldObject:
 
         :return:
         """
-
-    def should_score(self) -> bool:
-        """
-        Inform caller that this WorldObject should be able to score
-        :return:
-        """
-        return False
 
     def should_score(self) -> bool:
         """
@@ -104,9 +97,15 @@ class WorldObject:
         self.primed_collision = True
 
     def destruction(self, object_list):
-
-        pass
+        """
+        Destroy world object
+        :param object_list:
+        :return:
+        """
 
     def animate(self,screen):
-
-        pass
+        """
+        Animate world object
+        :param screen:
+        :return:
+        """
