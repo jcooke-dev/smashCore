@@ -102,3 +102,18 @@ SmashCore's code base is organized into separate folders for source code (\\src\
 
 ## Source Code API/Documentation
 You can view the source code API, automatically generated with pdoc, here: https://jcooke-dev.github.io/smashCore/src.html 
+
+
+## Credits
+
+**Sound Effects:**
+* Free sound effects obtained from [Mixkit](https://mixkit.co/free-sound-effects/game/).
+
+**Game Logo:**
+* Designed by [Camila Roxo]
+ 
+**Volume Botton Layout:**
+* Designed by [Rex Vargas]
+
+**Game Art:**
+* Designed by [Justin Smith]
