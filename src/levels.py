@@ -29,7 +29,7 @@ class Levels:
 
         # changing this from auto() to explicit numbering, since mapping the level number
         # to this wrapping set of enum LevelNames (that logic in get_level_name_from_num()
-        # needs known enum values here to work reliably)
+        # needs enum values here to work reliably)
         SMASHCORE_1: Enum = 1
         SMASHCORE_SOLID_ROWS_1: Enum = 2
         SMASHCORE_IMG_CHAMFER_1: Enum = 3

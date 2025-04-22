@@ -11,6 +11,7 @@
 
 from datetime import datetime
 
+
 class Score:
     """ This maintains a single score's data """
 
