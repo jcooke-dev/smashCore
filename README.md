@@ -45,7 +45,7 @@ We're developing SmashCore in Python, intending to target releases to Windows, m
 * **pygame 2.6.0** - library of Python modules designed specifically for writing games (https://www.pygame.org/)
 * **pytest 8.3.5** - a testing framework (https://pypi.org/project/pytest/)
 * **pylint 3.3.6** - a static code analyzer (https://pypi.org/project/pylint/)
-* **pydoc** - an automatic documentation generator (https://docs.python.org/3/library/pydoc.html)
+* **pdoc 15.0.3** - an automatic documentation generator (https://pdoc.dev/)
 * **bandit 1.8.3** - tool to scan all Python source files and generate a security report (https://pypi.org/project/bandit/)
 * **pickle** - library to support Python object serialization (https://docs.python.org/3/library/pickle.html)
 * **PyInstaller 6.12.0** - a tool that helps package and distribute a Python application for desktop execution (https://pyinstaller.org/)
@@ -62,6 +62,13 @@ Configure PyCharm for pytest
 * Save
 * In the project panel, right click on src. Mark Directory As: Sources Root
 * Do the same for tests but mark it Test Sources Root
+### pdoc
+To use pdoc to auto-generate a set of HTML files for navigating the program code:
+* Ensure pdoc (not pdoc3) is installed
+* Add this new environment variable if it doesn't already exist (User or System is fine):
+  * PYTHONPATH = [absolute path on your machine to the root SmashCore src\ directory] (for example: ```e:\Users\justin\Documents\UMUC\CMSC495\code\github\smashCore\src```)
+* From the PyCharm terminal, run this command from your project/repo root (for example: ```e:\Users\justin\Documents\UMUC\CMSC495\code\github\smashCore```): ```pdoc -o ./docs src/```
+* The documentation will be generated in the ```.docs``` folder
 
 ## Building the Source Code for Distribution
 Download the full source code directory structure from GitHub: https://github.com/jcooke-dev/smashCore
