@@ -110,10 +110,13 @@ You can view the source code API, automatically generated with pdoc, here: https
 * Free sound effects obtained from [Mixkit](https://mixkit.co/free-sound-effects/game/).
 
 **Game Logo:**
-* Designed by [Camila Roxo]
+* Designed by Camila Roxo
  
 **Volume Botton Layout:**
-* Designed by [Rex Vargas]
+* Designed by Rex Vargas
 
 **Game Art:**
-* Designed by [Justin Smith]
+* Designed by Justin Smith
+
+**Level Design:**
+* Designed by all members of SmashCore team
