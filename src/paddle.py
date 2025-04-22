@@ -103,8 +103,7 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         """
         self.rect.x += pixels
         # Check that the paddle is not going too far (off the screen)
-        if self.rect.x > constants.WIDTH - constants.PAD_WIDTH:
-            self.rect.x = constants.WIDTH - constants.PAD_WIDTH
+        self.rect.x = min(self.rect.x, constants.WIDTH - constants.PAD_WIDTH)
 
     def move_to_x(self, posx: int) -> None:
         """

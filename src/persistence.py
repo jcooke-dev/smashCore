@@ -60,8 +60,8 @@ def store_object(obj: object, filename: str):
     path = os.path.join(GAME_DATA_PATH, filename)
 
     os.makedirs(GAME_DATA_PATH, exist_ok=True)
-    with open(path, 'wb') as fileOut:
-        pickle.dump(obj, fileOut)
+    with open(path, 'wb') as file_out:
+        pickle.dump(obj, file_out)
 
 
 def read_object(filename: str):
@@ -78,9 +78,9 @@ def read_object(filename: str):
 
     try:
         if os.path.getsize(path) > 0:
-            with open(path, 'rb') as fileIn:
-                if fileIn is not None:
-                    obj = pickle.load(fileIn)
+            with open(path, 'rb') as file_in:
+                if file_in is not None:
+                    obj = pickle.load(file_in)
                     return obj
 
     except FileNotFoundError:

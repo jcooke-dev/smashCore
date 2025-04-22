@@ -63,13 +63,6 @@ class WorldObject:
 
     def should_score(self) -> bool:
         """
-        Inform caller that this WorldObject should be able to score
-        :return:
-        """
-        return False
-
-    def should_score(self) -> bool:
-        """
         Inform caller that this WorldObject should increase the player's score
 
         :return:
@@ -104,9 +97,15 @@ class WorldObject:
         self.primed_collision = True
 
     def destruction(self, object_list):
-
-        pass
+        """
+        Destroy world object
+        :param object_list:
+        :return:
+        """
 
     def animate(self,screen):
-
-        pass
+        """
+        Animate world object
+        :param screen:
+        :return:
+        """
