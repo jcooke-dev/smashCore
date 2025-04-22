@@ -179,7 +179,7 @@ def test_draw_world_and_status(starting_ge):
     ge.ui.draw_status.assert_called_once_with(2, 320, 1)
 
 
-@mock.patch("builtins.exit")
+@mock.patch("gameengine.exit")
 def test_clean_shutdown(mock_exit, starting_ge):
     """
     Tests that clean_shutdown stops the music, sets the current_music_path to None,
