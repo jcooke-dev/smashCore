@@ -14,6 +14,7 @@ import pygame
 
 import utils
 import persistence
+from constants import KNOB_RADIUS
 from src import assets
 from src.ball import Ball
 from src.brick import Brick
@@ -296,12 +297,12 @@ class GameEngine:
                         elif event.type == pygame.MOUSEMOTION:
                             if self.dragging_bgm_slider:
                                 slider_bg_x = self.ui.volume_bgbutton_rect.centerx + 75
-                                new_vol = (event.pos[0] - (slider_bg_x - 20)) / SLIDER_WIDTH
+                                new_vol = (event.pos[0] - (slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
                                 self.gs.music_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
                                 pygame.mixer.music.set_volume(self.gs.music_volume)
                             if self.dragging_sfx_slider:
                                 slider_sf_x = self.ui.volume_sfbutton_rect.centerx + 75
-                                new_vol = (event.pos[0] - (slider_sf_x - 20)) / SLIDER_WIDTH
+                                new_vol = (event.pos[0] - (slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
                                 self.gs.sfx_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
                         elif event.type == pygame.MOUSEBUTTONUP:
                             self.dragging_bgm_slider = False

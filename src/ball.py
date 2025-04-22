@@ -24,7 +24,7 @@ from motionmodels import MotionModels
 class Ball(WorldObject, pygame.sprite.Sprite):
     """ The ball object that collides with the paddle, walls, and bricks """
 
-    def __init__(self, x: int, y: int, image=None) -> None:
+    def __init__(self, x: float, y: float, image=None) -> None:
         """
         Initialize ball with base values and primed for collisions
 
@@ -42,8 +42,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         self.image: pygame.image = image
 
         # SIMPLE_1 motion model defaults
-        self.x: int = x - self.radius
-        self.y: int = y
+        self.x: float = x - self.radius
+        self.y: float = y
         self.dx: int = rnd.choice([1, -1])
         self.dy: int = -1
         self.speed: float = constants.BALL_SPEED_SIMPLE

@@ -581,7 +581,7 @@ class UserInterface:
         #icon_width, icon_height default = 330, 50
         icon_width, icon_height = 75, 75
         icon_x = constants.WIDTH // 6
-        knob_radius = 20
+        knob_radius = constants.KNOB_RADIUS
 
         #draw the bgm volume icons and sliders to the surface
         bg_icon_y = (constants.HEIGHT // 3) - (icon_height // 2)

@@ -39,7 +39,7 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         self.color: pygame.color = color
         self.image: pygame.image = image
 
-        self.commanded_pos_x: int = 0
+        self.commanded_pos_x: float = 0
 
     def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard) -> None:
         """
