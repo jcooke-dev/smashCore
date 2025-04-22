@@ -14,4 +14,5 @@ max-module-lines=1000
 max-positional-arguments = 10
 
 [messages control]
-disable = c-extension-no-member
+disable=c-extension-no-member
+extension-pkg-whitelist=pygame
