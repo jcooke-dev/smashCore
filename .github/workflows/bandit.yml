@@ -49,7 +49,7 @@ jobs:
 
           # B311 - pseudo random generators are used for generating colors, select colors or brick values from a list
           # B301, 403 concern the use of pickle. Application is only storing 3 initials, score, and level. Nothing secure.
-          skips: B311, B301, B403
+          skips: B311
           # path to a .bandit file that supplies command line arguments
           # ini_path: # optional, default is DEFAULT
 
