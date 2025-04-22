@@ -1,6 +1,6 @@
 [MASTER]
 source-roots=src
-ignore-patterns=test_*.py
+ignore-patterns=tests/*
 
 [DESIGN]
 max-args=10
