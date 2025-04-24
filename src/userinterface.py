@@ -96,9 +96,11 @@ class UserInterface:
         self.surface.blit(btn_surface, text_rect)
         return rect
 
-    def draw_pause_menu(self) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
+    def draw_pause_menu(self, mouse_ctrl) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
         """
         Displays the pause menu where user can continue, restart, or quit the game
+
+        :param mouse_ctrl: True if the current paddle control setting is on mouse control
 
         :return:
         """
@@ -107,16 +109,23 @@ class UserInterface:
 
         title1_text = self.font_title_text.render("Game Paused:", True, constants.YELLOW)
         title2_text = self.font_title_text.render("Press ESC to Continue", True, constants.YELLOW)
-        title1_text_rect = title1_text.get_rect(center=(constants.WIDTH // 2, 270))
-        title2_text_rect = title2_text.get_rect(center=(constants.WIDTH // 2, 350))
+        pad_btn_lbl = self.font_buttons.render('Paddle Control', True, constants.WHITE)
+        title1_text_rect = title1_text.get_rect(center=(constants.WIDTH // 2, 170))
+        title2_text_rect = title2_text.get_rect(center=(constants.WIDTH // 2, 250))
+        pad_btn_lbl_rect = pad_btn_lbl.get_rect(topright=(constants.WIDTH // 2, 350))
 
         self.surface.blit(title1_text, title1_text_rect)
         self.surface.blit(title2_text, title2_text_rect)
+        self.surface.blit(pad_btn_lbl, pad_btn_lbl_rect)
+
+        pad_btn_text = self.font_buttons.render("Mouse Control", True, constants.BLACK) if mouse_ctrl else self.font_buttons.render("Keyboard Control", True, constants.BLACK)
+        self.pad_btn_rect = self.draw_button(pad_btn_text, (constants.WIDTH // 2) + 10, pad_btn_lbl_rect.y - 3,
+                                             315, 40, (200, 200, 200), constants.GRAY)
 
         button_width = 200
         button_height = 75
         button_x = (constants.WIDTH - button_width) // 2
-        button_y_start = constants.HEIGHT // 2
+        button_y_start = (constants.HEIGHT + button_height) // 2
         button_spacing = 30
 
         # Draw "Restart" button
@@ -164,7 +173,7 @@ class UserInterface:
         button_width = 200
         button_height = 75
         button_x = (constants.WIDTH - button_width) // 2
-        button_y_start = constants.HEIGHT // 2
+        button_y_start = (constants.HEIGHT + button_height) // 2
         button_spacing = 30
 
         # Draw "Try Again" button
