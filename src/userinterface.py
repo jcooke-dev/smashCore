@@ -24,6 +24,7 @@ class UserInterface:
         # Define Main Menu buttons
         self.knob_sf_rect = None
         self.knob_bg_rect = None
+        self.pad_btn_rect = None
         self.volume_sfbutton_rect = None
         self.volume_bgbutton_rect = None
         self.settings_button_rect = None
@@ -559,12 +560,13 @@ class UserInterface:
         # draw everything
         self.screen.blit(self.surface, (0, 0))
 
-    def draw_settings_screen(self, hasbgm: bool, hassfx: bool, vol_bgm: float, vol_sfx: float) -> None:
+    def draw_settings_screen(self, hasbgm: bool, hassfx: bool, mouse_ctrl: bool, vol_bgm: float, vol_sfx: float) -> None:
         """
         Show the settings screen
 
         :param hassfx: determines if bgm is toggled on
         :param hassfx: determines if sfx is toggled on
+        :param mouse_ctrl: determines if current paddle control setting is mouse control
         :param vol_bgm: current volume of bgm
         :param vol_sfx: current volume of sfx
 
@@ -621,6 +623,14 @@ class UserInterface:
         knob_sf = pygame.Surface((knob_radius * 2, knob_radius * 2), pygame.SRCALPHA)
         self.knob_sf_rect = self.draw_button(knob_sf, knob_sf_x, knob_sf_y, knob_radius * 2, knob_radius * 2,
                                              constants.GRAY, (100, 100, 100), corner_radius=knob_radius)
+
+        pad_btn_lbl_y = sfx_icon_y + icon_height + 100
+        pad_btn_lbl = self.font_leaderboard.render('Paddle Control', True, constants.WHITE)
+        self.surface.blit(pad_btn_lbl, pad_btn_lbl.get_rect(bottomleft=(icon_x, pad_btn_lbl_y - 10)))
+
+        pad_btn_text = self.font_menu_sub.render("Mouse Control", True, constants.BLACK) if mouse_ctrl else self.font_menu_sub.render("Keyboard Control", True, constants.BLACK)
+        self.pad_btn_rect = self.draw_button(pad_btn_text, icon_x, pad_btn_lbl_y,
+                                             250, 40, (200, 200, 200), constants.GRAY)
 
         # Back button
         back_width = 100

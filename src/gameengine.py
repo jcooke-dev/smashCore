@@ -269,7 +269,8 @@ class GameEngine:
                 # display settings screen
                 ##############################################################
                 case GameState.GameStateName.SETTINGS:
-                    self.ui.draw_settings_screen(self.gs.bgm_sounds, self.gs.sfx_sounds, self.gs.music_volume, self.gs.sfx_volume)
+                    self.ui.draw_settings_screen(self.gs.bgm_sounds, self.gs.sfx_sounds,
+                                                 self.gs.paddle_under_mouse_control, self.gs.music_volume, self.gs.sfx_volume)
                     pygame.mouse.set_visible(True)
 
                     for event in events:
@@ -292,6 +293,8 @@ class GameEngine:
                                 self.dragging_bgm_slider = True
                             elif self.ui.knob_sf_rect.collidepoint(event.pos):
                                 self.dragging_sfx_slider = True
+                            elif self.ui.pad_btn_rect.collidepoint(event.pos):
+                                self.gs.paddle_under_mouse_control = not self.gs.paddle_under_mouse_control
                         elif event.type == pygame.MOUSEMOTION:
                             if self.dragging_bgm_slider:
                                 slider_bg_x = self.ui.volume_bgbutton_rect.centerx + 75
@@ -317,9 +320,9 @@ class GameEngine:
                     mouse_pos = pygame.mouse.get_pos()
 
                     # detect mouse motion, since that should shift paddle control from keys back to the mouse
-                    if mouse_pos[0] != self.gs.last_mouse_pos_x:
-                        # mouse is moving
-                        self.gs.paddle_under_mouse_control = True
+                    # if mouse_pos[0] != self.gs.last_mouse_pos_x:
+                    #     # mouse is moving
+                    #     self.gs.paddle_under_mouse_control = True
 
                     self.gs.last_mouse_pos_x = mouse_pos[0]
 
@@ -332,7 +335,7 @@ class GameEngine:
                                 current_wo.commanded_pos_x = self.gs.cur_ball_x
                             elif self.gs.paddle_under_mouse_control:
                                 current_wo.commanded_pos_x = mouse_pos[0]
-                                self.gs.paddle_under_mouse_control = False
+                                #self.gs.paddle_under_mouse_control = False
 
                         if isinstance(current_wo, Ball) and GameState.GameStateName.READY_TO_LAUNCH:
                             current_wo.commanded_pos_x = self.gs.paddle_pos_x
@@ -558,10 +561,11 @@ class GameEngine:
 
             # get the continuously pressed keys, rather than single key press events
             pressed_keys = pygame.key.get_pressed()
-            if pressed_keys[pygame.K_LEFT]:
-                self.gs.paddle_under_key_control_left = True
-            elif pressed_keys[pygame.K_RIGHT]:
-                self.gs.paddle_under_key_control_right = True
+            if not self.gs.paddle_under_mouse_control:
+                if pressed_keys[pygame.K_LEFT]:
+                    self.gs.paddle_under_key_control_left = True
+                elif pressed_keys[pygame.K_RIGHT]:
+                    self.gs.paddle_under_key_control_right = True
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:
