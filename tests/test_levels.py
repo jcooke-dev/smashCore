@@ -79,7 +79,8 @@ def test_build_level(level_name, expected_brick_count):
     :param expected_brick_count:
     :return:
     """
-    with patch("assets.BRICK_COLORS", return_value=[]) as mock_assets, patch("pygame.transform.scale") as mock_image:
+    dummy_colors = ["red", "green", "blue"]
+    with patch("assets.BRICK_COLORS", new=dummy_colors) as mock_assets, patch("pygame.transform.scale") as mock_image:
         gw_list = []
         Levels.build_level(gw_list, level_name)
         assert len(gw_list) == expected_brick_count
