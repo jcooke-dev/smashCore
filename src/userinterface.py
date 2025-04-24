@@ -25,8 +25,8 @@ class UserInterface:
         self.knob_sf_rect = None
         self.knob_bg_rect = None
         self.pad_btn_rect = None
-        self.volume_sfbutton_rect = None
-        self.volume_bgbutton_rect = None
+        self.vol_sfx_btn_rect = None
+        self.vol_bgm_btn_rect = None
         self.settings_button_rect = None
         self.quit_button_start_rect = None
         self.leader_button_rect = None
@@ -47,6 +47,7 @@ class UserInterface:
         self.font_credits: pygame.font = pygame.font.Font(None, 40)
         self.font_leaderboard: pygame.font = pygame.font.SysFont("Courier", 36, True)
         self.font_back_btn: pygame.font = pygame.font.Font(None, 36)
+        self.font_settings: pygame.font = pygame.font.SysFont("Courier", 36, True)
         #font - playing menus (game_over, pause, and highscore)
         self.font_title_text: pygame.font = pygame.font.Font(None, 100)
         self.font_subtitle_text: pygame.font = pygame.font.SysFont("Courier", 60, True)  # high scores
@@ -119,7 +120,7 @@ class UserInterface:
         self.surface.blit(pad_btn_lbl, pad_btn_lbl_rect)
 
         pad_btn_text = self.font_buttons.render("Mouse Control", True, constants.BLACK) if mouse_ctrl else self.font_buttons.render("Keyboard Control", True, constants.BLACK)
-        self.pad_btn_rect = self.draw_button(pad_btn_text, (constants.WIDTH // 2) + 10, pad_btn_lbl_rect.y - 3,
+        self.pad_btn_rect = self.draw_button(pad_btn_text, pad_btn_lbl_rect.x + pad_btn_lbl.get_width() + 10, pad_btn_lbl_rect.y - 3,
                                              315, 40, (200, 200, 200), constants.GRAY)
 
         button_width = 200
@@ -478,11 +479,13 @@ class UserInterface:
         text_lines = [
             "SmashCore is a brick-breaking game.",
             "Use a mouse, trackpad, or the arrow keys to control the paddle.",
-            "Use the paddle to hit the ball.",
-            "Break all the bricks to clear the level.",
+            "Use the paddle to reflect the ball and hit the bricks.",
+            "Breaking all of the bricks clears the level.",
             "",
             "ESC to pause.",
-            "CTRL-D for dev stats."
+            "CTRL + D for dev stats."
+            "CTRL + - to decrease overall volume.",
+            "CTRL + = to increase overall volume."
         ]
 
         y = constants.HEIGHT // 4
@@ -598,13 +601,13 @@ class UserInterface:
         bg_icon_y = (constants.HEIGHT // 3) - (icon_height // 2)
         bg_sound = pygame.transform.scale(bg_sound, (icon_width, icon_height))
 
-        bgm_text = self.font_leaderboard.render('BGM Volume', True, constants.WHITE)
+        bgm_text = self.font_settings.render('BGM Volume', True, constants.WHITE)
         self.surface.blit(bgm_text, bgm_text.get_rect(bottomleft=(icon_x, bg_icon_y - 10)))
-        self.volume_bgbutton_rect = self.draw_button(bg_sound, icon_x, bg_icon_y, icon_width, icon_height,
-                                                     (0, 0, 0, 0), (200, 200, 200, 0))
+        self.vol_bgm_btn_rect = self.draw_button(bg_sound, icon_x, bg_icon_y, icon_width, icon_height,
+                                                 (0, 0, 0, 0), (200, 200, 200, 0))
 
-        slider_bg_x = self.volume_bgbutton_rect.centerx + 75
-        slider_bg_y = self.volume_bgbutton_rect.centery - (constants.SLIDER_HEIGHT // 2)
+        slider_bg_x = self.vol_bgm_btn_rect.centerx + 75
+        slider_bg_y = self.vol_bgm_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
         knob_bg_x = slider_bg_x - knob_radius + int(vol_bgm * constants.SLIDER_WIDTH) if hasbgm else slider_bg_x - knob_radius
         knob_bg_y = slider_bg_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
@@ -617,13 +620,13 @@ class UserInterface:
         # draws the sfx volume icons and sliders to the surface
         sfx_icon_y = bg_icon_y + icon_height + 100
         sfx_sound = pygame.transform.scale(sfx_sound, (icon_width, icon_height))
-        sfx_text = self.font_leaderboard.render('SFX Volume', True, constants.WHITE)
+        sfx_text = self.font_settings.render('SFX Volume', True, constants.WHITE)
         self.surface.blit(sfx_text, sfx_text.get_rect(bottomleft=(icon_x, sfx_icon_y - 10)))
-        self.volume_sfbutton_rect = self.draw_button(sfx_sound, icon_x, sfx_icon_y, icon_width, icon_height,
-                                                     (0, 0, 0, 0), (200, 200, 200, 0))
+        self.vol_sfx_btn_rect = self.draw_button(sfx_sound, icon_x, sfx_icon_y, icon_width, icon_height,
+                                                 (0, 0, 0, 0), (200, 200, 200, 0))
 
-        slider_sf_x = self.volume_sfbutton_rect.centerx + 75
-        slider_sf_y = self.volume_sfbutton_rect.centery - (constants.SLIDER_HEIGHT // 2)
+        slider_sf_x = self.vol_sfx_btn_rect.centerx + 75
+        slider_sf_y = self.vol_sfx_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
         knob_sf_x = slider_sf_x - knob_radius + int(vol_sfx * constants.SLIDER_WIDTH) if hassfx else slider_sf_x - knob_radius
         knob_sf_y = slider_sf_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
@@ -634,12 +637,12 @@ class UserInterface:
                                              constants.GRAY, (100, 100, 100), corner_radius=knob_radius)
 
         pad_btn_lbl_y = sfx_icon_y + icon_height + 100
-        pad_btn_lbl = self.font_leaderboard.render('Paddle Control', True, constants.WHITE)
+        pad_btn_lbl = self.font_settings.render('Paddle Control', True, constants.WHITE)
         self.surface.blit(pad_btn_lbl, pad_btn_lbl.get_rect(bottomleft=(icon_x, pad_btn_lbl_y - 10)))
 
-        pad_btn_text = self.font_menu_sub.render("Mouse Control", True, constants.BLACK) if mouse_ctrl else self.font_menu_sub.render("Keyboard Control", True, constants.BLACK)
-        self.pad_btn_rect = self.draw_button(pad_btn_text, icon_x, pad_btn_lbl_y,
-                                             250, 40, (200, 200, 200), constants.GRAY)
+        pad_btn_text = self.font_buttons.render("Mouse Control", True, constants.BLACK) if mouse_ctrl else self.font_buttons.render("Keyboard Control", True, constants.BLACK)
+        self.pad_btn_rect = self.draw_button(pad_btn_text, icon_x + pad_btn_lbl.get_width() + 20, pad_btn_lbl_y - pad_btn_lbl.get_height() - 10,
+                                             330, 40, (200, 200, 200), constants.GRAY)
 
         # Back button
         back_width = 100

@@ -277,13 +277,13 @@ class GameEngine:
 
                     for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.volume_bgbutton_rect.collidepoint(event.pos):
+                            if self.ui.vol_bgm_btn_rect.collidepoint(event.pos):
                                 self.gs.bgm_sounds = not self.gs.bgm_sounds
                                 if not self.gs.bgm_sounds and self.gs.music_volume <= 0:
                                     self.gs.bgm_sounds = True
                                     self.gs.music_volume = 0.2
                                     pygame.mixer.music.set_volume(self.gs.music_volume)
-                            elif self.ui.volume_sfbutton_rect.collidepoint(event.pos):
+                            elif self.ui.vol_sfx_btn_rect.collidepoint(event.pos):
                                 self.gs.sfx_sounds = not self.gs.sfx_sounds
                                 if not self.gs.sfx_sounds and self.gs.sfx_volume <= 0:
                                     self.gs.sfx_sounds = True
@@ -299,13 +299,13 @@ class GameEngine:
                                 self.gs.paddle_under_mouse_control = not self.gs.paddle_under_mouse_control
                         elif event.type == pygame.MOUSEMOTION:
                             if self.dragging_bgm_slider:
-                                slider_bg_x = self.ui.volume_bgbutton_rect.centerx + 75
+                                slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75
                                 new_vol = (event.pos[0] - (slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
                                 self.gs.music_volume = max(0.0, min(1.0, round(
                                     new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
                                 pygame.mixer.music.set_volume(self.gs.music_volume)
                             if self.dragging_sfx_slider:
-                                slider_sf_x = self.ui.volume_sfbutton_rect.centerx + 75
+                                slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75
                                 new_vol = (event.pos[0] - (slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
                                 self.gs.sfx_volume = max(0.0, min(1.0, round(
                                     new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
