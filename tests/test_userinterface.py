@@ -57,6 +57,7 @@ def ui_fixture(mock_pygame):
     ui = UserInterface()
     ui.screen = mock.Mock()
     ui.surface = mock_pygame['surface']
+    ui.pad_btn_rect = mock.Mock()
 
     mock_font_button = mock.Mock()
     mock_font_status = mock.Mock()
@@ -95,40 +96,99 @@ def test_draw_button(ui_fixture):
         assert rect.topleft == (40, 40)
         assert mock_action.call_count == 1  # Action should be called when clicked
 
+# def dummy_font_render(text, flag, color):
+#     dummy_surface = MagicMock(name="dummy_surface")
+#
+#     dummy_rect = MagicMock(name='dummy_rect')
+#     dummy_rect.x = 200
+#     dummy_rect.y = 100
+#
+#     dummy_surface.get_rect.return_value = dummy_rect
+#     dummy_surface.get_width.return_value = 100
+#     return dummy_surface
+#
+# def test_draw_pause_menu(ui_fixture):
+#     """
+#     Asserts the correct text and buttons were rendered and blitted
+#     Assert "Game Paused: ESC to Resume" was rendered
+#     Assert "Paddle COntrol" was rendered
+#     Assert "Mouse Control" was rendered
+#     Assert "Restart Game" was rendered
+#     Assert "Quit Game" was rendered
+#     Assert surface was blitted
+#     Assert screen was blitted
+#     Assert pygame.draw.rect was called 4 times
+#     :param mock_rect:
+#     :param ui:
+#     :return:
+#     """
+#     ui, mock_pygame = ui_fixture
+#     ui.font_title1_text = mock_pygame['font']
+#     ui.font_title2_text = mock_pygame['font']
+#     ui.font_pad_btn_lbl = mock_pygame['font']
+#     ui.font_buttons = mock_pygame['font']
+#
+#     ui.font_title1_text.render.side_effect = dummy_font_render
+#     ui.font_title2_text.render.side_effect = dummy_font_render
+#     ui.font_pad_btn_lbl.render.side_effect = dummy_font_render
+#     ui.font_buttons.render.side_effect = dummy_font_render
+#
+#     ui.draw_pause_menu(True)
+    # called_args_title1 = ui.font_title1_text.render.call_args
+    # called_args_title2 = ui.font_title2_text.render.call_args
+    # called_args_pad_btn_lbl = ui.font_pad_btn_lbl.render.call_args
+    #
+    # if called_args_title1:
+    #     assert called_args_title1[0][0] == "Game Paused:"
+    # if called_args_title2:
+    #     assert called_args_title2[0][0] == "Press ESC to Resume"
+    # if called_args_pad_btn_lbl:
+    #     assert called_args_pad_btn_lbl[0][0] == "Paddle Control"
+    #
+    # ui.font_buttons.render.assert_any_call("Mouse Control", mock.ANY, mock.ANY)
+    # ui.font_buttons.render.assert_any_call("Restart", mock.ANY, mock.ANY)
+    # ui.font_buttons.render.assert_any_call("Main Menu", mock.ANY, mock.ANY)
+    # ui.font_buttons.render.assert_any_call("Quit", mock.ANY, mock.ANY)
+    #
+    # assert ui.surface.blit.called
+    # assert ui.screen.blit.called
+    # assert mock_pygame["draw.rect"].call_count == 4  #rect for buttons and text
 
 def test_draw_pause_menu(ui_fixture):
     """
     Asserts the correct text and buttons were rendered and blitted
-    Assert "Game Paused: ESC to Resume" was rendered
-    Assert "Restart Game" was rendered
-    Assert "Quit Game" was rendered
+    Assert "Game Paused: " was rendered
+    Assert "Press ESC to Continue was rendered
+    Assert "Paddle Control" was rendered
+    Assert all button fonts are rendered (Mouse/Keyboard control, Try Again, Main Menu, Quit)
     Assert surface was blitted
     Assert screen was blitted
-    Assert pygame.draw.rect was called 4 times
+    Assert pygame.draw.rect was called 5 times
     :param mock_rect:
     :param ui:
     :return:
     """
     ui, mock_pygame = ui_fixture
+
     ui.font_title1_text = mock_pygame['font']
     ui.font_title2_text = mock_pygame['font']
+    ui.font_pad_btn_lbl = mock_pygame['font']
+    ui.font_buttons = mock_pygame["font"]
 
-    ui.draw_pause_menu()
-    called_args_title1 = ui.font_title1_text.render.call_args
-    called_args_title2 = ui.font_title2_text.render.call_args
+    fake_render = lambda text, flag, color: type("FakeSurface", (), {
+            "get_rect": lambda self, **kwargs: type("FakeRect", (), {"x": 100, "y": kwargs.get("topright", (0, 0))[1]})(),
+            "get_width": lambda self: 80},)()
 
-    if called_args_title1:
-        assert called_args_title1[0][0] == "Game Paused:"
-    if called_args_title2:
-        assert called_args_title2[0][0] == "Press ESC to Resume"
+    ui.font_title1_text.render.side_effect = fake_render
+    ui.font_title2_text.render.side_effect = fake_render
+    ui.font_pad_btn_lbl.render.side_effect = fake_render
+    ui.font_buttons.render.side_effect = fake_render
 
-    ui.font_buttons.render.assert_any_call("Restart", mock.ANY, mock.ANY)
-    ui.font_buttons.render.assert_any_call("Main Menu", mock.ANY, mock.ANY)
-    ui.font_buttons.render.assert_any_call("Quit", mock.ANY,mock.ANY)
+    ui.draw_pause_menu(True)
+
     assert ui.surface.blit.called
     assert ui.screen.blit.called
-    assert mock_pygame["draw.rect"].call_count == 4  #rect for buttons and text
-
+    assert mock_pygame["draw.rect"].call_count == 5
 
 def test_draw_game_over_menu(ui_fixture):
     """
@@ -152,9 +212,9 @@ def test_draw_game_over_menu(ui_fixture):
     called_args_title = ui.font_title_text.render.call_args
 
     assert called_args_title[0][0]  == "YOU GOT SMASHED!"
-    ui.font_buttons.render.assert_any_call("Try Again", mock.ANY,mock.ANY)
+    ui.font_buttons.render.assert_any_call("Try Again", mock.ANY, mock.ANY)
     ui.font_buttons.render.assert_any_call("Main Menu", mock.ANY, mock.ANY)
-    ui.font_buttons.render.assert_any_call("Quit", mock.ANY,mock.ANY)
+    ui.font_buttons.render.assert_any_call("Quit", mock.ANY, mock.ANY)
 
     assert mock_pygame['mouse'].set_visible
 

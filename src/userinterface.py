@@ -103,7 +103,7 @@ class UserInterface:
 
         :param mouse_ctrl: True if the current paddle control setting is on mouse control
 
-        :return:
+        :return: tuple[pygame.Rect, pygame.Rect, pygame.Rect] each for try again, mainmenu, and quit buttons
         """
         pygame.mouse.set_visible(True)
         pygame.draw.rect(self.surface, (0, 0, 0, 140), [0, 0, constants.WIDTH, constants.HEIGHT])
@@ -119,6 +119,7 @@ class UserInterface:
         self.surface.blit(title2_text, title2_text_rect)
         self.surface.blit(pad_btn_lbl, pad_btn_lbl_rect)
 
+        # Draw Paddle Control button
         pad_btn_text = self.font_buttons.render("Mouse Control", True, constants.BLACK) if mouse_ctrl else self.font_buttons.render("Keyboard Control", True, constants.BLACK)
         self.pad_btn_rect = self.draw_button(pad_btn_text, pad_btn_lbl_rect.x + pad_btn_lbl.get_width() + 10, pad_btn_lbl_rect.y - 3,
                                              315, 40, (200, 200, 200), constants.GRAY)
