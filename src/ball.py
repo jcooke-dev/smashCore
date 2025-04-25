@@ -17,6 +17,7 @@ import paddle
 from gamestate import GameState
 from playerstate import PlayerState
 from leaderboard import Leaderboard
+from src import assets
 from worldobject import WorldObject
 from motionmodels import MotionModels
 
@@ -82,12 +83,18 @@ class Ball(WorldObject, pygame.sprite.Sprite):
             ##############################################################
             if gs.motion_model == MotionModels.SIMPLE_1:
 
-                # ball collision wall left/right
-                if self.rect.centerx < self.radius or self.rect.centerx > constants.WIDTH - self.radius:
+                # ball collision wall left
+                if self.rect.centerx < self.radius:
                     self.dx = -self.dx
+                    assets.CHANNEL[3].play(assets.LEFT_WALL_SFX)
+                # ball collision wall right
+                if self.rect.centerx > constants.WIDTH - self.radius:
+                    self.dx = -self.dx
+                    assets.CHANNEL[4].play(assets.RIGHT_WALL_SFX)
                 # ball collision wall top
                 if self.rect.centery < self.radius:
                     self.dy = -self.dy
+                    assets.CHANNEL[5].play(assets.TOP_WALL_SFX)
 
                 self.rect.x += self.speed * self.dx
                 self.rect.y += self.speed * self.dy
@@ -106,6 +113,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_left = False
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
+                    assets.CHANNEL[3].play(assets.LEFT_WALL_SFX)
                 # reset the latch allowing collision detection since the ball has moved fully away
                 if self.v_pos.x >= self.radius:
                     self.primed_collision_wall_left = True
@@ -115,6 +123,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_right = False
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
+                    assets.CHANNEL[4].play(assets.RIGHT_WALL_SFX)
                 # reset the latch allowing collision detection since the ball has moved fully away
                 if self.v_pos.x <= (constants.WIDTH - self.radius):
                     self.primed_collision_wall_right = True
@@ -124,6 +133,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_top = False
                     self.v_vel_unit.y = -self.v_vel_unit.y
                     self.v_vel.y = -self.v_vel.y
+                    assets.CHANNEL[5].play(assets.TOP_WALL_SFX)
                 # reset the latch allowing collision detection since the ball
                 # has moved fully away
                 if self.v_pos.y >= self.radius:
@@ -230,6 +240,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
             elif y_delta > x_delta:  # horizontal collision
                 self.dx = -self.dx
 
+            if isinstance(wo, paddle.Paddle):
+                assets.CHANNEL[6].play(assets.PADDLE_SFX)
+
         ##############################################################
         # determine how/which direction to bounce after collision under
         # the VECTOR models
@@ -271,6 +284,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                 self.speed_v = self.v_vel.magnitude()
                 gs.ball_speed_increased_ratio = self.speed_v / constants.BALL_SPEED_VECTOR
                 self.v_vel_unit = self.v_vel.normalize()
+
+            if isinstance(wo, paddle.Paddle):
+                assets.CHANNEL[6].play(assets.PADDLE_SFX)
 
     def move_to_x(self, pos_x: int) -> None:
         """

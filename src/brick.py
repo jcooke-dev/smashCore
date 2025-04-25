@@ -100,3 +100,5 @@ class Brick(WorldObject, pygame.sprite.Sprite):
                                                    (self.rect.width * 1.0, self.rect.height * 1.0)), self.rect)
                 pygame.display.update(self)
                 i += .1
+
+        assets.CHANNEL[2].play(assets.BRICK_SFX)
