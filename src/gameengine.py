@@ -270,9 +270,7 @@ class GameEngine:
                 # display settings screen
                 ##############################################################
                 case GameState.GameStateName.SETTINGS:
-                    self.ui.draw_settings_screen(self.gs.bgm_sounds, self.gs.sfx_sounds,
-                                                 self.gs.paddle_under_mouse_control, self.gs.music_volume,
-                                                 self.gs.sfx_volume)
+                    self.ui.draw_settings_screen(self.gs)
                     pygame.mouse.set_visible(True)
 
                     for event in events:
@@ -406,8 +404,7 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
-                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu(
-                                                                                    self.gs.paddle_under_mouse_control)
+                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu(self.gs)
                     for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.pad_btn_rect.collidepoint(event.pos):

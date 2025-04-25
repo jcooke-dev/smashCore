@@ -97,11 +97,11 @@ class UserInterface:
         self.surface.blit(btn_surface, text_rect)
         return rect
 
-    def draw_pause_menu(self, mouse_ctrl) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
+    def draw_pause_menu(self, gs: GameState) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
         """
         Displays the pause menu where user can continue, restart, or quit the game
 
-        :param mouse_ctrl: True if the current paddle control setting is on mouse control
+        :param gs: current GameState
 
         :return: tuple[pygame.Rect, pygame.Rect, pygame.Rect] each for try again, mainmenu, and quit buttons
         """
@@ -120,9 +120,9 @@ class UserInterface:
         self.surface.blit(pad_btn_lbl, pad_btn_lbl_rect)
 
         # Draw Paddle Control button
-        pad_btn_text = self.font_buttons.render("Mouse Control", True, constants.BLACK) if mouse_ctrl else self.font_buttons.render("Keyboard Control", True, constants.BLACK)
+        pad_btn_text = self.font_buttons.render("Mouse", True, constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render("Keyboard", True, constants.BLACK)
         self.pad_btn_rect = self.draw_button(pad_btn_text, pad_btn_lbl_rect.x + pad_btn_lbl.get_width() + 10, pad_btn_lbl_rect.y - 3,
-                                             315, 40, (200, 200, 200), constants.GRAY)
+                                             200, 40, (200, 200, 200), constants.GRAY)
 
         button_width = 200
         button_height = 75
@@ -573,20 +573,16 @@ class UserInterface:
         # draw everything
         self.screen.blit(self.surface, (0, 0))
 
-    def draw_settings_screen(self, hasbgm: bool, hassfx: bool, mouse_ctrl: bool, vol_bgm: float, vol_sfx: float) -> None:
+    def draw_settings_screen(self, gs: GameState) -> None:
         """
         Show the settings screen
 
-        :param hassfx: determines if bgm is toggled on
-        :param hassfx: determines if sfx is toggled on
-        :param mouse_ctrl: determines if current paddle control setting is mouse control
-        :param vol_bgm: current volume of bgm
-        :param vol_sfx: current volume of sfx
+        :param gs: current GameState
 
         :return:
         """
-        bg_sound = assets.VOLUME_ICON.convert_alpha() if hasbgm and vol_bgm > 0 else assets.MUTE_ICON.convert_alpha()
-        sfx_sound = assets.VOLUME_ICON.convert_alpha() if hassfx and vol_sfx > 0 else assets.MUTE_ICON.convert_alpha()
+        bg_sound = assets.VOLUME_ICON.convert_alpha() if gs.bgm_sounds and gs.music_volume > 0 else assets.MUTE_ICON.convert_alpha()
+        sfx_sound = assets.VOLUME_ICON.convert_alpha() if gs.bgm_sounds and gs.sfx_volume > 0 else assets.MUTE_ICON.convert_alpha()
 
         self.surface.fill(constants.BLACK)
 
@@ -609,7 +605,7 @@ class UserInterface:
 
         slider_bg_x = self.vol_bgm_btn_rect.centerx + 75
         slider_bg_y = self.vol_bgm_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
-        knob_bg_x = slider_bg_x - knob_radius + int(vol_bgm * constants.SLIDER_WIDTH) if hasbgm else slider_bg_x - knob_radius
+        knob_bg_x = slider_bg_x - knob_radius + int(gs.music_volume * constants.SLIDER_WIDTH) if gs.bgm_sounds else slider_bg_x - knob_radius
         knob_bg_y = slider_bg_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
         slider_bgm_rect = pygame.Rect(slider_bg_x, slider_bg_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
@@ -628,7 +624,7 @@ class UserInterface:
 
         slider_sf_x = self.vol_sfx_btn_rect.centerx + 75
         slider_sf_y = self.vol_sfx_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
-        knob_sf_x = slider_sf_x - knob_radius + int(vol_sfx * constants.SLIDER_WIDTH) if hassfx else slider_sf_x - knob_radius
+        knob_sf_x = slider_sf_x - knob_radius + int(gs.sfx_volume * constants.SLIDER_WIDTH) if gs.sfx_sounds else slider_sf_x - knob_radius
         knob_sf_y = slider_sf_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
         slider_sfx_rect = pygame.Rect(slider_sf_x, slider_sf_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
@@ -641,9 +637,9 @@ class UserInterface:
         pad_btn_lbl = self.font_settings.render('Paddle Control', True, constants.WHITE)
         self.surface.blit(pad_btn_lbl, pad_btn_lbl.get_rect(bottomleft=(icon_x, pad_btn_lbl_y - 10)))
 
-        pad_btn_text = self.font_buttons.render("Mouse Control", True, constants.BLACK) if mouse_ctrl else self.font_buttons.render("Keyboard Control", True, constants.BLACK)
+        pad_btn_text = self.font_buttons.render("Mouse", True, constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render("Keyboard", True, constants.BLACK)
         self.pad_btn_rect = self.draw_button(pad_btn_text, icon_x + pad_btn_lbl.get_width() + 20, pad_btn_lbl_y - pad_btn_lbl.get_height() - 10,
-                                             330, 40, (200, 200, 200), constants.GRAY)
+                                             210, 40, (200, 200, 200), constants.GRAY)
 
         # Back button
         back_width = 100

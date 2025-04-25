@@ -21,7 +21,7 @@ SPLASH_TIME_SECS = 2
 
 PAD_WIDTH, PAD_HEIGHT = 150, 20
 PADDLE_START_POSITION_OFFSET = 10
-PADDLE_KEY_SPEED = 2.0 # base arrow key-control paddle speed
+PADDLE_KEY_SPEED = 1.0 # base arrow key-control paddle speed
 
 BALL_RADIUS = 15
 BALL_SPEED_SIMPLE = 6 # initial speed for SIMPLE_1 model

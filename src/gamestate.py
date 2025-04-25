@@ -53,6 +53,7 @@ class GameState:
         self.paddle_under_mouse_control: bool = True
         self.paddle_under_key_control_left: bool = False
         self.paddle_under_key_control_right: bool = False
+        self.paddle_under_auto_control: bool = True
         self.paddle_pos_x: int = 0 # used at READY_TO_LAUNCH to keep ball on paddle
         self.bgm_sounds: bool = True
         self.sfx_sounds: bool = True
