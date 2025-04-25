@@ -97,6 +97,18 @@ class UserInterface:
         self.surface.blit(btn_surface, text_rect)
         return rect
 
+    def draw_back_button(self):
+        # Back button
+        back_width = 100
+        back_height = 40
+        back_x = 20
+        back_y = constants.HEIGHT - back_height - 30
+        back_text = self.font_back_btn.render("Back", True, constants.BLACK)
+        self.back_button_rect = self.draw_button(back_text, back_x, back_y,
+                                                 back_width, back_height,
+                                                 constants.YELLOW,
+                                                 constants.DARK_YELLOW)
+
     def draw_pause_menu(self, gs: GameState) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
         """
         Displays the pause menu where user can continue, restart, or quit the game
@@ -138,19 +150,19 @@ class UserInterface:
         # Draw "Restart" button
         restart_text_surface = self.font_buttons.render("Restart", True, (0, 0, 0))
         restart_rect = self.draw_button(restart_text_surface, button_x, button_y_start,
-                                        button_width, button_height, constants.GREEN, (0, 200, 0))
+                                        button_width, button_height, constants.GREEN, constants.DARK_GREEN)
 
         # Draw "Main Menu" button
         main_menu_y = button_y_start + button_height + button_spacing
         menu_text_surface = self.font_buttons.render("Main Menu", True, (0, 0, 0))
         main_menu_rect = self.draw_button(menu_text_surface, button_x, main_menu_y,
-                                          button_width, button_height, constants.YELLOW, (200, 200, 0))
+                                          button_width, button_height, constants.YELLOW, constants.DARK_YELLOW)
 
         # Draw "Quit" button
         quit_y = main_menu_y + button_height + button_spacing
         quit_text_surface = self.font_buttons.render("Quit", True, (0, 0, 0))
         quit_rect = self.draw_button(quit_text_surface, button_x, quit_y,
-                                     button_width, button_height, constants.RED, (200, 0, 0))
+                                     button_width, button_height, constants.RED, constants.DARK_RED)
 
         self.screen.blit(self.surface, (0, 0))
 
@@ -186,20 +198,20 @@ class UserInterface:
         # Draw "Try Again" button
         reset_text_surface = self.font_buttons.render("Try Again", True, (0, 0, 0))
         reset_rect = self.draw_button(reset_text_surface, button_x, button_y_start,
-                                      button_width, button_height, constants.GREEN, (0, 200, 0))
+                                      button_width, button_height, constants.GREEN, constants.DARK_GREEN)
 
         # Draw "Main Menu" button
         main_menu_y = button_y_start + button_height + button_spacing
         menu_text_surface = self.font_buttons.render("Main Menu", True, (0, 0, 0))
         main_menu_rect = self.draw_button(menu_text_surface, button_x, main_menu_y,
-                                          button_width, button_height, constants.YELLOW, (200, 200, 0),
+                                          button_width, button_height, constants.YELLOW, constants.DARK_YELLOW,
                                           go_to_main_menu_action)
 
         # Draw "Quit" button
         quit_y = main_menu_y + button_height + button_spacing
         quit_text_surface = self.font_buttons.render("Quit", True, (0, 0, 0))
         quit_rect = self.draw_button(quit_text_surface, button_x, quit_y,
-                                     button_width, button_height, constants.RED, (200, 0, 0))
+                                     button_width, button_height, constants.RED, constants.DARK_RED)
 
         self.screen.blit(self.surface, (0, 0))
 
@@ -255,7 +267,7 @@ class UserInterface:
 
         enter_text_surface = self.font_buttons.render("Enter", True, (0, 0, 0))
         enter_btn_rect = self.draw_button(enter_text_surface, button_x, button_y_start,
-                                          button_width, button_height, constants.GREEN, (0, 200, 0))
+                                          button_width, button_height, constants.GREEN, constants.DARK_GREEN)
 
         self.screen.blit(self.surface, (0, 0))
 
@@ -369,11 +381,11 @@ class UserInterface:
             ((constants.WIDTH // 4, constants.HEIGHT // 4), constants.YELLOW),
             ((constants.WIDTH // 2, constants.HEIGHT // 3), constants.GREEN),
             ((constants.WIDTH // 3, constants.HEIGHT // 2), constants.ORANGE),
-            ((constants.WIDTH // 5, constants.HEIGHT // 5 * 3), constants.LIGHTBLUE),
+            ((constants.WIDTH // 5, constants.HEIGHT // 5 * 3), constants.LIGHT_BLUE),
             ((constants.WIDTH // 6, constants.HEIGHT // 6 * 4), constants.RED),
             ((constants.WIDTH // 8 * 7, constants.HEIGHT // 8), constants.YELLOW),
             ((constants.WIDTH // 2, constants.HEIGHT // 5 * 4), constants.ORANGE),
-            ((constants.WIDTH // 5 * 4, constants.HEIGHT // 3), constants.LIGHTBLUE),
+            ((constants.WIDTH // 5 * 4, constants.HEIGHT // 3), constants.LIGHT_BLUE),
         ]
 
         for (x, y), color in brick_data:
@@ -436,46 +448,46 @@ class UserInterface:
         button_height = start_text.get_height() + 60
 
         self.start_button_rect = self.draw_button(start_text, (constants.WIDTH - button_width) // 2,
-                                                  (constants.HEIGHT - button_height) // 2, button_width,
+                                                  (constants.HEIGHT - button_height) // 3, button_width,
                                                   button_height,
-                                                  constants.GREEN, (0, 200, 0))
+                                                  constants.GREEN, constants.DARK_GREEN)
 
         sub_button_width = 250
         sub_button_height = 50
         sub_button_spacing = sub_button_height + 15
         sub_button_x = (constants.WIDTH - sub_button_width) // 2
-        sub_button_y = (constants.HEIGHT // 2) + sub_button_height + 20 # Add or subtract to this to adjust sub_buttons y_position
+        sub_button_y = (constants.HEIGHT // 3) + (sub_button_height * 2) # Add or subtract to this to adjust sub_buttons y_position
         # Draw How to Play Button
         how_to_play_text = self.font_menu_sub.render("How to Play", True, constants.BLACK)
         self.how_to_play_button_rect = self.draw_button(how_to_play_text, sub_button_x, sub_button_y,
-                                                        sub_button_width, sub_button_height, constants.YELLOW,
-                                                        (200, 200, 0))
+                                                        sub_button_width, sub_button_height,
+                                                        constants.YELLOW, constants.DARK_YELLOW)
 
         # Draw Leaderboards button
         leader_text = self.font_menu_sub.render("Leaderboard", True,
                                                 constants.BLACK)  # same color as the rest of the buttons
         self.leader_button_rect = self.draw_button(leader_text, sub_button_x, sub_button_y + (1 * sub_button_spacing),
-                                                   sub_button_width, sub_button_height, constants.YELLOW,
-                                                   (200, 200, 0))
+                                                   sub_button_width, sub_button_height,
+                                                   constants.YELLOW, constants.DARK_YELLOW)
 
         # Draw Settings button
         settings_text = self.font_menu_sub.render("Settings", True, constants.BLACK)
         self.settings_button_rect = self.draw_button(settings_text, sub_button_x,
                                                      sub_button_y + (2 * sub_button_spacing),
-                                                     sub_button_width, sub_button_height, constants.YELLOW,
-                                                     (200, 200, 0))
+                                                     sub_button_width, sub_button_height,
+                                                     constants.YELLOW, constants.DARK_YELLOW)
 
         # Draw Credits button
         credits_text = self.font_menu_sub.render("Credits", True, constants.BLACK)
         self.credits_button_rect = self.draw_button(credits_text, sub_button_x, sub_button_y + (3 * sub_button_spacing),
-                                                    sub_button_width, sub_button_height, constants.YELLOW,
-                                                    (200, 200, 0))
+                                                    sub_button_width, sub_button_height,
+                                                    constants.YELLOW, constants.DARK_YELLOW)
 
         # Draw Quit button
         quit_text = self.font_menu_sub.render("Quit", True, constants.BLACK)
         self.quit_button_start_rect = self.draw_button(quit_text, sub_button_x, sub_button_y + (4 * sub_button_spacing),
-                                                       sub_button_width, sub_button_height, constants.RED,
-                                                       (200, 0, 0))
+                                                       sub_button_width, sub_button_height,
+                                                       constants.RED, constants.DARK_RED)
 
         self.screen.blit(self.surface, (0, 0))
 
@@ -504,14 +516,7 @@ class UserInterface:
             y += line_height
 
         # Back button
-        back_width = 100
-        back_height = 40
-        back_x = 20
-        back_y = constants.HEIGHT - back_height - 30
-        back_text = self.font_back_btn.render("Back", True, constants.BLACK)
-        self.back_button_rect = self.draw_button(back_text, back_x, back_y,
-                                                 back_width, back_height, constants.YELLOW,
-                                                 (200, 200, 0))
+        self.draw_back_button()
         self.screen.blit(self.surface, (0, 0))
 
     def draw_credits_screen(self) -> None:
@@ -532,14 +537,8 @@ class UserInterface:
             y_offset += 50
 
         # Back button
-        back_width = 100
-        back_height = 40
-        back_x = 20
-        back_y = constants.HEIGHT - back_height - 30
-        back_text = self.font_back_btn.render("Back", True, constants.BLACK)
-        self.back_button_rect = self.draw_button(back_text, back_x, back_y,
-                                                 back_width, back_height, constants.YELLOW,
-                                                 (200, 200, 0))
+        self.draw_back_button()
+
         self.screen.blit(self.surface, (0, 0))
 
     def draw_leaderboard_screen(self, lb: Leaderboard) -> None:
@@ -567,14 +566,8 @@ class UserInterface:
             y_offset += 50
 
         # Back button
-        back_width = 100
-        back_height = 40
-        back_x = 20
-        back_y = constants.HEIGHT - back_height - 30
-        back_text = self.font_back_btn.render("Back", True, constants.BLACK)
-        self.back_button_rect = self.draw_button(back_text, back_x, back_y,
-                                                 back_width, back_height, constants.YELLOW,
-                                                 (200, 200, 0))
+        self.draw_back_button()
+
         # draw everything
         self.screen.blit(self.surface, (0, 0))
 
@@ -617,7 +610,7 @@ class UserInterface:
         pygame.draw.rect(self.surface, constants.WHITE, slider_bgm_rect, border_radius=20)
         knob_bg = pygame.Surface((knob_radius * 2, knob_radius * 2), pygame.SRCALPHA)
         self.knob_bg_rect = self.draw_button(knob_bg, knob_bg_x, knob_bg_y, knob_radius * 2, knob_radius * 2,
-                                             constants.GRAY, (100, 100, 100), corner_radius=knob_radius)
+                                             constants.GRAY, constants.LIGHT_GRAY, corner_radius=knob_radius)
 
         # draws the sfx volume icons and sliders to the surface
         sfx_icon_y = bg_icon_y + icon_height + 100
@@ -636,7 +629,7 @@ class UserInterface:
         pygame.draw.rect(self.surface, constants.WHITE, slider_sfx_rect, border_radius=20)
         knob_sf = pygame.Surface((knob_radius * 2, knob_radius * 2), pygame.SRCALPHA)
         self.knob_sf_rect = self.draw_button(knob_sf, knob_sf_x, knob_sf_y, knob_radius * 2, knob_radius * 2,
-                                             constants.GRAY, (100, 100, 100), corner_radius=knob_radius)
+                                             constants.GRAY, constants.LIGHT_GRAY, corner_radius=knob_radius)
 
         pad_btn_lbl_y = sfx_icon_y + icon_height + 100
         pad_btn_lbl = self.font_settings.render('Paddle Control', True, constants.WHITE)
@@ -652,15 +645,8 @@ class UserInterface:
         self.pad_btn_rect = self.draw_button(pad_btn_text, icon_x + pad_btn_lbl.get_width() + 20, pad_btn_lbl_y - pad_btn_lbl.get_height() - 10,
                                              210, 40, (200, 200, 200), constants.GRAY)
 
-        # Back button
-        back_width = 100
-        back_height = 40
-        back_x = 20
-        back_y = constants.HEIGHT - back_height - 30
-        back_text = self.font_back_btn.render("Back", True, constants.BLACK)
-        self.back_button_rect = self.draw_button(back_text, back_x, back_y,
-                                                 back_width, back_height, constants.YELLOW,
-                                                 (200, 200, 0))
+        self.draw_back_button()
 
         # draw everything
         self.screen.blit(self.surface, (0, 0))
+
