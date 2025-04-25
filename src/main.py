@@ -24,6 +24,8 @@ def main() -> None:
     Initializes pygame, loads the assets, initializes all dependencies, and loads/creates the leaderboard
     :return:
     """
+    # mixer configuration settings
+    pygame.mixer.pre_init(44100, -16, 2, 128)
     pygame.init()
 
     # setup various game objects
