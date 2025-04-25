@@ -294,7 +294,12 @@ class GameEngine:
                             elif self.ui.knob_sf_rect.collidepoint(event.pos):
                                 self.dragging_sfx_slider = True
                             elif self.ui.pad_btn_rect.collidepoint(event.pos):
-                                self.gs.paddle_under_mouse_control = not self.gs.paddle_under_mouse_control
+                                if not self.gs.paddle_under_auto_control:
+                                    self.gs.paddle_under_auto_control = not self.gs.paddle_under_auto_control
+                                else:
+                                    self.gs.paddle_under_mouse_control = not self.gs.paddle_under_mouse_control
+                                    self.gs.paddle_under_auto_control = not self.gs.paddle_under_auto_control
+
                         elif event.type == pygame.MOUSEMOTION:
                             if self.dragging_bgm_slider:
                                 slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75
@@ -320,6 +325,13 @@ class GameEngine:
                     # update all objects in GameWorld
 
                     mouse_pos = pygame.mouse.get_pos()
+
+                    if self.gs.paddle_under_auto_control:
+                        # detect mouse motion, since that should shift paddle control from keys back to the mouse
+                        if mouse_pos[0] != self.gs.last_mouse_pos_x:
+                            # mouse is moving
+                            self.gs.paddle_under_mouse_control = True
+
                     self.gs.last_mouse_pos_x = mouse_pos[0]
 
                     for current_wo in self.gw.world_objects:
@@ -331,6 +343,8 @@ class GameEngine:
                                 current_wo.commanded_pos_x = self.gs.cur_ball_x
                             elif self.gs.paddle_under_mouse_control:
                                 current_wo.commanded_pos_x = mouse_pos[0]
+                                if self.gs.paddle_under_auto_control:
+                                    self.gs.paddle_under_mouse_control = False
 
                         if isinstance(current_wo, Ball) and GameState.GameStateName.READY_TO_LAUNCH:
                             current_wo.commanded_pos_x = self.gs.paddle_pos_x
@@ -408,7 +422,11 @@ class GameEngine:
                     for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if self.ui.pad_btn_rect.collidepoint(event.pos):
-                                self.gs.paddle_under_mouse_control = not self.gs.paddle_under_mouse_control
+                                if not self.gs.paddle_under_auto_control:
+                                    self.gs.paddle_under_auto_control = not self.gs.paddle_under_auto_control
+                                else:
+                                    self.gs.paddle_under_mouse_control = not self.gs.paddle_under_mouse_control
+                                    self.gs.paddle_under_auto_control = not self.gs.paddle_under_auto_control
 
                 ##############################################################
                 # display the GET_HIGH_SCORE popup over the frozen gameplay
@@ -562,7 +580,7 @@ class GameEngine:
 
             # get the continuously pressed keys, rather than single key press events
             pressed_keys = pygame.key.get_pressed()
-            if not self.gs.paddle_under_mouse_control:
+            if not self.gs.paddle_under_mouse_control or self.gs.paddle_under_auto_control:
                 if pressed_keys[pygame.K_LEFT]:
                     self.gs.paddle_under_key_control_left = True
                 elif pressed_keys[pygame.K_RIGHT]:

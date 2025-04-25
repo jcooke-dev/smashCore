@@ -120,7 +120,12 @@ class UserInterface:
         self.surface.blit(pad_btn_lbl, pad_btn_lbl_rect)
 
         # Draw Paddle Control button
-        pad_btn_text = self.font_buttons.render("Mouse", True, constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render("Keyboard", True, constants.BLACK)
+        if gs.paddle_under_auto_control:
+            pad_btn_text = self.font_buttons.render("Auto", True, constants.BLACK)
+        else:
+            pad_btn_text = self.font_buttons.render("Mouse", True,
+                                                    constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render(
+                                                "Keyboard", True, constants.BLACK)
         self.pad_btn_rect = self.draw_button(pad_btn_text, pad_btn_lbl_rect.x + pad_btn_lbl.get_width() + 10, pad_btn_lbl_rect.y - 3,
                                              200, 40, (200, 200, 200), constants.GRAY)
 
@@ -637,7 +642,13 @@ class UserInterface:
         pad_btn_lbl = self.font_settings.render('Paddle Control', True, constants.WHITE)
         self.surface.blit(pad_btn_lbl, pad_btn_lbl.get_rect(bottomleft=(icon_x, pad_btn_lbl_y - 10)))
 
-        pad_btn_text = self.font_buttons.render("Mouse", True, constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render("Keyboard", True, constants.BLACK)
+        if gs.paddle_under_auto_control:
+            pad_btn_text = self.font_buttons.render("Auto", True, constants.BLACK)
+        else:
+            pad_btn_text = self.font_buttons.render("Mouse", True,
+                                                    constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render(
+                                                "Keyboard", True, constants.BLACK)
+
         self.pad_btn_rect = self.draw_button(pad_btn_text, icon_x + pad_btn_lbl.get_width() + 20, pad_btn_lbl_y - pad_btn_lbl.get_height() - 10,
                                              210, 40, (200, 200, 200), constants.GRAY)
 
