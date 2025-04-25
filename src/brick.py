@@ -101,4 +101,4 @@ class Brick(WorldObject, pygame.sprite.Sprite):
                 pygame.display.update(self)
                 i += .1
 
-        assets.CHANNEL[2].play(assets.BRICK_SFX)
+        assets.BRICK_SFX_CHANNEL.play(assets.BRICK_SFX)
