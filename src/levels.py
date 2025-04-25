@@ -73,7 +73,7 @@ class Levels:
                                              random_score))
 
             case Levels.LevelName.SMASHCORE_SOLID_ROWS_1:
-                colors = [constants.RED, constants.ORANGE, constants.GREEN, constants.YELLOW, constants.LIGHTBLUE]
+                colors = [constants.RED, constants.ORANGE, constants.GREEN, constants.YELLOW, constants.LIGHT_BLUE]
                 values = [10, 7, 5, 3, 1]
                 Levels.generate_grid_level(gw_list,
                                            row_colors=colors, values=values)
@@ -89,7 +89,7 @@ class Levels:
                                                       random_score, image=scaled_brick))
 
             case Levels.LevelName.SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1:
-                colors = [constants.RED, constants.ORANGE, constants.GREEN, constants.YELLOW, constants.LIGHTBLUE]
+                colors = [constants.RED, constants.ORANGE, constants.GREEN, constants.YELLOW, constants.LIGHT_BLUE]
                 values = [10, 7, 5, 3, 1]
 
                 Levels.generate_grid_level(gw_list,
@@ -100,7 +100,7 @@ class Levels:
                 skip_positions = [(2, 2), (3, 2), (6, 2), (7, 2),
                                   (2, 3), (3, 3), (6, 3), (7, 3)]
                 colors = [constants.RED, constants.ORANGE, constants.YELLOW,
-                          constants.GREEN, constants.LIGHTBLUE, constants.PURPLE]
+                          constants.GREEN, constants.LIGHT_BLUE, constants.PURPLE]
                 values = [10, 7, 5, 3, 1]
                 Levels.generate_grid_level(gw_list,
                                            rows=len(colors),
@@ -109,7 +109,7 @@ class Levels:
 
             case Levels.LevelName.SMASHCORE_MULTIPLIER_1:
                 colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
-                          constants.GREEN, constants.LIGHTBLUE, constants.PURPLE]
+                          constants.GREEN, constants.LIGHT_BLUE, constants.PURPLE]
                 skip_positions = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
                                   (10, 0), (10, 1), (10, 2), (10, 3), (10, 4), (10, 5)]
                 multiplier_bricks = [(2, 2), (5, 2)]
