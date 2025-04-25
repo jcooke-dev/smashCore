@@ -49,6 +49,19 @@ def mock_pygame():
         }
 
 @pytest.fixture
+def gamestate():
+    class GameState:
+        def __init__(self):
+            self.paddle_under_mouse_control: bool = True
+            self.paddle_under_auto_control: bool = True
+            self.bgm_sounds: bool = True
+            self.sfx_sounds: bool = True
+            self.music_volume = 10
+            self.sfx_volume = 10
+
+    return GameState()
+
+@pytest.fixture
 def ui_fixture(mock_pygame):
     """
     Set up UserInterface with mock dependencies
@@ -97,7 +110,7 @@ def test_draw_button(ui_fixture):
         assert mock_action.call_count == 1  # Action should be called when clicked
 
 
-def test_draw_pause_menu(ui_fixture):
+def test_draw_pause_menu(ui_fixture, gamestate):
     """
     Asserts the correct text and buttons were rendered and blitted
     Assert "Game Paused: " was rendered
@@ -112,6 +125,7 @@ def test_draw_pause_menu(ui_fixture):
     :return:
     """
     ui, mock_pygame = ui_fixture
+    gs = gamestate
 
     ui.font_title1_text = mock_pygame['font']
     ui.font_title2_text = mock_pygame['font']
@@ -127,7 +141,7 @@ def test_draw_pause_menu(ui_fixture):
     ui.font_pad_btn_lbl.render.side_effect = fake_render
     ui.font_buttons.render.side_effect = fake_render
 
-    ui.draw_pause_menu(True)
+    ui.draw_pause_menu(gs)
 
     assert ui.surface.blit.called
     assert ui.screen.blit.called
