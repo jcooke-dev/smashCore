@@ -75,6 +75,7 @@ class GameEngine:
 
         # Initialize game music and paths
         pygame.mixer.init()
+        pygame.mixer.set_reserved(5)
         self.current_music_path = None
         self.dragging_bgm_slider = False
         self.dragging_sfx_slider = False
