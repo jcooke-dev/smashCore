@@ -19,11 +19,11 @@ from ball import Ball
 from brick import Brick
 from paddle import Paddle
 from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
-                            PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
-                            BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
-                            PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
-                            BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
-                            MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS)
+                       PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+                       BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+                       PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+                       BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
+                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS)
 from levels import Levels
 from gameworld import GameWorld
 from userinterface import UserInterface
@@ -44,6 +44,7 @@ class GameEngine:
         :param gs: GameState
         :param ui: UserInterface
         """
+        self.prev_state = None
         self.quit_game_button = None
         self.restart_game_button = None
         self.main_menu_button = None
@@ -163,8 +164,8 @@ class GameEngine:
         if gs.cur_state in assets.MUSIC_PATHS:
             target_music_path = assets.MUSIC_PATHS[gs.cur_state]
             if ((gs.cur_state == GameState.GameStateName.SPLASH) or
-                (gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE) or
-                (gs.cur_state == GameState.GameStateName.GAME_OVER)):
+                    (gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE) or
+                    (gs.cur_state == GameState.GameStateName.GAME_OVER)):
                 loop = 0  # Play only once
 
         if target_music_path and self.current_music_path != target_music_path:
@@ -240,7 +241,7 @@ class GameEngine:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if hasattr(self.ui,
                                        'back_button_rect') and self.ui.back_button_rect.collidepoint(
-                                    event.pos):
+                                event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
@@ -269,18 +270,18 @@ class GameEngine:
                 # display settings screen
                 ##############################################################
                 case GameState.GameStateName.SETTINGS:
-                    self.ui.draw_settings_screen(self.gs.bgm_sounds, self.gs.sfx_sounds, self.gs.music_volume, self.gs.sfx_volume)
+                    self.ui.draw_settings_screen(self.gs)
                     pygame.mouse.set_visible(True)
 
                     for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.volume_bgbutton_rect.collidepoint(event.pos):
+                            if self.ui.vol_bgm_btn_rect.collidepoint(event.pos):
                                 self.gs.bgm_sounds = not self.gs.bgm_sounds
                                 if not self.gs.bgm_sounds and self.gs.music_volume <= 0:
                                     self.gs.bgm_sounds = True
                                     self.gs.music_volume = 0.2
                                     pygame.mixer.music.set_volume(self.gs.music_volume)
-                            elif self.ui.volume_sfbutton_rect.collidepoint(event.pos):
+                            elif self.ui.vol_sfx_btn_rect.collidepoint(event.pos):
                                 self.gs.sfx_sounds = not self.gs.sfx_sounds
                                 if not self.gs.sfx_sounds and self.gs.sfx_volume <= 0:
                                     self.gs.sfx_sounds = True
@@ -292,16 +293,25 @@ class GameEngine:
                                 self.dragging_bgm_slider = True
                             elif self.ui.knob_sf_rect.collidepoint(event.pos):
                                 self.dragging_sfx_slider = True
+                            elif self.ui.pad_btn_rect.collidepoint(event.pos):
+                                if not self.gs.paddle_under_auto_control:
+                                    self.gs.paddle_under_auto_control = not self.gs.paddle_under_auto_control
+                                else:
+                                    self.gs.paddle_under_mouse_control = not self.gs.paddle_under_mouse_control
+                                    self.gs.paddle_under_auto_control = not self.gs.paddle_under_auto_control
+
                         elif event.type == pygame.MOUSEMOTION:
                             if self.dragging_bgm_slider:
-                                slider_bg_x = self.ui.volume_bgbutton_rect.centerx + 75
+                                slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75
                                 new_vol = (event.pos[0] - (slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                                self.gs.music_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                                self.gs.music_volume = max(0.0, min(1.0, round(
+                                    new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
                                 pygame.mixer.music.set_volume(self.gs.music_volume)
                             if self.dragging_sfx_slider:
-                                slider_sf_x = self.ui.volume_sfbutton_rect.centerx + 75
+                                slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75
                                 new_vol = (event.pos[0] - (slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                                self.gs.sfx_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                                self.gs.sfx_volume = max(0.0, min(1.0, round(
+                                    new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
                         elif event.type == pygame.MOUSEBUTTONUP:
                             self.dragging_bgm_slider = False
                             self.dragging_sfx_slider = False
@@ -316,10 +326,11 @@ class GameEngine:
 
                     mouse_pos = pygame.mouse.get_pos()
 
-                    # detect mouse motion, since that should shift paddle control from keys back to the mouse
-                    if mouse_pos[0] != self.gs.last_mouse_pos_x:
-                        # mouse is moving
-                        self.gs.paddle_under_mouse_control = True
+                    if self.gs.paddle_under_auto_control:
+                        # detect mouse motion, since that should shift paddle control from keys back to the mouse
+                        if mouse_pos[0] != self.gs.last_mouse_pos_x:
+                            # mouse is moving
+                            self.gs.paddle_under_mouse_control = True
 
                     self.gs.last_mouse_pos_x = mouse_pos[0]
 
@@ -332,7 +343,8 @@ class GameEngine:
                                 current_wo.commanded_pos_x = self.gs.cur_ball_x
                             elif self.gs.paddle_under_mouse_control:
                                 current_wo.commanded_pos_x = mouse_pos[0]
-                                self.gs.paddle_under_mouse_control = False
+                                if self.gs.paddle_under_auto_control:
+                                    self.gs.paddle_under_mouse_control = False
 
                         if isinstance(current_wo, Ball) and GameState.GameStateName.READY_TO_LAUNCH:
                             current_wo.commanded_pos_x = self.gs.paddle_pos_x
@@ -406,7 +418,15 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
-                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu()
+                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu(self.gs)
+                    for event in events:
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.pad_btn_rect.collidepoint(event.pos):
+                                if not self.gs.paddle_under_auto_control:
+                                    self.gs.paddle_under_auto_control = not self.gs.paddle_under_auto_control
+                                else:
+                                    self.gs.paddle_under_mouse_control = not self.gs.paddle_under_mouse_control
+                                    self.gs.paddle_under_auto_control = not self.gs.paddle_under_auto_control
 
                 ##############################################################
                 # display the GET_HIGH_SCORE popup over the frozen gameplay
@@ -439,14 +459,16 @@ class GameEngine:
                 if event.type == pygame.KEYDOWN:
                     # toggle PAUSE GameState with ESCAPE key press
                     if event.key == pygame.K_ESCAPE:
-                        if self.gs.cur_state == GameState.GameStateName.PAUSED:
-                            self.gs.cur_state = GameState.GameStateName.PLAYING
-                            pygame.mouse.set_pos(self.mouse_pos)
-                            pygame.mouse.set_visible(False)
-                        elif self.gs.cur_state == GameState.GameStateName.PLAYING:
+                        if (self.gs.cur_state == GameState.GameStateName.PLAYING or
+                                self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH):
+                            self.prev_state = self.gs.cur_state
                             self.gs.cur_state = GameState.GameStateName.PAUSED
                             self.mouse_pos = pygame.mouse.get_pos()
                             pygame.mouse.set_visible(True)
+                        elif self.gs.cur_state == GameState.GameStateName.PAUSED:
+                            self.gs.cur_state = self.prev_state
+                            pygame.mouse.set_pos(self.mouse_pos)
+                            pygame.mouse.set_visible(False)
 
                     if event.key == pygame.K_SPACE:
                         if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
@@ -558,10 +580,11 @@ class GameEngine:
 
             # get the continuously pressed keys, rather than single key press events
             pressed_keys = pygame.key.get_pressed()
-            if pressed_keys[pygame.K_LEFT]:
-                self.gs.paddle_under_key_control_left = True
-            elif pressed_keys[pygame.K_RIGHT]:
-                self.gs.paddle_under_key_control_right = True
+            if not self.gs.paddle_under_mouse_control or self.gs.paddle_under_auto_control:
+                if pressed_keys[pygame.K_LEFT]:
+                    self.gs.paddle_under_key_control_left = True
+                elif pressed_keys[pygame.K_RIGHT]:
+                    self.gs.paddle_under_key_control_right = True
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:

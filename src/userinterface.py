@@ -24,8 +24,9 @@ class UserInterface:
         # Define Main Menu buttons
         self.knob_sf_rect = None
         self.knob_bg_rect = None
-        self.volume_sfbutton_rect = None
-        self.volume_bgbutton_rect = None
+        self.pad_btn_rect = None
+        self.vol_sfx_btn_rect = None
+        self.vol_bgm_btn_rect = None
         self.settings_button_rect = None
         self.quit_button_start_rect = None
         self.leader_button_rect = None
@@ -46,6 +47,7 @@ class UserInterface:
         self.font_credits: pygame.font = pygame.font.Font(None, 40)
         self.font_leaderboard: pygame.font = pygame.font.SysFont("Courier", 36, True)
         self.font_back_btn: pygame.font = pygame.font.Font(None, 36)
+        self.font_settings: pygame.font = pygame.font.SysFont("Courier", 36, True)
         #font - playing menus (game_over, pause, and highscore)
         self.font_title_text: pygame.font = pygame.font.Font(None, 100)
         self.font_subtitle_text: pygame.font = pygame.font.SysFont("Courier", 60, True)  # high scores
@@ -107,27 +109,42 @@ class UserInterface:
                                                  constants.YELLOW,
                                                  constants.DARK_YELLOW)
 
-    def draw_pause_menu(self) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
+    def draw_pause_menu(self, gs: GameState) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
         """
         Displays the pause menu where user can continue, restart, or quit the game
 
-        :return:
+        :param gs: current GameState
+
+        :return: tuple[pygame.Rect, pygame.Rect, pygame.Rect] each for try again, mainmenu, and quit buttons
         """
         pygame.mouse.set_visible(True)
         pygame.draw.rect(self.surface, (0, 0, 0, 140), [0, 0, constants.WIDTH, constants.HEIGHT])
 
         title1_text = self.font_title_text.render("Game Paused:", True, constants.YELLOW)
         title2_text = self.font_title_text.render("Press ESC to Continue", True, constants.YELLOW)
-        title1_text_rect = title1_text.get_rect(center=(constants.WIDTH // 2, 270))
-        title2_text_rect = title2_text.get_rect(center=(constants.WIDTH // 2, 350))
+        pad_btn_lbl = self.font_buttons.render('Paddle Control', True, constants.WHITE)
+        title1_text_rect = title1_text.get_rect(center=(constants.WIDTH // 2, 170))
+        title2_text_rect = title2_text.get_rect(center=(constants.WIDTH // 2, 250))
+        pad_btn_lbl_rect = pad_btn_lbl.get_rect(topright=(constants.WIDTH // 2, 350))
 
         self.surface.blit(title1_text, title1_text_rect)
         self.surface.blit(title2_text, title2_text_rect)
+        self.surface.blit(pad_btn_lbl, pad_btn_lbl_rect)
+
+        # Draw Paddle Control button
+        if gs.paddle_under_auto_control:
+            pad_btn_text = self.font_buttons.render("Auto", True, constants.BLACK)
+        else:
+            pad_btn_text = self.font_buttons.render("Mouse", True,
+                                                    constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render(
+                                                "Keyboard", True, constants.BLACK)
+        self.pad_btn_rect = self.draw_button(pad_btn_text, pad_btn_lbl_rect.x + pad_btn_lbl.get_width() + 10, pad_btn_lbl_rect.y - 3,
+                                             200, 40, (200, 200, 200), constants.GRAY)
 
         button_width = 200
         button_height = 75
         button_x = (constants.WIDTH - button_width) // 2
-        button_y_start = constants.HEIGHT // 2
+        button_y_start = (constants.HEIGHT + button_height) // 2
         button_spacing = 30
 
         # Draw "Restart" button
@@ -175,7 +192,7 @@ class UserInterface:
         button_width = 200
         button_height = 75
         button_x = (constants.WIDTH - button_width) // 2
-        button_y_start = constants.HEIGHT // 2
+        button_y_start = (constants.HEIGHT + button_height) // 2
         button_spacing = 30
 
         # Draw "Try Again" button
@@ -480,11 +497,13 @@ class UserInterface:
         text_lines = [
             "SmashCore is a brick-breaking game.",
             "Use a mouse, trackpad, or the arrow keys to control the paddle.",
-            "Use the paddle to hit the ball.",
-            "Break all the bricks to clear the level.",
+            "Use the paddle to reflect the ball and hit the bricks.",
+            "Breaking all of the bricks clears the level.",
             "",
             "ESC to pause.",
-            "CTRL-D for dev stats."
+            "CTRL + D for dev stats."
+            "CTRL + - to decrease overall volume.",
+            "CTRL + = to increase overall volume."
         ]
 
         y = constants.HEIGHT // 4
@@ -552,19 +571,16 @@ class UserInterface:
         # draw everything
         self.screen.blit(self.surface, (0, 0))
 
-    def draw_settings_screen(self, hasbgm: bool, hassfx: bool, vol_bgm: float, vol_sfx: float) -> None:
+    def draw_settings_screen(self, gs: GameState) -> None:
         """
         Show the settings screen
 
-        :param hassfx: determines if bgm is toggled on
-        :param hassfx: determines if sfx is toggled on
-        :param vol_bgm: current volume of bgm
-        :param vol_sfx: current volume of sfx
+        :param gs: current GameState
 
         :return:
         """
-        bg_sound = assets.VOLUME_ICON.convert_alpha() if hasbgm and vol_bgm > 0 else assets.MUTE_ICON.convert_alpha()
-        sfx_sound = assets.VOLUME_ICON.convert_alpha() if hassfx and vol_sfx > 0 else assets.MUTE_ICON.convert_alpha()
+        bg_sound = assets.VOLUME_ICON.convert_alpha() if gs.bgm_sounds and gs.music_volume > 0 else assets.MUTE_ICON.convert_alpha()
+        sfx_sound = assets.VOLUME_ICON.convert_alpha() if gs.bgm_sounds and gs.sfx_volume > 0 else assets.MUTE_ICON.convert_alpha()
 
         self.surface.fill(constants.BLACK)
 
@@ -580,14 +596,14 @@ class UserInterface:
         bg_icon_y = (constants.HEIGHT // 3) - (icon_height // 2)
         bg_sound = pygame.transform.scale(bg_sound, (icon_width, icon_height))
 
-        bgm_text = self.font_leaderboard.render('BGM Volume', True, constants.WHITE)
+        bgm_text = self.font_settings.render('BGM Volume', True, constants.WHITE)
         self.surface.blit(bgm_text, bgm_text.get_rect(bottomleft=(icon_x, bg_icon_y - 10)))
-        self.volume_bgbutton_rect = self.draw_button(bg_sound, icon_x, bg_icon_y, icon_width, icon_height,
-                                                     (0, 0, 0, 0), (200, 200, 200, 0))
+        self.vol_bgm_btn_rect = self.draw_button(bg_sound, icon_x, bg_icon_y, icon_width, icon_height,
+                                                 (0, 0, 0, 0), (200, 200, 200, 0))
 
-        slider_bg_x = self.volume_bgbutton_rect.centerx + 75
-        slider_bg_y = self.volume_bgbutton_rect.centery - (constants.SLIDER_HEIGHT // 2)
-        knob_bg_x = slider_bg_x - knob_radius + int(vol_bgm * constants.SLIDER_WIDTH) if hasbgm else slider_bg_x - knob_radius
+        slider_bg_x = self.vol_bgm_btn_rect.centerx + 75
+        slider_bg_y = self.vol_bgm_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
+        knob_bg_x = slider_bg_x - knob_radius + int(gs.music_volume * constants.SLIDER_WIDTH) if gs.bgm_sounds else slider_bg_x - knob_radius
         knob_bg_y = slider_bg_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
         slider_bgm_rect = pygame.Rect(slider_bg_x, slider_bg_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
@@ -599,14 +615,14 @@ class UserInterface:
         # draws the sfx volume icons and sliders to the surface
         sfx_icon_y = bg_icon_y + icon_height + 100
         sfx_sound = pygame.transform.scale(sfx_sound, (icon_width, icon_height))
-        sfx_text = self.font_leaderboard.render('SFX Volume', True, constants.WHITE)
+        sfx_text = self.font_settings.render('SFX Volume', True, constants.WHITE)
         self.surface.blit(sfx_text, sfx_text.get_rect(bottomleft=(icon_x, sfx_icon_y - 10)))
-        self.volume_sfbutton_rect = self.draw_button(sfx_sound, icon_x, sfx_icon_y, icon_width, icon_height,
-                                                     (0, 0, 0, 0), (200, 200, 200, 0))
+        self.vol_sfx_btn_rect = self.draw_button(sfx_sound, icon_x, sfx_icon_y, icon_width, icon_height,
+                                                 (0, 0, 0, 0), (200, 200, 200, 0))
 
-        slider_sf_x = self.volume_sfbutton_rect.centerx + 75
-        slider_sf_y = self.volume_sfbutton_rect.centery - (constants.SLIDER_HEIGHT // 2)
-        knob_sf_x = slider_sf_x - knob_radius + int(vol_sfx * constants.SLIDER_WIDTH) if hassfx else slider_sf_x - knob_radius
+        slider_sf_x = self.vol_sfx_btn_rect.centerx + 75
+        slider_sf_y = self.vol_sfx_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
+        knob_sf_x = slider_sf_x - knob_radius + int(gs.sfx_volume * constants.SLIDER_WIDTH) if gs.sfx_sounds else slider_sf_x - knob_radius
         knob_sf_y = slider_sf_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
         slider_sfx_rect = pygame.Rect(slider_sf_x, slider_sf_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
@@ -614,6 +630,20 @@ class UserInterface:
         knob_sf = pygame.Surface((knob_radius * 2, knob_radius * 2), pygame.SRCALPHA)
         self.knob_sf_rect = self.draw_button(knob_sf, knob_sf_x, knob_sf_y, knob_radius * 2, knob_radius * 2,
                                              constants.GRAY, constants.LIGHT_GRAY, corner_radius=knob_radius)
+
+        pad_btn_lbl_y = sfx_icon_y + icon_height + 100
+        pad_btn_lbl = self.font_settings.render('Paddle Control', True, constants.WHITE)
+        self.surface.blit(pad_btn_lbl, pad_btn_lbl.get_rect(bottomleft=(icon_x, pad_btn_lbl_y - 10)))
+
+        if gs.paddle_under_auto_control:
+            pad_btn_text = self.font_buttons.render("Auto", True, constants.BLACK)
+        else:
+            pad_btn_text = self.font_buttons.render("Mouse", True,
+                                                    constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render(
+                                                "Keyboard", True, constants.BLACK)
+
+        self.pad_btn_rect = self.draw_button(pad_btn_text, icon_x + pad_btn_lbl.get_width() + 20, pad_btn_lbl_y - pad_btn_lbl.get_height() - 10,
+                                             210, 40, (200, 200, 200), constants.GRAY)
 
         self.draw_back_button()
 
