@@ -15,6 +15,7 @@ import assets
 import constants
 from unittest import mock
 from gameengine import GameEngine
+from gamesettings import GameSettings
 from gamestate import GameState
 from userinterface import UserInterface
 from playerstate import PlayerState
@@ -75,6 +76,7 @@ def starting_ge(mock_pygame):
         mock_image_load.return_value = mock_image
 
         ui = mock.MagicMock(UserInterface)
+        gset = mock.MagicMock(GameSettings)
         gs = mock.MagicMock(GameState)
         gw = mock.MagicMock(GameWorld)
         ps = mock.MagicMock(PlayerState)
@@ -83,7 +85,7 @@ def starting_ge(mock_pygame):
         ui.start_button_rect = mock.MagicMock()
         ui.credits_button_rect = mock.MagicMock()
 
-        ge = GameEngine(lb, ps, gw, gs, ui)
+        ge = GameEngine(lb, ps, gw, gs, gset, ui)
         return ge, mock_pygame
 
 
@@ -220,10 +222,10 @@ def test_play_music_bgm_sound_off(starting_ge):
     ge, mock_pygame = starting_ge
 
     #Set GameState background sounds to False
-    ge.gs.bgm_sounds = False
+    ge.gset.bgm_sounds = False
 
     # Play Music
-    ge.play_music(ge.gs)
+    ge.play_music()
 
     # Assert that music is stopped
     mock_pygame["mixer.music"].stop.assert_called_once()
@@ -238,13 +240,13 @@ def test_play_music_correct_file_and_volume(starting_ge):
     """
     ge, mock_pygame = starting_ge
 
-    ge.gs.bgm_sounds = True
+    ge.gset.bgm_sounds = True
     ge.gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
-    ge.gs.music_volume = 1.0
+    ge.gset.music_volume = 1.0
     music_path = '/path/to/music.wav'
     assets.MUSIC_PATHS[GameState.GameStateName.GET_HIGH_SCORE] = music_path
 
-    ge.play_music(ge.gs)
+    ge.play_music()
 
     mock_pygame['mixer.music'].load.assert_called_once_with(music_path)
     mock_pygame['mixer.music'].set_volume.assert_called_once_with(1.0)
@@ -260,7 +262,7 @@ def test_play_music_no_music_path(starting_ge):
     """
     ge, mock_pygame = starting_ge
 
-    ge.gs.bgm_sounds = True
+    ge.gset.bgm_sounds = True
     ge.gs.cur_state = GameState.GameStateName.HOW_TO_PLAY
     ge.current_music_path = "/path/to/current_music.wav"
 
@@ -269,7 +271,7 @@ def test_play_music_no_music_path(starting_ge):
     if GameState.GameStateName.HOW_TO_PLAY in assets.MUSIC_PATHS:
         del assets.MUSIC_PATHS[GameState.GameStateName.HOW_TO_PLAY]
 
-    ge.play_music(ge.gs)
+    ge.play_music()
 
     mock_pygame['mixer.music'].stop.assert_called_once()
     assert ge.current_music_path is None

@@ -12,6 +12,7 @@
 import pygame
 
 import assets
+from gamesettings import GameSettings
 from leaderboard import Leaderboard
 from gamestate import GameState
 from playerstate import PlayerState
@@ -29,12 +30,13 @@ def main() -> None:
     # setup various game objects
     assets.load_assets()
     ui = UserInterface()
+    gset = GameSettings.create_persisted_object()
     gs = GameState()
     gw = GameWorld()
     ps = PlayerState()
     lb = Leaderboard.create_persisted_object()
 
-    ge = GameEngine(lb, ps, gw, gs, ui)
+    ge = GameEngine(lb, ps, gw, gs, gset, ui)
 
     # run the main game loop -- this returns when done
     ge.run_loop()
