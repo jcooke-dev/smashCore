@@ -12,6 +12,7 @@ from collections.abc import Callable
 import random
 import pygame
 import constants
+from gamesettings import GameSettings
 from gamestate import GameState
 from leaderboard import Leaderboard
 import assets
@@ -109,11 +110,11 @@ class UserInterface:
                                                  constants.YELLOW,
                                                  constants.DARK_YELLOW)
 
-    def draw_pause_menu(self, gs: GameState) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
+    def draw_pause_menu(self, gset: GameSettings) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
         """
         Displays the pause menu where user can continue, restart, or quit the game
 
-        :param gs: current GameState
+        :param gset: game settings
 
         :return: tuple[pygame.Rect, pygame.Rect, pygame.Rect] each for try again, mainmenu, and quit buttons
         """
@@ -132,11 +133,11 @@ class UserInterface:
         self.surface.blit(pad_btn_lbl, pad_btn_lbl_rect)
 
         # Draw Paddle Control button
-        if gs.paddle_under_auto_control:
+        if gset.paddle_under_auto_control:
             pad_btn_text = self.font_buttons.render("Auto", True, constants.BLACK)
         else:
             pad_btn_text = self.font_buttons.render("Mouse", True,
-                                                    constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render(
+                                                    constants.BLACK) if gset.paddle_under_mouse_control else self.font_buttons.render(
                                                 "Keyboard", True, constants.BLACK)
         self.pad_btn_rect = self.draw_button(pad_btn_text, pad_btn_lbl_rect.x + pad_btn_lbl.get_width() + 10, pad_btn_lbl_rect.y - 3,
                                              200, 40, (200, 200, 200), constants.GRAY)
@@ -571,16 +572,16 @@ class UserInterface:
         # draw everything
         self.screen.blit(self.surface, (0, 0))
 
-    def draw_settings_screen(self, gs: GameState) -> None:
+    def draw_settings_screen(self, gset: GameSettings) -> None:
         """
         Show the settings screen
 
-        :param gs: current GameState
+        :param gset: game settings
 
         :return:
         """
-        bg_sound = assets.VOLUME_ICON.convert_alpha() if gs.bgm_sounds and gs.music_volume > 0 else assets.MUTE_ICON.convert_alpha()
-        sfx_sound = assets.VOLUME_ICON.convert_alpha() if gs.bgm_sounds and gs.sfx_volume > 0 else assets.MUTE_ICON.convert_alpha()
+        bg_sound = assets.VOLUME_ICON.convert_alpha() if gset.bgm_sounds and gset.music_volume > 0 else assets.MUTE_ICON.convert_alpha()
+        sfx_sound = assets.VOLUME_ICON.convert_alpha() if gset.bgm_sounds and gset.sfx_volume > 0 else assets.MUTE_ICON.convert_alpha()
 
         self.surface.fill(constants.BLACK)
 
@@ -603,7 +604,7 @@ class UserInterface:
 
         slider_bg_x = self.vol_bgm_btn_rect.centerx + 75
         slider_bg_y = self.vol_bgm_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
-        knob_bg_x = slider_bg_x - knob_radius + int(gs.music_volume * constants.SLIDER_WIDTH) if gs.bgm_sounds else slider_bg_x - knob_radius
+        knob_bg_x = slider_bg_x - knob_radius + int(gset.music_volume * constants.SLIDER_WIDTH) if gset.bgm_sounds else slider_bg_x - knob_radius
         knob_bg_y = slider_bg_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
         slider_bgm_rect = pygame.Rect(slider_bg_x, slider_bg_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
@@ -622,7 +623,7 @@ class UserInterface:
 
         slider_sf_x = self.vol_sfx_btn_rect.centerx + 75
         slider_sf_y = self.vol_sfx_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
-        knob_sf_x = slider_sf_x - knob_radius + int(gs.sfx_volume * constants.SLIDER_WIDTH) if gs.sfx_sounds else slider_sf_x - knob_radius
+        knob_sf_x = slider_sf_x - knob_radius + int(gset.sfx_volume * constants.SLIDER_WIDTH) if gset.sfx_sounds else slider_sf_x - knob_radius
         knob_sf_y = slider_sf_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
         slider_sfx_rect = pygame.Rect(slider_sf_x, slider_sf_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
@@ -635,11 +636,11 @@ class UserInterface:
         pad_btn_lbl = self.font_settings.render('Paddle Control', True, constants.WHITE)
         self.surface.blit(pad_btn_lbl, pad_btn_lbl.get_rect(bottomleft=(icon_x, pad_btn_lbl_y - 10)))
 
-        if gs.paddle_under_auto_control:
+        if gset.paddle_under_auto_control:
             pad_btn_text = self.font_buttons.render("Auto", True, constants.BLACK)
         else:
             pad_btn_text = self.font_buttons.render("Mouse", True,
-                                                    constants.BLACK) if gs.paddle_under_mouse_control else self.font_buttons.render(
+                                                    constants.BLACK) if gset.paddle_under_mouse_control else self.font_buttons.render(
                                                 "Keyboard", True, constants.BLACK)
 
         self.pad_btn_rect = self.draw_button(pad_btn_text, icon_x + pad_btn_lbl.get_width() + 20, pad_btn_lbl_y - pad_btn_lbl.get_height() - 10,

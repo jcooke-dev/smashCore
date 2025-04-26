@@ -50,12 +50,8 @@ class GameState:
         self.ball_speed_step: float = constants.BALL_SPEED_STEP
         self.ball_speed_increased_ratio: float = 1.0 # used to adjust the key-control paddle speed according to ball speed
         self.last_mouse_pos_x: int = 0
-        self.paddle_under_mouse_control: bool = True
+
+        self.paddle_pos_x: int = 0  # used at READY_TO_LAUNCH to keep ball on paddle
+
         self.paddle_under_key_control_left: bool = False
         self.paddle_under_key_control_right: bool = False
-        self.paddle_under_auto_control: bool = True
-        self.paddle_pos_x: int = 0 # used at READY_TO_LAUNCH to keep ball on paddle
-        self.bgm_sounds: bool = True
-        self.sfx_sounds: bool = True
-        self.music_volume = constants.MUSIC_VOLUME_INITIAL
-        self.sfx_volume = constants.SFX_VOLUME_INITIAL

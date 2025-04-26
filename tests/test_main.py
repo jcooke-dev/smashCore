@@ -6,13 +6,14 @@ import main
 @patch("main.pygame.init")
 @patch("main.assets.load_assets")
 @patch("main.UserInterface")
+@patch("main.GameSettings.create_persisted_object")
 @patch("main.GameState")
 @patch("main.GameWorld")
 @patch("main.PlayerState")
 @patch("main.Leaderboard.create_persisted_object")
 @patch("main.GameEngine")
 def test_main(mock_gameengine, mock_leaderboard, mock_playerstate,
-              mock_gameworld, mock_gamestate,
+              mock_gameworld, mock_gamestate, mock_gamesettings,
               mock_userinterface, mock_load_assets, mock_pygame_init,
               ):
     """
@@ -24,6 +25,7 @@ def test_main(mock_gameengine, mock_leaderboard, mock_playerstate,
     :param mock_playerstate:
     :param mock_gameworld:
     :param mock_gamestate:
+    :param mock_gamesettings:
     :param mock_userinterface:
     :param mock_load_assets:
     :param mock_pygame_init:
@@ -41,8 +43,9 @@ def test_main(mock_gameengine, mock_leaderboard, mock_playerstate,
     # Assert assets.load_assets() is called
     mock_load_assets.assert_called_once()
 
-    # Assert UserInterface, GameState, GameWorld, PlayerState, Leaderboard are instantiated
+    # Assert UserInterface, GameSettings, GameState, GameWorld, PlayerState, Leaderboard are instantiated
     mock_userinterface.assert_called_once()
+    mock_gamesettings.assert_called_once()
     mock_gamestate.assert_called_once()
     mock_gameworld.assert_called_once()
     mock_playerstate.assert_called_once()
@@ -54,6 +57,7 @@ def test_main(mock_gameengine, mock_leaderboard, mock_playerstate,
         mock_playerstate.return_value,
         mock_gameworld.return_value,
         mock_gamestate.return_value,
+        mock_gamesettings.return_value,
         mock_userinterface.return_value,
     )
 
