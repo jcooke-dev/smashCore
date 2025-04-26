@@ -19,6 +19,7 @@ import constants
 GAME_DATA_PATH: str = None # holds the proper OS-dependent user settings dir
 APP_DATA_PATH_WINDOWS: str = 'AppData\\Local\\'
 LEADERBOARD_FILENAME: str = 'leaderboard.pkl'
+SETTINGS_FILENAME: str = 'settings.pkl'
 
 
 def find_game_data_path():

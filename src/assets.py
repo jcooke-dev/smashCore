@@ -168,6 +168,7 @@ def load_assets():
     MUSIC_PATHS[GameState.GameStateName.CREDITS] = asset_path(SOUND_DIR, MENU_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.LEADERBOARD] = asset_path(SOUND_DIR, MENU_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.PLAYING] = asset_path(SOUND_DIR, GAME_MUSIC_FILENAME)
+    MUSIC_PATHS[GameState.GameStateName.PAUSED] = asset_path(SOUND_DIR, GAME_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.GAME_OVER] = asset_path(SOUND_DIR, GAME_OVER_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.GET_HIGH_SCORE] = asset_path(SOUND_DIR, SCORE_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.READY_TO_LAUNCH] = asset_path(SOUND_DIR, GAME_MUSIC_FILENAME)

@@ -15,15 +15,17 @@ import pygame
 import utils
 import persistence
 import assets
+from animation import Animation
 from ball import Ball
 from brick import Brick
+from gamesettings import GameSettings
 from paddle import Paddle
 from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
-                            PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
-                            BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
-                            PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
-                            BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
-                            MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS)
+                       PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
+                       BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
+                       PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
+                       BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
+                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS)
 from levels import Levels
 from gameworld import GameWorld
 from userinterface import UserInterface
@@ -36,14 +38,16 @@ from motionmodels import MotionModels
 class GameEngine:
     """ The main engine that drives the game loop """
 
-    def __init__(self, lb: Leaderboard, ps: PlayerState, gw: GameWorld, gs: GameState, ui: UserInterface) -> None:
+    def __init__(self, lb: Leaderboard, ps: PlayerState, gw: GameWorld, gs: GameState, gset: GameSettings, ui: UserInterface) -> None:
         """
         
         :param ps: PlayerState
         :param gw: GameWorld
         :param gs: GameState
+        :param gset: GameSettings
         :param ui: UserInterface
         """
+        self.prev_state = None
         self.quit_game_button = None
         self.restart_game_button = None
         self.main_menu_button = None
@@ -53,6 +57,7 @@ class GameEngine:
         self.ps: PlayerState = ps
         self.gw: GameWorld = gw
         self.gs: GameState = gs
+        self.gset: GameSettings = gset
         self.ui: UserInterface = ui
 
         self.screen: pygame.Surface = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -142,17 +147,18 @@ class GameEngine:
 
         # store leaderboard
         self.lb.store(persistence.LEADERBOARD_FILENAME)
+        self.gset.store(persistence.SETTINGS_FILENAME)
 
         pygame.quit()
         exit()
 
-    def play_music(self, gs: GameState):
+    def play_music(self):
         """
         Plays the music file for each game state
         
         :return:
         """
-        if not self.gs.bgm_sounds:
+        if not self.gset.bgm_sounds:
             pygame.mixer.music.stop()
             self.current_music_path = None
             return
@@ -160,17 +166,17 @@ class GameEngine:
         target_music_path: str = ""
         loop: int = -1  # Default to loop infinitely
 
-        if gs.cur_state in assets.MUSIC_PATHS:
-            target_music_path = assets.MUSIC_PATHS[gs.cur_state]
-            if ((gs.cur_state == GameState.GameStateName.SPLASH) or
-                (gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE) or
-                (gs.cur_state == GameState.GameStateName.GAME_OVER)):
+        if self.gs.cur_state in assets.MUSIC_PATHS:
+            target_music_path = assets.MUSIC_PATHS[self.gs.cur_state]
+            if ((self.gs.cur_state == GameState.GameStateName.SPLASH) or
+                    (self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE) or
+                    (self.gs.cur_state == GameState.GameStateName.GAME_OVER)):
                 loop = 0  # Play only once
 
         if target_music_path and self.current_music_path != target_music_path:
             pygame.mixer.music.stop()
             pygame.mixer.music.load(target_music_path)
-            pygame.mixer.music.set_volume(self.gs.music_volume)
+            pygame.mixer.music.set_volume(self.gset.music_volume)
             pygame.mixer.music.play(loop)
             self.current_music_path = target_music_path
         elif not target_music_path and self.current_music_path is not None:
@@ -188,7 +194,7 @@ class GameEngine:
             # fill the screen with black as a good default
             self.screen.fill(BLACK)
 
-            self.play_music(self.gs)
+            self.play_music()
 
             # get all events from queue for handling
             events = pygame.event.get()
@@ -240,7 +246,7 @@ class GameEngine:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             if hasattr(self.ui,
                                        'back_button_rect') and self.ui.back_button_rect.collidepoint(
-                                    event.pos):
+                                event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 ##############################################################
@@ -269,39 +275,48 @@ class GameEngine:
                 # display settings screen
                 ##############################################################
                 case GameState.GameStateName.SETTINGS:
-                    self.ui.draw_settings_screen(self.gs.bgm_sounds, self.gs.sfx_sounds, self.gs.music_volume, self.gs.sfx_volume)
+                    self.ui.draw_settings_screen(self.gset)
                     pygame.mouse.set_visible(True)
 
                     for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.volume_bgbutton_rect.collidepoint(event.pos):
-                                self.gs.bgm_sounds = not self.gs.bgm_sounds
-                                if not self.gs.bgm_sounds and self.gs.music_volume <= 0:
-                                    self.gs.bgm_sounds = True
-                                    self.gs.music_volume = 0.2
-                                    pygame.mixer.music.set_volume(self.gs.music_volume)
-                            elif self.ui.volume_sfbutton_rect.collidepoint(event.pos):
-                                self.gs.sfx_sounds = not self.gs.sfx_sounds
-                                if not self.gs.sfx_sounds and self.gs.sfx_volume <= 0:
-                                    self.gs.sfx_sounds = True
-                                    self.gs.sfx_volume = 0.2
-                                    pygame.mixer.music.set_volume(self.gs.sfx_volume)
+                            if self.ui.vol_bgm_btn_rect.collidepoint(event.pos):
+                                self.gset.bgm_sounds = not self.gset.bgm_sounds
+                                if not self.gset.bgm_sounds and self.gset.music_volume <= 0:
+                                    self.gset.bgm_sounds = True
+                                    self.gset.music_volume = 0.2
+                                    pygame.mixer.music.set_volume(self.gset.music_volume)
+                            elif self.ui.vol_sfx_btn_rect.collidepoint(event.pos):
+                                self.gset.sfx_sounds = not self.gset.sfx_sounds
+                                if not self.gset.sfx_sounds and self.gset.sfx_volume <= 0:
+                                    self.gset.sfx_sounds = True
+                                    self.gset.sfx_volume = 0.2
+                                    pygame.mixer.music.set_volume(self.gset.sfx_volume)
                             elif self.ui.back_button_rect.collidepoint(event.pos):
                                 self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
                             elif self.ui.knob_bg_rect.collidepoint(event.pos):
                                 self.dragging_bgm_slider = True
                             elif self.ui.knob_sf_rect.collidepoint(event.pos):
                                 self.dragging_sfx_slider = True
+                            elif self.ui.pad_btn_rect.collidepoint(event.pos):
+                                if not self.gset.paddle_under_auto_control:
+                                    self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+                                else:
+                                    self.gset.paddle_under_mouse_control = not self.gset.paddle_under_mouse_control
+                                    self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+
                         elif event.type == pygame.MOUSEMOTION:
                             if self.dragging_bgm_slider:
-                                slider_bg_x = self.ui.volume_bgbutton_rect.centerx + 75
+                                slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75
                                 new_vol = (event.pos[0] - (slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                                self.gs.music_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
-                                pygame.mixer.music.set_volume(self.gs.music_volume)
+                                self.gset.music_volume = max(0.0, min(1.0, round(
+                                    new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                                pygame.mixer.music.set_volume(self.gset.music_volume)
                             if self.dragging_sfx_slider:
-                                slider_sf_x = self.ui.volume_sfbutton_rect.centerx + 75
+                                slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75
                                 new_vol = (event.pos[0] - (slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                                self.gs.sfx_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                                self.gset.sfx_volume = max(0.0, min(1.0, round(
+                                    new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
                         elif event.type == pygame.MOUSEBUTTONUP:
                             self.dragging_bgm_slider = False
                             self.dragging_sfx_slider = False
@@ -316,10 +331,11 @@ class GameEngine:
 
                     mouse_pos = pygame.mouse.get_pos()
 
-                    # detect mouse motion, since that should shift paddle control from keys back to the mouse
-                    if mouse_pos[0] != self.gs.last_mouse_pos_x:
-                        # mouse is moving
-                        self.gs.paddle_under_mouse_control = True
+                    if self.gset.paddle_under_auto_control:
+                        # detect mouse motion, since that should shift paddle control from keys back to the mouse
+                        if mouse_pos[0] != self.gs.last_mouse_pos_x:
+                            # mouse is moving
+                            self.gset.paddle_under_mouse_control = True
 
                     self.gs.last_mouse_pos_x = mouse_pos[0]
 
@@ -330,9 +346,10 @@ class GameEngine:
                             # player's mouse input is driving the paddle
                             if self.gs.auto_play:
                                 current_wo.commanded_pos_x = self.gs.cur_ball_x
-                            elif self.gs.paddle_under_mouse_control:
+                            elif self.gset.paddle_under_mouse_control:
                                 current_wo.commanded_pos_x = mouse_pos[0]
-                                self.gs.paddle_under_mouse_control = False
+                                if self.gset.paddle_under_auto_control:
+                                    self.gset.paddle_under_mouse_control = False
 
                         if isinstance(current_wo, Ball) and GameState.GameStateName.READY_TO_LAUNCH:
                             current_wo.commanded_pos_x = self.gs.paddle_pos_x
@@ -361,16 +378,13 @@ class GameEngine:
                                                 self.ps.score += other_wo.value
                                             if other_wo.should_remove():
                                                 self.ps.score += other_wo.bonus
-                                                # special effect
-                                                #  TODO probably need to store this brick rect and set
-                                                #  it to be displayed for some duration because we sometimes don't see
-                                                #  the inflation effect, likely because it's removed before being drawn
-                                                other_wo.animate(self.screen)
-                                                pygame.display.update(other_wo.rect)
-                                                other_wo.destruction(self.gw.world_objects)
-                                                #other_wo.rect.inflate_ip(current_wo.rect.width * 3,
-                                                #                         current_wo.rect.height * 3)
-                                                #pygame.draw.rect(self.screen, other_wo.color, other_wo.rect)
+
+                                                # trigger the special effect - the Brick adds the appropriate Animation object to the world
+                                                other_wo.trigger_destruction_effect(self.gw.world_objects)
+
+                                                # now remove the actual Brick object
+                                                self.gw.world_objects.remove(other_wo)
+
                                                 current_wo.speed += .20
                                                 # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
                                                 # VECTOR models
@@ -378,12 +392,16 @@ class GameEngine:
                                                     current_wo.speed_v += self.gs.ball_speed_step
                                                     self.gs.ball_speed_increased_ratio = current_wo.speed_v / BALL_SPEED_VECTOR
                                                     current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
-                                                #self.gw.world_objects.remove(other_wo)
 
                                     else:
                                         # this is the other side of the allow_collision logic above, since
                                         # not colliding now, it resets the latch or 'primed for collision' flag
                                         other_wo.prime_for_collision()
+
+                        # remove the Animation object from world if it's run its course
+                        if isinstance(current_wo, Animation):
+                            if current_wo.should_remove():
+                                self.gw.world_objects.remove(current_wo)
 
                     # draw all objects in GameWorld
                     self.draw_world_and_status()
@@ -406,7 +424,15 @@ class GameEngine:
                     self.draw_world_and_status()
                     # getting the rects for the UI buttons for later collision
                     # detection (button pressing)
-                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu()
+                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu(self.gset)
+                    for event in events:
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if self.ui.pad_btn_rect.collidepoint(event.pos):
+                                if not self.gset.paddle_under_auto_control:
+                                    self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+                                else:
+                                    self.gset.paddle_under_mouse_control = not self.gset.paddle_under_mouse_control
+                                    self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
 
                 ##############################################################
                 # display the GET_HIGH_SCORE popup over the frozen gameplay
@@ -439,14 +465,16 @@ class GameEngine:
                 if event.type == pygame.KEYDOWN:
                     # toggle PAUSE GameState with ESCAPE key press
                     if event.key == pygame.K_ESCAPE:
-                        if self.gs.cur_state == GameState.GameStateName.PAUSED:
-                            self.gs.cur_state = GameState.GameStateName.PLAYING
-                            pygame.mouse.set_pos(self.mouse_pos)
-                            pygame.mouse.set_visible(False)
-                        elif self.gs.cur_state == GameState.GameStateName.PLAYING:
+                        if (self.gs.cur_state == GameState.GameStateName.PLAYING or
+                                self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH):
+                            self.prev_state = self.gs.cur_state
                             self.gs.cur_state = GameState.GameStateName.PAUSED
                             self.mouse_pos = pygame.mouse.get_pos()
                             pygame.mouse.set_visible(True)
+                        elif self.gs.cur_state == GameState.GameStateName.PAUSED:
+                            self.gs.cur_state = self.prev_state
+                            pygame.mouse.set_pos(self.mouse_pos)
+                            pygame.mouse.set_visible(False)
 
                     if event.key == pygame.K_SPACE:
                         if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
@@ -509,19 +537,19 @@ class GameEngine:
                     # detect the CTRL+'=' and CTRL+'-' key combos to adjust music volume
                     if event.key == pygame.K_EQUALS:
                         if event.mod & pygame.KMOD_CTRL:
-                            self.gs.bgm_sounds = True
-                            self.gs.music_volume += MUSIC_VOLUME_STEP
-                            self.gs.music_volume = min(self.gs.music_volume, 1.0)
-                            pygame.mixer.music.set_volume(self.gs.music_volume)
+                            self.gset.bgm_sounds = True
+                            self.gset.music_volume += MUSIC_VOLUME_STEP
+                            self.gset.music_volume = min(self.gset.music_volume, 1.0)
+                            pygame.mixer.music.set_volume(self.gset.music_volume)
 
                     # detect the CTRL+'+' and CTRL+'-' key combos to adjust music volume
                     if event.key == pygame.K_MINUS:
                         if event.mod & pygame.KMOD_CTRL:
-                            self.gs.music_volume -= MUSIC_VOLUME_STEP
-                            self.gs.music_volume = max(self.gs.music_volume, 0.0)
-                            if self.gs.music_volume < 0.01:
-                                self.gs.bgm_sounds = False
-                            pygame.mixer.music.set_volume(self.gs.music_volume)
+                            self.gset.music_volume -= MUSIC_VOLUME_STEP
+                            self.gset.music_volume = max(self.gset.music_volume, 0.0)
+                            if self.gset.music_volume < 0.01:
+                                self.gset.bgm_sounds = False
+                            pygame.mixer.music.set_volume(self.gset.music_volume)
 
                     # detect the CTRL+l to force-load next level in sequence
                     if event.key == pygame.K_l:
@@ -558,10 +586,11 @@ class GameEngine:
 
             # get the continuously pressed keys, rather than single key press events
             pressed_keys = pygame.key.get_pressed()
-            if pressed_keys[pygame.K_LEFT]:
-                self.gs.paddle_under_key_control_left = True
-            elif pressed_keys[pygame.K_RIGHT]:
-                self.gs.paddle_under_key_control_right = True
+            if not self.gset.paddle_under_mouse_control or self.gset.paddle_under_auto_control:
+                if pressed_keys[pygame.K_LEFT]:
+                    self.gs.paddle_under_key_control_left = True
+                elif pressed_keys[pygame.K_RIGHT]:
+                    self.gs.paddle_under_key_control_right = True
 
             # draw the developer overlay, if requested
             if self.gs.show_dev_overlay:
