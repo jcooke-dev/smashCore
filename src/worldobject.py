@@ -20,7 +20,7 @@ class WorldObject:
 
     def __init__(self) -> None:
         self.speed = None
-        self.bonus = None
+        self.bonus = 0
         self.color: pygame.color = None
         self.value: int = 0
         self.rect: pygame.rect = None
@@ -96,16 +96,10 @@ class WorldObject:
         """
         self.primed_collision = True
 
-    def destruction(self, object_list):
+    def trigger_destruction_effect(self, world_objects) -> None:
         """
-        Destroy world object
-        :param object_list:
-        :return:
-        """
+        This is called to create and trigger the animation effect.
 
-    def animate(self,screen):
-        """
-        Animate world object
-        :param screen:
+        :param world_objects: list of WorldObjects
         :return:
         """

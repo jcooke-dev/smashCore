@@ -10,8 +10,10 @@
 """
 
 import pygame
+
 import constants
 import assets
+from animation import Animation
 from worldobject import WorldObject
 
 class Brick(WorldObject, pygame.sprite.Sprite):
@@ -84,19 +86,26 @@ class Brick(WorldObject, pygame.sprite.Sprite):
         """
         return self.strength <= 0
 
-    def destruction(self, object_list):
-        object_list.remove(self)
+    def trigger_destruction_effect(self, world_objects: list[WorldObject]) -> None:
+        """
+        This is called to create and trigger the animation effect (for Brick destruction, in this case).
 
-    def animate(self, screen):
+        :param world_objects: list of WorldObjects
+        :return:
+        """
+
         if self.image is None:
-            self.rect.inflate_ip(self.rect.width * 0.5,
-                             self.rect.height * 0.5)
-            pygame.draw.rect(screen, self.color, self.rect)
-            pygame.display.update(self.rect)
-
+            # if a plain rect Brick, then the animation is a brief minor rect.inflation(), with a fade
+            world_objects.append(Animation(constants.EFFECT_BRICK_PLAIN_DESTROY_DURATION,
+                                           self.rect.inflate(self.rect.width * constants.EFFECT_BRICK_PLAIN_DESTROY_INFLATION,
+                                                             self.rect.height * constants.EFFECT_BRICK_PLAIN_DESTROY_INFLATION),
+                                           self.color, constants.EFFECT_BRICK_PLAIN_DESTROY_FADE))
         else:
-            for i in range(0, len(assets.BRICK_ANIMATION)):
-                screen.blit(pygame.transform.scale(assets.BRICK_ANIMATION[int(i)],
-                                                   (self.rect.width * 1.0, self.rect.height * 1.0)), self.rect)
-                pygame.display.update(self)
-                i += .1
+            # if an image Brick, the animation is an actual multi-frame image animation -- the fade isn't working, but the
+            # images effectively fade away on their own
+            world_objects.append(Animation(constants.EFFECT_BRICK_IMAGE_DESTROY_DURATION,
+                                           self.rect.inflate(
+                                               self.rect.width * constants.EFFECT_BRICK_IMAGE_DESTROY_INFLATION,
+                                               self.rect.height * constants.EFFECT_BRICK_IMAGE_DESTROY_INFLATION),
+                                           self.color, constants.EFFECT_BRICK_IMAGE_DESTROY_FADE, images=assets.BRICK_ANIMATION))
+
