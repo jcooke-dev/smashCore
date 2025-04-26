@@ -15,6 +15,7 @@ import pygame
 import utils
 import persistence
 import assets
+from animation import Animation
 from ball import Ball
 from brick import Brick
 from gamesettings import GameSettings
@@ -377,16 +378,13 @@ class GameEngine:
                                                 self.ps.score += other_wo.value
                                             if other_wo.should_remove():
                                                 self.ps.score += other_wo.bonus
-                                                # special effect
-                                                #  TODO probably need to store this brick rect and set
-                                                #  it to be displayed for some duration because we sometimes don't see
-                                                #  the inflation effect, likely because it's removed before being drawn
-                                                other_wo.animate(self.screen)
-                                                pygame.display.update(other_wo.rect)
-                                                other_wo.destruction(self.gw.world_objects)
-                                                #other_wo.rect.inflate_ip(current_wo.rect.width * 3,
-                                                #                         current_wo.rect.height * 3)
-                                                #pygame.draw.rect(self.screen, other_wo.color, other_wo.rect)
+
+                                                # trigger the special effect - the Brick adds the appropriate Animation object to the world
+                                                other_wo.trigger_destruction_effect(self.gw.world_objects)
+
+                                                # now remove the actual Brick object
+                                                self.gw.world_objects.remove(other_wo)
+
                                                 current_wo.speed += .20
                                                 # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
                                                 # VECTOR models
@@ -394,12 +392,16 @@ class GameEngine:
                                                     current_wo.speed_v += self.gs.ball_speed_step
                                                     self.gs.ball_speed_increased_ratio = current_wo.speed_v / BALL_SPEED_VECTOR
                                                     current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
-                                                #self.gw.world_objects.remove(other_wo)
 
                                     else:
                                         # this is the other side of the allow_collision logic above, since
                                         # not colliding now, it resets the latch or 'primed for collision' flag
                                         other_wo.prime_for_collision()
+
+                        # remove the Animation object from world if it's run its course
+                        if isinstance(current_wo, Animation):
+                            if current_wo.should_remove():
+                                self.gw.world_objects.remove(current_wo)
 
                     # draw all objects in GameWorld
                     self.draw_world_and_status()

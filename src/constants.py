@@ -64,3 +64,11 @@ KNOB_RADIUS = 20
 MUSIC_VOLUME_INITIAL = 1.0
 SFX_VOLUME_INITIAL = 1.0
 MUSIC_VOLUME_STEP = 0.2
+
+EFFECT_BRICK_PLAIN_DESTROY_DURATION = 40 # lifetime of fading plain Brick after destruction, in ms
+EFFECT_BRICK_PLAIN_DESTROY_INFLATION = 0.25 # rect inflation of fading plain Brick after destruction
+EFFECT_BRICK_PLAIN_DESTROY_FADE = True # fade the destroyed Brick?
+
+EFFECT_BRICK_IMAGE_DESTROY_DURATION = 160 # lifetime of animating image Brick after destruction, in ms
+EFFECT_BRICK_IMAGE_DESTROY_INFLATION = 0.0 # rect inflation of image Brick after destruction
+EFFECT_BRICK_IMAGE_DESTROY_FADE = False # fade the destroyed Brick? -- not yet working for images
