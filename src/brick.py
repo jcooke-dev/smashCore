@@ -101,4 +101,4 @@ class Brick(WorldObject, pygame.sprite.Sprite):
                 pygame.display.update(self)
                 i += .1
 
-        assets.BRICK_SFX_CHANNEL.play(assets.BRICK_SFX)
+        pygame.mixer.find_channel().play(pygame.mixer.Sound(assets.BRICK_SFX))
