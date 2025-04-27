@@ -9,6 +9,7 @@
     Module Description: This is the test harness for the Ball class.
 """
 from enum import Enum, auto
+from unittest import mock
 
 import pygame
 import pytest
@@ -127,8 +128,8 @@ def test_update_wo_position_update_simple(ball, gamestate):
     assert ball.rect.x == ball.x
     assert ball.rect.y == ball.y
 
-
-def test_update_wo_wall_collision_left_simple(ball, gamestate):
+@mock.patch('pygame.mixer')
+def test_update_wo_wall_collision_left_simple(mock_mixer, ball, gamestate):
     """
     Test the ball direction on collision from left
     :param ball:
@@ -146,8 +147,8 @@ def test_update_wo_wall_collision_left_simple(ball, gamestate):
 
     assert ball.dx == 1  # direction should reverse
 
-
-def test_update_wo_wall_collision_right_simple(ball, gamestate):
+@mock.patch('pygame.mixer')
+def test_update_wo_wall_collision_right_simple(mock_mixer, ball, gamestate):
     """
     Test ball direction on collision from right
     :param ball:
@@ -165,8 +166,8 @@ def test_update_wo_wall_collision_right_simple(ball, gamestate):
 
     assert ball.dx == -1  # direction should reverse
 
-
-def test_update_wo_wall_collision_top_simple(ball, gamestate):
+@mock.patch('pygame.mixer')
+def test_update_wo_wall_collision_top_simple(mock_mixer, ball, gamestate):
     """
     Test ball direction on collision from top
     :param ball:
@@ -182,8 +183,8 @@ def test_update_wo_wall_collision_top_simple(ball, gamestate):
 
     assert ball.dy == 1  # direction should reverse
 
-
-def test_update_wo_gravity_application_vector(ball, gamestate):
+@mock.patch('pygame.mixer')
+def test_update_wo_gravity_application_vector(mock_mixer, ball, gamestate):
     """
     Test ball velocity
     :param ball:
@@ -301,8 +302,8 @@ def test_simple_diagonal_collision(ball, gamestate):
     assert ball.dx == -1  # direction should reverse
     assert ball.dy == -1  # direction should reverse
 
-
-def test_paddle_impulse(ball, gamestate, paddle):
+@mock.patch('pygame.mixer')
+def test_paddle_impulse(mock_mixer, ball, gamestate, paddle):
     """
     Test ball velocity changes after collision when impulse is set
     :param ball:
