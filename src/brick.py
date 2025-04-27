@@ -109,5 +109,5 @@ class Brick(WorldObject, pygame.sprite.Sprite):
                                                self.rect.height * constants.EFFECT_BRICK_IMAGE_DESTROY_INFLATION),
                                            self.color, constants.EFFECT_BRICK_IMAGE_DESTROY_FADE, images=assets.BRICK_ANIMATION))
 
-        pygame.mixer.find_channel().play(pygame.mixer.Sound(assets.BRICK_SFX))
+        pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.BRICK_SFX))
 
