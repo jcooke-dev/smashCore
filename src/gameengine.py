@@ -19,6 +19,7 @@ from animation import Animation
 from ball import Ball
 from brick import Brick
 from gamesettings import GameSettings
+from leveltheme import LevelTheme
 from paddle import Paddle
 from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
                        PAD_WIDTH, START_LIVES, START_SCORE, BALL_SPEED_VECTOR, BALL_SPEED_SIMPLE,
@@ -92,7 +93,7 @@ class GameEngine:
         """
         # does python run auto garbage collection so it's OK to just
         # assign a new gw?
-        self.gw = GameWorld(Levels.LevelName.SMASHCORE_1)
+        self.gw = GameWorld(self.ps.theme)
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
         self.gs.cur_ball_x = (WIDTH // 2) - (PAD_WIDTH // 2)
@@ -107,6 +108,7 @@ class GameEngine:
         """
         Builds the next level, resets the ball position and initial speed
         Slight increase in initial ball speed to add difficulty
+        (NOTE this doesn't actually increment the level num)
         
         :return:
         """
@@ -120,8 +122,8 @@ class GameEngine:
                 self.gs.ball_speed_increased_ratio = wo.speed_v / BALL_SPEED_VECTOR
                 wo.v_vel = wo.v_vel_unit * wo.speed_v
                 wo.speed = BALL_SPEED_SIMPLE + (self.ps.level * BALL_SPEED_LEVEL_INCREMENT)
-        # builds the next level
-        next_level = Levels.get_level_name_from_num(self.ps.level)
+        # builds the next level (NOTE this doesn't actually increment the level num)
+        next_level = Levels.get_level_name_from_num(self.ps.theme, self.ps.level)
         Levels.build_level(self.gw.world_objects, next_level)
 
         self.fps = INITIAL_FPS_SIMPLE
@@ -221,7 +223,12 @@ class GameEngine:
                     pygame.mouse.set_visible(True)
                     for event in events:
                         if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.start_button_rect.collidepoint(event.pos):
+                            if self.ui.start_classic_button_rect.collidepoint(event.pos):
+                                self.ps.theme = LevelTheme.CLASSIC
+                                self.reset_game()
+                                self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
+                            elif self.ui.start_modern_button_rect.collidepoint(event.pos):
+                                self.ps.theme = LevelTheme.MODERN
                                 self.reset_game()
                                 self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
                             elif self.ui.credits_button_rect.collidepoint(event.pos):
@@ -412,7 +419,8 @@ class GameEngine:
                     if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
                         self.ui.draw_game_intro()
 
-                    if not any(isinstance(wo, Brick) for wo in self.gw.world_objects):
+                    # don't advance to the next level until all bricks are gone AND animations have completed
+                    if not any(isinstance(wo, Brick) or isinstance(wo, Animation) for wo in self.gw.world_objects):
                         self.ps.level += 1
                         self.next_level()
 
