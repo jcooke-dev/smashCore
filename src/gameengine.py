@@ -26,7 +26,7 @@ from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
                        BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
                        PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
                        BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
-                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS)
+                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS, LIGHT_GRAY)
 from levels import Levels
 from gameworld import GameWorld
 from userinterface import UserInterface
@@ -61,8 +61,10 @@ class GameEngine:
         self.gset: GameSettings = gset
         self.ui: UserInterface = ui
 
-        self.screen: pygame.Surface = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.screen: pygame.Surface = None
+        self.set_graphics_mode()
         self.surface: pygame.Surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        self.ui.surface = self.surface
 
         self.clock: pygame.time = pygame.time.Clock()
         self.fps: float = INITIAL_FPS_SIMPLE
@@ -72,9 +74,6 @@ class GameEngine:
         self.gs.cur_state = GameState.GameStateName.SPLASH
 
         pygame.display.set_caption(GAME_NAME)
-
-        ui.screen = self.screen
-        ui.surface = self.surface
 
         # Initially, hide the mouse cursor
         pygame.mouse.set_visible(False)
@@ -129,12 +128,31 @@ class GameEngine:
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
 
+    def set_graphics_mode(self) -> None:
+        """
+        Handles the pygame.display mode setting so that we can swap between windowed and fullscreen.
+
+        :return:
+        """
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT),
+                                              flags=0 if not self.gset.is_fullscreen else pygame.FULLSCREEN)
+        self.ui.screen = self.screen
+
     def draw_world_and_status(self) -> None:
         """
         Draw all objects in GameWorld plus status overlays
         
         :return:
         """
+        # draw thin borders so the real game surface can be seen if in FULLSCREEN and aspect ratio mismatch
+        thickness: int = 1
+        # left
+        pygame.draw.line(self.screen, LIGHT_GRAY, (0, 0), (0, HEIGHT - 1), thickness)
+        # top
+        pygame.draw.line(self.screen, LIGHT_GRAY, (0, 0), (WIDTH - 1, 0), thickness)
+        # right
+        pygame.draw.line(self.screen, LIGHT_GRAY, (WIDTH - 1, 0), (WIDTH - 1, HEIGHT - 1), thickness)
+
         # draw every game object
         for world_object in self.gw.world_objects:
             world_object.draw_wo(self.screen)
@@ -311,6 +329,9 @@ class GameEngine:
                                 else:
                                     self.gset.paddle_under_mouse_control = not self.gset.paddle_under_mouse_control
                                     self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+                            elif self.ui.graphics_btn_rect.collidepoint(event.pos):
+                                self.gset.is_fullscreen = not self.gset.is_fullscreen
+                                self.set_graphics_mode()
 
                         elif event.type == pygame.MOUSEMOTION:
                             if self.dragging_bgm_slider:
