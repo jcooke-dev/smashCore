@@ -33,7 +33,8 @@ class UserInterface:
         self.leader_button_rect = None
         self.credits_button_rect = None
         self.how_to_play_button_rect = None
-        self.start_button_rect = None
+        self.start_classic_button_rect = None
+        self.start_modern_button_rect = None
         self.back_button_rect = None
 
         # Font setups
@@ -443,21 +444,31 @@ class UserInterface:
         for brick in self.background_bricks:
             self.surface.blit(brick['image'], brick['rect'])
 
-        # Draw Click to Play button
-        start_text = self.font_menu_main.render("Click to Play", True, constants.BLACK)
+        # Draw Click to Play CLASSIC button
+        start_text = self.font_menu_main.render("Click to Play CLASSIC", True, constants.BLACK)
         button_width = start_text.get_width() + 120
         button_height = start_text.get_height() + 60
 
-        self.start_button_rect = self.draw_button(start_text, (constants.WIDTH - button_width) // 2,
-                                                  (constants.HEIGHT - button_height) // 3, button_width,
+        self.start_classic_button_rect = self.draw_button(start_text, (constants.WIDTH - button_width) // 2,
+                                                  (constants.HEIGHT - button_height) // 6, button_width,
                                                   button_height,
                                                   constants.GREEN, constants.DARK_GREEN)
+
+        # Draw Click to Play MODERN button
+        start_text = self.font_menu_main.render("Click to Play MODERN", True, constants.BLACK)
+        button_width = start_text.get_width() + 120
+        button_height = start_text.get_height() + 60
+
+        self.start_modern_button_rect = self.draw_button(start_text, (constants.WIDTH - button_width) // 2,
+                                                         self.start_classic_button_rect.y + button_height + 15,
+                                                         button_width, button_height,
+                                                         constants.LIGHT_BLUE, constants.DARK_BLUE)
 
         sub_button_width = 250
         sub_button_height = 50
         sub_button_spacing = sub_button_height + 15
         sub_button_x = (constants.WIDTH - sub_button_width) // 2
-        sub_button_y = (constants.HEIGHT // 3) + (sub_button_height * 2) # Add or subtract to this to adjust sub_buttons y_position
+        sub_button_y = self.start_modern_button_rect.y + self.start_modern_button_rect.height + sub_button_height # Add or subtract to this to adjust sub_buttons y_position
         # Draw How to Play Button
         how_to_play_text = self.font_menu_sub.render("How to Play", True, constants.BLACK)
         self.how_to_play_button_rect = self.draw_button(how_to_play_text, sub_button_x, sub_button_y,
@@ -486,7 +497,7 @@ class UserInterface:
 
         # Draw Quit button
         quit_text = self.font_menu_sub.render("Quit", True, constants.BLACK)
-        self.quit_button_start_rect = self.draw_button(quit_text, sub_button_x, sub_button_y + (4 * sub_button_spacing),
+        self.quit_button_start_rect = self.draw_button(quit_text, sub_button_x, sub_button_y + int(4.5 * sub_button_spacing),
                                                        sub_button_width, sub_button_height,
                                                        constants.RED, constants.DARK_RED)
 

@@ -16,6 +16,7 @@ from enum import Enum
 import pygame
 import constants
 import assets
+from leveltheme import LevelTheme
 from brick import Brick
 from obstacle import Obstacle
 from worldobject import WorldObject
@@ -30,28 +31,62 @@ class Levels:
         # changing this from auto() to explicit numbering, since mapping the level number
         # to this wrapping set of enum LevelNames (that logic in get_level_name_from_num()
         # needs enum values here to work reliably)
-        SMASHCORE_1: Enum = 1
-        SMASHCORE_SOLID_ROWS_1: Enum = 2
-        SMASHCORE_IMG_CHAMFER_1: Enum = 3
-        SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1: Enum = 4
-        SMASHCORE_SOLID_ROWS_SPACERS: Enum = 5
-        SMASHCORE_MULTIPLIER_1: Enum = 6
-        SMASHCORE_UNBREAKABLE_1: Enum = 7
+        CLASSIC_RANDOM_1: Enum = 1
+        CLASSIC_SOLID_ROWS_1: Enum = 2
+        MODERN_RANDOM_1: Enum = 3
+        MODERN_SOLID_ROWS_1: Enum = 4
+        CLASSIC_SOLID_ROWS_SPACERS_1: Enum = 5
+        MODERN_MULTIPLIER_1: Enum = 6
+        MODERN_UNBREAKABLE_1: Enum = 7
+        CLASSIC_MULTIPLIER_1: Enum = 8
+        CLASSIC_UNBREAKABLE_1: Enum = 9
+        MODERN_SOLID_ROWS_SPACERS_1: Enum = 10
+
+
+    # this is the CLASSIC theme level sequence
+    themed_sequence_classic: list[LevelName] = [LevelName.CLASSIC_RANDOM_1,
+                                                LevelName.CLASSIC_SOLID_ROWS_1,
+                                                LevelName.CLASSIC_SOLID_ROWS_SPACERS_1,
+                                                LevelName.CLASSIC_MULTIPLIER_1,
+                                                LevelName.CLASSIC_UNBREAKABLE_1]
+
+    # this is the MODERN theme level sequence
+    themed_sequence_modern: list[LevelName] = [LevelName.MODERN_RANDOM_1,
+                                               LevelName.MODERN_SOLID_ROWS_1,
+                                               LevelName.MODERN_SOLID_ROWS_SPACERS_1,
+                                               LevelName.MODERN_MULTIPLIER_1,
+                                               LevelName.MODERN_UNBREAKABLE_1]
 
     def __init__(self):
         pass
 
-    @staticmethod
-    def get_level_name_from_num(level_num: int) -> LevelName:
+    @classmethod
+    def get_level_name_from_num(cls, level_theme: LevelTheme, level_num: int) -> LevelName:
         """
         Find the proper LevelName from an index/value that must wrap around in this enum.
 
+        :param level_theme: theme determines which list of LevelNames is sequenced
         :param level_num: the current 1-based level number, so can increase beyond the
             number of LevelNames
         :return:
         """
-        level_val = ((level_num - 1) % len(Levels.LevelName)) + 1
-        return Levels.LevelName(level_val)
+
+        level_name: Levels.LevelName = Levels.LevelName.CLASSIC_RANDOM_1
+
+        match level_theme:
+            case LevelTheme.NO_THEME:
+                level_val = ((level_num - 1) % len(Levels.LevelName)) + 1
+                level_name = Levels.LevelName(level_val)
+            case LevelTheme.CLASSIC:
+                level_val = (level_num - 1) % len(cls.themed_sequence_classic)
+                level_name = cls.themed_sequence_classic[level_val]
+            case LevelTheme.MODERN:
+                level_val = (level_num - 1) % len(cls.themed_sequence_modern)
+                level_name = cls.themed_sequence_modern[level_val]
+            case _:
+                pass
+
+        return level_name
 
     @staticmethod
     def build_level(gw_list: list[WorldObject], level_name: LevelName) -> None:
@@ -64,7 +99,7 @@ class Levels:
         """
 
         match level_name:
-            case Levels.LevelName.SMASHCORE_1:
+            case Levels.LevelName.CLASSIC_RANDOM_1:
                 for i in range(10):
                     for j in range(4):
                         random_score = rnd(1, 11)
@@ -72,13 +107,14 @@ class Levels:
                                              (rnd(30, 256), rnd(30, 256), rnd(30, 256)),
                                              random_score))
 
-            case Levels.LevelName.SMASHCORE_SOLID_ROWS_1:
-                colors = [constants.RED, constants.ORANGE, constants.GREEN, constants.YELLOW, constants.LIGHT_BLUE]
+            case Levels.LevelName.CLASSIC_SOLID_ROWS_1:
+                colors = [constants.RED, constants.ORANGE, constants.YELLOW,
+                          constants.GREEN, constants.LIGHT_BLUE]
                 values = [10, 7, 5, 3, 1]
                 Levels.generate_grid_level(gw_list,
                                            row_colors=colors, values=values)
 
-            case Levels.LevelName.SMASHCORE_IMG_CHAMFER_1:
+            case Levels.LevelName.MODERN_RANDOM_1:
                 for i in range(10):
                     for j in range(4):
                         random_brick = choice(assets.BRICK_COLORS)
@@ -88,7 +124,7 @@ class Levels:
                                                       (rnd(30, 256), rnd(30, 256), rnd(30, 256)),
                                                       random_score, image=scaled_brick))
 
-            case Levels.LevelName.SMASHCORE_SOLID_ROWS_IMG_CHAMFER_1:
+            case Levels.LevelName.MODERN_SOLID_ROWS_1:
                 colors = [constants.RED, constants.ORANGE, constants.GREEN, constants.YELLOW, constants.LIGHT_BLUE]
                 values = [10, 7, 5, 3, 1]
 
@@ -96,9 +132,9 @@ class Levels:
                                           row_colors=colors, values=values,
                                           use_random_imgs=True)
 
-            case Levels.LevelName.SMASHCORE_SOLID_ROWS_SPACERS:
-                skip_positions = [(2, 2), (3, 2), (6, 2), (7, 2),
-                                  (2, 3), (3, 3), (6, 3), (7, 3)]
+            case Levels.LevelName.CLASSIC_SOLID_ROWS_SPACERS_1:
+                skip_positions = [(2, 2), (3, 2), (7, 2), (8, 2),
+                                  (2, 3), (3, 3), (7, 3), (8, 3)]
                 colors = [constants.RED, constants.ORANGE, constants.YELLOW,
                           constants.GREEN, constants.LIGHT_BLUE, constants.PURPLE]
                 values = [10, 7, 5, 3, 1]
@@ -107,7 +143,7 @@ class Levels:
                                            row_colors=colors, values=values,
                                            skip_positions=skip_positions)
 
-            case Levels.LevelName.SMASHCORE_MULTIPLIER_1:
+            case Levels.LevelName.MODERN_MULTIPLIER_1:
                 colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
                           constants.GREEN, constants.LIGHT_BLUE, constants.PURPLE]
                 skip_positions = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
@@ -120,7 +156,7 @@ class Levels:
                                            skip_positions=skip_positions,
                                            strong_bricks=multiplier_bricks)
 
-            case Levels.LevelName.SMASHCORE_UNBREAKABLE_1:
+            case Levels.LevelName.MODERN_UNBREAKABLE_1:
                 colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
                           constants.GREEN]
                 row_img_colors = [assets.BRK_PINK_IMG, assets.BRK_ORANGE_IMG, assets.BRK_YELLOW_IMG,
@@ -129,6 +165,43 @@ class Levels:
                 Levels.generate_grid_level(gw_list=gw_list, rows=len(colors),
                                            row_colors=colors, row_img_colors=row_img_colors,
                                            unbreakable=unbreakable)
+
+            case Levels.LevelName.CLASSIC_MULTIPLIER_1:
+                colors = [constants.RED, constants.ORANGE, constants.YELLOW,
+                          constants.GREEN, constants.LIGHT_BLUE]
+                skip_positions = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
+                                  (10, 0), (10, 1), (10, 2), (10, 3), (10, 4), (10, 5)]
+                multiplier_bricks = [(2, 2), (5, 2)]
+                values = [10, 7, 5, 3, 1]
+
+                Levels.generate_grid_level(gw_list=gw_list,
+                                           rows=len(colors),
+                                           row_colors=colors,
+                                           values=values,
+                                           skip_positions=skip_positions,
+                                           strong_bricks=multiplier_bricks)
+
+            case Levels.LevelName.CLASSIC_UNBREAKABLE_1:
+                colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
+                          constants.GREEN]
+                unbreakable = [(0, 2), (1, 2), (9, 2), (10, 2)]
+                Levels.generate_grid_level(gw_list=gw_list, rows=len(colors),
+                                           row_colors=colors,
+                                           unbreakable=unbreakable)
+
+            case Levels.LevelName.MODERN_SOLID_ROWS_SPACERS_1:
+                skip_positions = [(2, 2), (3, 2), (7, 2), (8, 2),
+                                  (2, 3), (3, 3), (7, 3), (8, 3)]
+                colors = [constants.RED, constants.ORANGE, constants.YELLOW,
+                          constants.GREEN, constants.LIGHT_BLUE, constants.PURPLE]
+                row_img_colors = [assets.BRK_RED_IMG, assets.BRK_ORANGE_IMG, assets.BRK_YELLOW_IMG,
+                                  assets.BRK_GREEN_IMG, assets.BRK_BLUE_IMG]
+                values = [10, 7, 5, 3, 1]
+                Levels.generate_grid_level(gw_list,
+                                           rows=len(colors),
+                                           row_colors=colors, row_img_colors=row_img_colors, values=values,
+                                           skip_positions=skip_positions)
+
             case _:
                 pass
 
@@ -217,14 +290,21 @@ class Levels:
 
                 # brick is 10X value and 5X strength
                 if strong_bricks is not None and (i, j) in strong_bricks:
-                    strong_brick = pygame.transform.scale(
-                        assets.BRK_GOLD_IMG, (brk_width, brk_height))
-                    gw_list.append(Brick(brk_rect,
-                                         row_color,
-                                         strength=strong_brick_strength,
-                                         value=value,
-                                         bonus=strong_brick_bonus,
-                                         image=strong_brick))
+                    if row_img_colors is not None:
+                        strong_brick = pygame.transform.scale(
+                            assets.BRK_GOLD_IMG, (brk_width, brk_height))
+                        gw_list.append(Brick(brk_rect,
+                                             row_color,
+                                             strength=strong_brick_strength,
+                                             value=value,
+                                             bonus=strong_brick_bonus,
+                                             image=strong_brick))
+                    else:
+                        gw_list.append(Brick(brk_rect, constants.YELLOW,
+                                             strength=strong_brick_strength,
+                                             value=value,
+                                             bonus=strong_brick_bonus))
+
                 # obstacle bricks
                 elif unbreakable is not None and (i, j) in unbreakable:
                     if row_img_colors is not None:

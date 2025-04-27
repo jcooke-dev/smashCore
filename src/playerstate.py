@@ -10,6 +10,7 @@
 """
 
 import constants
+from leveltheme import LevelTheme
 
 
 class PlayerState:
@@ -19,4 +20,5 @@ class PlayerState:
 
         self.lives: int = constants.START_LIVES
         self.score: int = constants.START_SCORE
+        self.theme: LevelTheme = LevelTheme.MODERN
         self.level: int = 1
