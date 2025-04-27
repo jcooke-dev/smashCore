@@ -445,7 +445,7 @@ class UserInterface:
             self.surface.blit(brick['image'], brick['rect'])
 
         # Draw Click to Play CLASSIC button
-        start_text = self.font_menu_main.render("Click to Play CLASSIC", True, constants.BLACK)
+        start_text = self.font_menu_main.render("PLAY CLASSIC", True, constants.BLACK)
         button_width = start_text.get_width() + 120
         button_height = start_text.get_height() + 60
 
@@ -455,7 +455,7 @@ class UserInterface:
                                                   constants.GREEN, constants.DARK_GREEN)
 
         # Draw Click to Play MODERN button
-        start_text = self.font_menu_main.render("Click to Play MODERN", True, constants.BLACK)
+        start_text = self.font_menu_main.render("PLAY MODERN", True, constants.BLACK)
         button_width = start_text.get_width() + 120
         button_height = start_text.get_height() + 60
 
@@ -513,7 +513,7 @@ class UserInterface:
             "Breaking all of the bricks clears the level.",
             "",
             "ESC to pause.",
-            "CTRL + D for dev stats."
+            "CTRL + D for dev stats.",
             "CTRL + - to decrease overall volume.",
             "CTRL + = to increase overall volume."
         ]

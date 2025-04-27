@@ -579,11 +579,11 @@ class GameEngine:
                 if (event.type == pygame.MOUSEBUTTONDOWN and
                         ((self.gs.cur_state == GameState.GameStateName.PAUSED) or
                          (self.gs.cur_state == GameState.GameStateName.GAME_OVER))):
-                    if self.restart_game_button and self.restart_game_button.collidepoint(event.pos):
+                    if self.restart_game_button.collidepoint(event.pos):
                         self.reset_game()
-                    if self.quit_game_button and self.quit_game_button.collidepoint(event.pos):
+                    if self.quit_game_button.collidepoint(event.pos):
                         self.clean_shutdown()
-                    if self.main_menu_button and self.main_menu_button.collidepoint(event.pos):
+                    if self.main_menu_button.collidepoint(event.pos):
                         self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
 
                 if (event.type == pygame.MOUSEBUTTONDOWN and
