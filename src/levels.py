@@ -123,9 +123,11 @@ class Levels:
             case Levels.LevelName.SMASHCORE_UNBREAKABLE_1:
                 colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
                           constants.GREEN]
+                row_img_colors = [assets.BRK_PINK_IMG, assets.BRK_ORANGE_IMG, assets.BRK_YELLOW_IMG,
+                                  assets.BRK_GREEN_IMG]
                 unbreakable = [(0, 2), (1, 2), (9, 2), (10, 2)]
                 Levels.generate_grid_level(gw_list=gw_list, rows=len(colors),
-                                           row_colors=colors,
+                                           row_colors=colors, row_img_colors=row_img_colors,
                                            unbreakable=unbreakable)
             case _:
                 pass
@@ -225,7 +227,11 @@ class Levels:
                                          image=strong_brick))
                 # obstacle bricks
                 elif unbreakable is not None and (i, j) in unbreakable:
-                    gw_list.append(Obstacle(brk_rect, constants.GRAY, text="X X X"))
+                    if row_img_colors is not None:
+                        scaled_image = pygame.transform.scale(assets.BRK_OBSTACLE_IMG, (brk_width, brk_height))
+                        gw_list.append(Obstacle(brk_rect, row_color, scaled_image))
+                    else:
+                        gw_list.append(Obstacle(brk_rect, constants.GRAY, text="X X X"))
                 # all other bricks
                 else:
                     if row_img_colors is not None:
