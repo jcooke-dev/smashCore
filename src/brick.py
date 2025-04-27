@@ -101,15 +101,6 @@ class Brick(WorldObject, pygame.sprite.Sprite):
                                                              self.rect.height * constants.EFFECT_BRICK_PLAIN_DESTROY_INFLATION),
                                            self.color, constants.EFFECT_BRICK_PLAIN_DESTROY_FADE))
         else:
-
-            for i in range(0, len(assets.BRICK_ANIMATION)):
-                screen.blit(pygame.transform.scale(assets.BRICK_ANIMATION[int(i)],
-                                                   (self.rect.width * 1.0, self.rect.height * 1.0)), self.rect)
-                pygame.display.update(self)
-                i += .1
-
-
-
             # if an image Brick, the animation is an actual multi-frame image animation -- the fade isn't working, but the
             # images effectively fade away on their own
             world_objects.append(Animation(constants.EFFECT_BRICK_IMAGE_DESTROY_DURATION,
