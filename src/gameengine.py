@@ -73,8 +73,6 @@ class GameEngine:
         self.app_start_ticks: float = pygame.time.get_ticks()
         self.gs.cur_state = GameState.GameStateName.SPLASH
 
-        pygame.display.set_caption(GAME_NAME)
-
         # Initially, hide the mouse cursor
         pygame.mouse.set_visible(False)
 
@@ -134,9 +132,23 @@ class GameEngine:
 
         :return:
         """
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT),
-                                              flags=0 if not self.gset.is_fullscreen else pygame.FULLSCREEN)
+
+        # best to quit and then start fresh with set_mode() (helps avoid the exception with failed renderer
+        # from using SCALED flag)
+        pygame.display.quit()
+
+        try:
+            # create the FULLSCREEN with SCALED flag to fix the slightly off-center display
+            self.screen = pygame.display.set_mode((WIDTH, HEIGHT),
+                                                  flags=0 if not self.gset.is_fullscreen else (pygame.FULLSCREEN | pygame.SCALED) )
+        except Exception as ex:
+            # if problem with renderer, just exclude the SCALED flag as a fallback
+            pygame.display.quit()
+            self.screen = pygame.display.set_mode((WIDTH, HEIGHT),
+                                                  flags=0 if not self.gset.is_fullscreen else pygame.FULLSCREEN)
+
         self.ui.screen = self.screen
+        pygame.display.set_caption(GAME_NAME)
 
     def draw_world_and_status(self) -> None:
         """
