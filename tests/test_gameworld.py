@@ -24,7 +24,7 @@ def gameworld():
     set up world objects for tests
     :return:
     """
-    with mock.patch("pygame.Rect") as mock_rect, mock.patch("pygame.color") as mock_color:
+    with mock.patch("pygame.Rect") as mock_rect, mock.patch("pygame.color") as mock_color, mock.patch("pygame.font.Font") as mock_font:
         obstacle_1 = Obstacle(mock_rect, mock_color)
         obstacle_2 = Obstacle(mock_rect, mock_color)
         brick_1 = Brick(mock_rect, mock_color)

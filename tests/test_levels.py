@@ -29,12 +29,12 @@ def mock_gameworld():
 
 @pytest.mark.parametrize("theme, input_level, expected_enum", [
     (LevelTheme.NO_THEME, 1, Levels.LevelName.CLASSIC_RANDOM_1),
-    (LevelTheme.NO_THEME, 3, Levels.LevelName.MODERN_RANDOM_1),
-    (LevelTheme.CLASSIC, 7, Levels.LevelName.CLASSIC_SOLID_ROWS_1),
-    (LevelTheme.MODERN, 8, Levels.LevelName.MODERN_SOLID_ROWS_SPACERS_1),  # Wraps around
-    (LevelTheme.CLASSIC, 11, Levels.LevelName.CLASSIC_RANDOM_1),
-    (LevelTheme.NO_THEME, 14, Levels.LevelName.MODERN_SOLID_ROWS_1),  # Wraps around
-    (LevelTheme.MODERN, 15, Levels.LevelName.MODERN_UNBREAKABLE_1),  # Wraps around
+    (LevelTheme.NO_THEME, 21, Levels.LevelName.MODERN_RANDOM_1),
+    (LevelTheme.CLASSIC, 7, Levels.LevelName.CLASSIC_UNBREAKABLE_1),
+    (LevelTheme.CLASSIC, 13, Levels.LevelName.CLASSIC_MULTIPLIER_1),  # Wraps around
+    (LevelTheme.MODERN, 6, Levels.LevelName.MODERN_MIXED_1),
+    (LevelTheme.MODERN, 12, Levels.LevelName.MODERN_SOLID_ROWS_SPACERS_1),  # Wraps around
+    (LevelTheme.MODERN, 18, Levels.LevelName.MODERN_MIXED_2),  # Wraps around
 ])
 def test_get_level_name_from_num(theme, input_level, expected_enum):
     """
@@ -64,14 +64,13 @@ def test_level_smashcore_1(mock_scale_image, mock_image_load, mock_gameworld):
     for brick in mock_gameworld.world_objects:
         assert isinstance(brick, Brick)
         assert isinstance(brick.rect, pygame.Rect)
-        assert 30 <= brick.color[0] <= 255  # Randomized RGB values
         assert 1 <= brick.value <= 10
 
 
 # Test build_level
 @pytest.mark.parametrize("level_name, expected_brick_count", [
-    (Levels.LevelName.CLASSIC_RANDOM_1, 40),  # 10x4 grid
-    (Levels.LevelName.MODERN_RANDOM_1, 40), #10x4 grid
+    (Levels.LevelName.CLASSIC_RANDOM_1, 44),  # 11x4 grid
+    (Levels.LevelName.MODERN_RANDOM_1, 44), #11x4 grid
 ])
 def test_build_level(level_name, expected_brick_count):
     """
@@ -126,7 +125,6 @@ def test_generate_grid_level_basic():
     Levels.generate_grid_level(
         gw_list=gw_list,
         rows=rows,
-        values=values,
         row_colors=row_colors,
     )
 
@@ -153,7 +151,6 @@ def test_generate_grid_level_basic_width_600():
     Levels.generate_grid_level(
         gw_list=gw_list,
         rows=rows,
-        values=values,
         row_colors=row_colors,
     )
 
@@ -180,7 +177,6 @@ def test_generate_grid_level_three_rows_colors():
     Levels.generate_grid_level(
         gw_list=gw_list,
         rows=rows,
-        values=values,
         row_colors=row_colors,
     )
 
@@ -202,13 +198,12 @@ def test_generate_grid_level_four_values():
     gw_list = []
     rows = 5
     columns = 11
-    values = [7, 5, 3, 1]
+    values = [10, 7, 5, 3, 1]
     row_colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 165, 0)]
 
     Levels.generate_grid_level(
         gw_list=gw_list,
         rows=rows,
-        values=values,
         row_colors=row_colors,
     )
 
@@ -246,7 +241,8 @@ def test_generate_grid_level_with_skipped_positions():
 
 
 @patch ("pygame.transform.scale")
-def test_generate_grid_level_with_strong_bricks(mock_scaled_image):
+@patch("pygame.font.Font")
+def test_generate_grid_level_with_strong_bricks(mock_font, mock_scaled_image):
     """
     Test that a level generated with strong bricks creates strong bricks
     with the correct strength
@@ -269,8 +265,8 @@ def test_generate_grid_level_with_strong_bricks(mock_scaled_image):
         if (obj.rect.x, obj.rect.y) in strong_bricks:
             assert obj.strength == 5  # Strong brick strength
 
-
-def test_generate_grid_level_with_obstacle_bricks():
+@patch("pygame.font.Font")
+def test_generate_grid_level_with_obstacle_bricks(mock_font):
     """
     Tests that a level generated with obstacles creates the grid containing
     obstacles

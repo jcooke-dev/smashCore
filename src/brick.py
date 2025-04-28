@@ -42,17 +42,15 @@ class Brick(WorldObject, pygame.sprite.Sprite):
         self.image: pygame.image = image
         self.strength: int = strength  # Number of hits required to break the brick
         self.bonus = bonus
-        self.font_strength = None
+        if bonus > 0:
+            self.font_strength = pygame.font.Font(None, self.rect.height - 20)
+        else:
+            self.font_strength = None
 
     def _add_strength_indicator(self, screen: pygame.Surface) -> None:
-        if self.bonus > 0:
-            self.font_strength = pygame.font.SysFont("Courier",
-                                                     self.rect.height - 20,
-                                                     True)
-            text_surface = self.font_strength.render(str(self.strength), True,
-                                                     constants.BLACK)
-            text_rect = text_surface.get_rect(center=self.rect.center)
-            screen.blit(text_surface, text_rect)
+        text_surface = self.font_strength.render(str(self.strength), True, constants.BLACK)
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        screen.blit(text_surface, text_rect)
 
     def draw_wo(self, screen: pygame.Surface) -> None:
         """
@@ -65,7 +63,8 @@ class Brick(WorldObject, pygame.sprite.Sprite):
             pygame.draw.rect(screen, self.color, self.rect)
         else:
             screen.blit(self.image, self.rect)
-        self._add_strength_indicator(screen)
+        if self.bonus > 0:
+            self._add_strength_indicator(screen)
 
     def add_collision(self) -> None:
         """
