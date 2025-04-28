@@ -116,12 +116,20 @@ class Levels:
 
         match level_name:
             case Levels.LevelName.CLASSIC_RANDOM_1:
-                for i in range(10):
-                    for j in range(4):
+                brk_width: int = 100
+                brk_height: int = 50
+                grid_margins: list[int] = [10, 120]
+                columns = int((constants.WIDTH - grid_margins[0]) / (brk_width + 5))
+                rows = 4
+                pos_x = (constants.WIDTH - grid_margins[0]) / columns
+                pos_y = brk_height + 5
+
+                for i in range(columns):
+                    for j in range(rows):
+                        brk_x, brk_y = (grid_margins[0] + pos_x * i, grid_margins[1] + pos_y * j)
                         random_score = rnd(1, 11)
                         random_color = choice(constants.BRICK_SOLIDS)
-                        gw_list.append(Brick(pygame.Rect(10 + 120 * i, 80 + 70 * j, 100, 50),
-                                             random_color, random_score))
+                        gw_list.append(Brick(pygame.Rect(brk_x, brk_y, brk_width, brk_height), random_color, random_score))
 
             case Levels.LevelName.CLASSIC_SOLID_ROWS_1:
                 colors = [constants.RED, constants.ORANGE, constants.YELLOW,
@@ -130,13 +138,22 @@ class Levels:
                                            row_colors=colors)
 
             case Levels.LevelName.MODERN_RANDOM_1:
-                for i in range(10):
-                    for j in range(4):
+                brk_width: int = 100
+                brk_height: int = 50
+                grid_margins: list[int] = [10, 120]
+                columns = int((constants.WIDTH - grid_margins[0]) / (brk_width + 5))
+                rows = 4
+                pos_x = (constants.WIDTH - grid_margins[0]) / columns
+                pos_y = brk_height + 5
+
+                for i in range(columns):
+                    for j in range(rows):
+                        brk_x, brk_y = (grid_margins[0] + pos_x * i, grid_margins[1] + pos_y * j)
                         random_color = choice(constants.BRICK_SOLIDS)
                         random_brick = choice(assets.BRICK_COLORS)
-                        scaled_brick = pygame.transform.scale(random_brick, (100, 50))
+                        scaled_brick = pygame.transform.scale(random_brick, (brk_width, brk_height))
                         random_score = rnd(1, 11)
-                        gw_list.append(Brick(pygame.Rect(10 + 120 * i, 80 + 70 * j, 100, 50),
+                        gw_list.append(Brick(pygame.Rect(brk_x, brk_y, brk_width, brk_height),
                                              random_color, random_score, image=scaled_brick))
 
             case Levels.LevelName.MODERN_SOLID_ROWS_1:

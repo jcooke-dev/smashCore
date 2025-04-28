@@ -69,8 +69,8 @@ def test_level_smashcore_1(mock_scale_image, mock_image_load, mock_gameworld):
 
 # Test build_level
 @pytest.mark.parametrize("level_name, expected_brick_count", [
-    (Levels.LevelName.CLASSIC_RANDOM_1, 40),  # 10x4 grid
-    (Levels.LevelName.MODERN_RANDOM_1, 40), #10x4 grid
+    (Levels.LevelName.CLASSIC_RANDOM_1, 44),  # 11x4 grid
+    (Levels.LevelName.MODERN_RANDOM_1, 44), #11x4 grid
 ])
 def test_build_level(level_name, expected_brick_count):
     """
