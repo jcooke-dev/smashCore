@@ -241,7 +241,8 @@ def test_generate_grid_level_with_skipped_positions():
 
 
 @patch ("pygame.transform.scale")
-def test_generate_grid_level_with_strong_bricks(mock_scaled_image):
+@patch("pygame.font.Font")
+def test_generate_grid_level_with_strong_bricks(mock_font, mock_scaled_image):
     """
     Test that a level generated with strong bricks creates strong bricks
     with the correct strength
@@ -264,8 +265,8 @@ def test_generate_grid_level_with_strong_bricks(mock_scaled_image):
         if (obj.rect.x, obj.rect.y) in strong_bricks:
             assert obj.strength == 5  # Strong brick strength
 
-
-def test_generate_grid_level_with_obstacle_bricks():
+@patch("pygame.font.Font")
+def test_generate_grid_level_with_obstacle_bricks(mock_font):
     """
     Tests that a level generated with obstacles creates the grid containing
     obstacles
