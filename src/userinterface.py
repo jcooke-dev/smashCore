@@ -40,11 +40,11 @@ class UserInterface:
 
         # Font setups
         # font - logo (splash screen fonts)
-        self.font_logo: pygame.font = pygame.font.Font(None, 60)
-        self.font_logo_tagline: pygame.font = pygame.font.Font(None, 24)
+        self.font_logo: pygame.font = pygame.font.Font(None, 100)
+        self.font_logo_tagline: pygame.font = pygame.font.Font(None, 30)
         # font - main menu
-        self.font_menu_main: pygame.font = pygame.font.Font(None, 72)
-        self.font_menu_sub: pygame.font = pygame.font.Font(None, 36)
+        self.font_menu_main: pygame.font = pygame.font.Font(None, 36)
+        self.font_menu_sub: pygame.font = pygame.font.Font(None, 30)
         # font - main menu elements
         self.font_h2p: pygame.font = pygame.font.Font(None, 30)
         self.font_credits: pygame.font = pygame.font.Font(None, 40)
@@ -329,42 +329,54 @@ class UserInterface:
         self.screen.blit(dev_overlay2, ((constants.WIDTH - dev_overlay2.get_width()) / 2,
                                         constants.HEIGHT - dev_overlay2.get_height() - 24))
 
-    def draw_splash_screen(self) -> None:
+    def draw_logo(self, logo_x, logo_y) -> None:
         """
         Show the splash screen
 
         :return:
         """
-        logo_color = (255, 165, 0)
+        logo_color = constants.ORANGE
         text_color = constants.WHITE
         shadow_color = (100, 100, 100)
 
-        logo_x, logo_y = constants.WIDTH // 2 - 150, constants.HEIGHT // 3
         text_smash = self.font_logo.render("Smash", True, text_color)
         text_smash_shadow = self.font_logo.render("Smash", True, shadow_color)
-
-        text_smash_rect = text_smash.get_rect(center=(logo_x + 100, logo_y + 40))
-        text_smash_shadow_rect = text_smash_rect.copy()
-        text_smash_shadow_rect.move_ip(3, 3)
-
-        self.screen.blit(text_smash_shadow, text_smash_shadow_rect)
-        self.screen.blit(text_smash, text_smash_rect)
-
         text_core = self.font_logo.render("Core", True, text_color)
         text_core_shadow = self.font_logo.render("Core", True, shadow_color)
 
-        text_core_rect = text_core.get_rect(center=(logo_x + 230, logo_y + 80))
+        # find center of logo smash core text
+        logo_width = text_smash.get_width() + text_core.get_width()
+        logo_center = logo_width // 2
+        smash_x = logo_x - logo_center # offset smash x position by the center of logo
+
+        text_smash_rect = text_smash.get_rect(x=smash_x, y=(logo_y + 40))
+        text_smash_shadow_rect = text_smash_rect.copy()
+        text_smash_shadow_rect.move_ip(3, 3)
+
+        # start Core after Smash (smash x position + smash width)
+        text_core_rect = text_core.get_rect(x=(text_smash_rect.x + text_smash_rect.width), y=(text_smash_rect.y + text_smash_rect.height))
+
         text_core_shadow_rect = text_core_rect.copy()
         text_core_shadow_rect.move_ip(3, 3)
 
-        self.screen.blit(text_core_shadow, text_core_shadow_rect)
-        self.screen.blit(text_core, text_core_rect)
-
-        pygame.draw.line(self.screen, logo_color, (logo_x, logo_y + 120), (logo_x + 300, logo_y + 120), 3)
+        # find the x, y position the line based on the placement and width of smash core text
+        line_start_x = text_smash_rect.x - 20
+        line_end_x = text_core_shadow_rect.x + text_core_shadow_rect.width + 20
+        line_y = text_core_shadow_rect.y + text_core_shadow_rect.height + 15
+        pygame.draw.line(self.screen, logo_color, (line_start_x, line_y), (line_end_x, line_y), 3)
 
         text_logo_tagline = self.font_logo_tagline.render("The Retro Arcade Experience", True, (200, 200, 200))
-        text_logo_tagline_rect = text_logo_tagline.get_rect(center=(logo_x + 150, logo_y + 150))
+        text_logo_tagline_rect = text_logo_tagline.get_rect(center=(logo_x, text_core_shadow_rect.y + text_core_shadow_rect.height + 40))
+
+        self.screen.blit(text_smash_shadow, text_smash_shadow_rect)
+        self.screen.blit(text_smash, text_smash_rect)
+        self.screen.blit(text_core_shadow, text_core_shadow_rect)
+        self.screen.blit(text_core, text_core_rect)
         self.screen.blit(text_logo_tagline, text_logo_tagline_rect)
+
+
+    def draw_splash_screen(self):
+        self.draw_logo(constants.WIDTH // 2, constants.HEIGHT // 4)
 
     def initialize_background_elements(self):
         """Creates a set of bricks with different colors and multiple balls."""
@@ -381,13 +393,13 @@ class UserInterface:
 
             # Create bricks with fixed positions and colors
         brick_data = [
-            ((constants.WIDTH // 4, constants.HEIGHT // 4), constants.YELLOW),
+            ((constants.WIDTH // 4.5, constants.HEIGHT // 4), constants.YELLOW),
             ((constants.WIDTH // 2, constants.HEIGHT // 3), constants.GREEN),
             ((constants.WIDTH // 3, constants.HEIGHT // 2), constants.ORANGE),
             ((constants.WIDTH // 5, constants.HEIGHT // 5 * 3), constants.LIGHT_BLUE),
             ((constants.WIDTH // 6, constants.HEIGHT // 6 * 4), constants.RED),
             ((constants.WIDTH // 8 * 7, constants.HEIGHT // 8), constants.YELLOW),
-            ((constants.WIDTH // 2, constants.HEIGHT // 5 * 4), constants.ORANGE),
+            ((constants.WIDTH // 6 * 4, constants.HEIGHT // 5 * 4), constants.ORANGE),
             ((constants.WIDTH // 5 * 4, constants.HEIGHT // 3), constants.LIGHT_BLUE),
         ]
 
@@ -445,23 +457,25 @@ class UserInterface:
         for brick in self.background_bricks:
             self.surface.blit(brick['image'], brick['rect'])
 
-        # Draw Click to Play CLASSIC button
-        start_text = self.font_menu_main.render("PLAY CLASSIC", True, constants.BLACK)
-        button_width = start_text.get_width() + 120
-        button_height = start_text.get_height() + 60
 
-        self.start_classic_button_rect = self.draw_button(start_text, (constants.WIDTH - button_width) // 2,
-                                                  (constants.HEIGHT - button_height) // 6, button_width,
+
+        # Draw Click to Play CLASSIC button
+        start_text = self.font_menu_main.render("PLAY CLASSIC MODE", True, constants.BLACK)
+        button_width = start_text.get_width() + 30
+        button_height = start_text.get_height() + 40
+        button_x =  constants.WIDTH // 2 - button_width
+        self.start_classic_button_rect = self.draw_button(start_text, button_x,
+                                                  340, button_width,
                                                   button_height,
                                                   constants.GREEN, constants.DARK_GREEN)
 
         # Draw Click to Play MODERN button
-        start_text = self.font_menu_main.render("PLAY MODERN", True, constants.BLACK)
-        button_width = start_text.get_width() + 120
-        button_height = start_text.get_height() + 60
+        start_text = self.font_menu_main.render("PLAY MODERN MODE", True, constants.BLACK)
+        button_width = start_text.get_width() + 30
+        button_height = start_text.get_height() + 40
 
-        self.start_modern_button_rect = self.draw_button(start_text, (constants.WIDTH - button_width) // 2,
-                                                         self.start_classic_button_rect.y + button_height + 15,
+        self.start_modern_button_rect = self.draw_button(start_text, button_x * 2,
+                                                         340,
                                                          button_width, button_height,
                                                          constants.LIGHT_BLUE, constants.DARK_BLUE)
 
@@ -498,11 +512,14 @@ class UserInterface:
 
         # Draw Quit button
         quit_text = self.font_menu_sub.render("Quit", True, constants.BLACK)
-        self.quit_button_start_rect = self.draw_button(quit_text, sub_button_x, sub_button_y + int(4.5 * sub_button_spacing),
+        self.quit_button_start_rect = self.draw_button(quit_text, sub_button_x, sub_button_y + int(4.3 * sub_button_spacing),
                                                        sub_button_width, sub_button_height,
                                                        constants.RED, constants.DARK_RED)
 
         self.screen.blit(self.surface, (0, 0))
+        self.draw_logo(constants.WIDTH // 2, 30)
+
+
 
     def draw_how_to_play_screen(self) -> None:
         """Shows how to play information when button is clicked"""
