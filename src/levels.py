@@ -41,6 +41,15 @@ class Levels:
         CLASSIC_MULTIPLIER_1: Enum = 8
         CLASSIC_UNBREAKABLE_1: Enum = 9
         MODERN_SOLID_ROWS_SPACERS_1: Enum = 10
+        CLASSIC_MULTIPLIER_2: Enum = 11
+        MODERN_MULTIPLIER_2: Enum = 12
+        CLASSIC_MIXED_1: Enum = 13
+        MODERN_MIXED_1: Enum = 14
+        CLASSIC_UNBREAKABLE_2: Enum = 15
+        MODERN_UNBREAKABLE_2: Enum = 16
+        CLASSIC_MIXED_2: Enum = 17
+        MODERN_MIXED_2: Enum = 18
+
 
 
     # this is the CLASSIC theme level sequence
@@ -48,14 +57,21 @@ class Levels:
                                                 LevelName.CLASSIC_SOLID_ROWS_1,
                                                 LevelName.CLASSIC_SOLID_ROWS_SPACERS_1,
                                                 LevelName.CLASSIC_MULTIPLIER_1,
-                                                LevelName.CLASSIC_UNBREAKABLE_1]
-
+                                                LevelName.CLASSIC_MULTIPLIER_2,
+                                                LevelName.CLASSIC_MIXED_1,
+                                                LevelName.CLASSIC_UNBREAKABLE_1,
+                                                LevelName.CLASSIC_UNBREAKABLE_2,
+                                                LevelName.CLASSIC_MIXED_2]
     # this is the MODERN theme level sequence
     themed_sequence_modern: list[LevelName] = [LevelName.MODERN_RANDOM_1,
                                                LevelName.MODERN_SOLID_ROWS_1,
                                                LevelName.MODERN_SOLID_ROWS_SPACERS_1,
                                                LevelName.MODERN_MULTIPLIER_1,
-                                               LevelName.MODERN_UNBREAKABLE_1]
+                                               LevelName.MODERN_MULTIPLIER_2,
+                                               LevelName.MODERN_MIXED_1,
+                                               LevelName.MODERN_UNBREAKABLE_1,
+                                               LevelName.MODERN_UNBREAKABLE_2,
+                                               LevelName.MODERN_MIXED_2]
 
     def __init__(self):
         pass
@@ -103,33 +119,30 @@ class Levels:
                 for i in range(10):
                     for j in range(4):
                         random_score = rnd(1, 11)
-                        gw_list.append(Brick(pygame.Rect(10 + 120 * i, 60 + 70 * j, 100, 50),
-                                             (rnd(30, 256), rnd(30, 256), rnd(30, 256)),
-                                             random_score))
+                        random_color = choice(constants.BRICK_SOLIDS)
+                        gw_list.append(Brick(pygame.Rect(10 + 120 * i, 80 + 70 * j, 100, 50),
+                                             random_color, random_score))
 
             case Levels.LevelName.CLASSIC_SOLID_ROWS_1:
                 colors = [constants.RED, constants.ORANGE, constants.YELLOW,
                           constants.GREEN, constants.LIGHT_BLUE]
-                values = [10, 7, 5, 3, 1]
                 Levels.generate_grid_level(gw_list,
-                                           row_colors=colors, values=values)
+                                           row_colors=colors)
 
             case Levels.LevelName.MODERN_RANDOM_1:
                 for i in range(10):
                     for j in range(4):
+                        random_color = choice(constants.BRICK_SOLIDS)
                         random_brick = choice(assets.BRICK_COLORS)
-                        scaled_brick = pygame.transform.scale(random_brick, (110, 40))
+                        scaled_brick = pygame.transform.scale(random_brick, (100, 50))
                         random_score = rnd(1, 11)
-                        gw_list.append(Brick(pygame.Rect(35 + 113 * i, 120 + 40 * j, 110, 40),
-                                                      (rnd(30, 256), rnd(30, 256), rnd(30, 256)),
-                                                      random_score, image=scaled_brick))
+                        gw_list.append(Brick(pygame.Rect(10 + 120 * i, 80 + 70 * j, 100, 50),
+                                             random_color, random_score, image=scaled_brick))
 
             case Levels.LevelName.MODERN_SOLID_ROWS_1:
                 colors = [constants.RED, constants.ORANGE, constants.GREEN, constants.YELLOW, constants.LIGHT_BLUE]
-                values = [10, 7, 5, 3, 1]
-
                 Levels.generate_grid_level(gw_list,
-                                          row_colors=colors, values=values,
+                                          row_colors=colors,
                                           use_random_imgs=True)
 
             case Levels.LevelName.CLASSIC_SOLID_ROWS_SPACERS_1:
@@ -137,18 +150,17 @@ class Levels:
                                   (2, 3), (3, 3), (7, 3), (8, 3)]
                 colors = [constants.RED, constants.ORANGE, constants.YELLOW,
                           constants.GREEN, constants.LIGHT_BLUE, constants.PURPLE]
-                values = [10, 7, 5, 3, 1]
                 Levels.generate_grid_level(gw_list,
                                            rows=len(colors),
-                                           row_colors=colors, values=values,
+                                           row_colors=colors,
                                            skip_positions=skip_positions)
 
             case Levels.LevelName.MODERN_MULTIPLIER_1:
                 colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
-                          constants.GREEN, constants.LIGHT_BLUE, constants.PURPLE]
+                          constants.GREEN, constants.LIGHT_BLUE]
                 skip_positions = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
                                   (10, 0), (10, 1), (10, 2), (10, 3), (10, 4), (10, 5)]
-                multiplier_bricks = [(2, 2), (5, 2)]
+                multiplier_bricks = [(3, 0), (8, 0), (3, 1), (8, 1)]
 
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
@@ -157,13 +169,9 @@ class Levels:
                                            strong_bricks=multiplier_bricks)
 
             case Levels.LevelName.MODERN_UNBREAKABLE_1:
-                colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
-                          constants.GREEN]
-                row_img_colors = [assets.BRK_PINK_IMG, assets.BRK_ORANGE_IMG, assets.BRK_YELLOW_IMG,
-                                  assets.BRK_GREEN_IMG]
                 unbreakable = [(0, 2), (1, 2), (9, 2), (10, 2)]
-                Levels.generate_grid_level(gw_list=gw_list, rows=len(colors),
-                                           row_colors=colors, row_img_colors=row_img_colors,
+                Levels.generate_grid_level(gw_list=gw_list, rows=5,
+                                           use_random_imgs=True,
                                            unbreakable=unbreakable)
 
             case Levels.LevelName.CLASSIC_MULTIPLIER_1:
@@ -171,22 +179,16 @@ class Levels:
                           constants.GREEN, constants.LIGHT_BLUE]
                 skip_positions = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
                                   (10, 0), (10, 1), (10, 2), (10, 3), (10, 4), (10, 5)]
-                multiplier_bricks = [(2, 2), (5, 2)]
-                values = [10, 7, 5, 3, 1]
-
+                multiplier_bricks = [(3, 0), (8, 0), (3, 1), (8, 1)]
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
                                            row_colors=colors,
-                                           values=values,
                                            skip_positions=skip_positions,
                                            strong_bricks=multiplier_bricks)
 
             case Levels.LevelName.CLASSIC_UNBREAKABLE_1:
-                colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
-                          constants.GREEN]
                 unbreakable = [(0, 2), (1, 2), (9, 2), (10, 2)]
-                Levels.generate_grid_level(gw_list=gw_list, rows=len(colors),
-                                           row_colors=colors,
+                Levels.generate_grid_level(gw_list=gw_list, rows=5,
                                            unbreakable=unbreakable)
 
             case Levels.LevelName.MODERN_SOLID_ROWS_SPACERS_1:
@@ -196,11 +198,100 @@ class Levels:
                           constants.GREEN, constants.LIGHT_BLUE, constants.PURPLE]
                 row_img_colors = [assets.BRK_RED_IMG, assets.BRK_ORANGE_IMG, assets.BRK_YELLOW_IMG,
                                   assets.BRK_GREEN_IMG, assets.BRK_BLUE_IMG]
-                values = [10, 7, 5, 3, 1]
                 Levels.generate_grid_level(gw_list,
                                            rows=len(colors),
-                                           row_colors=colors, row_img_colors=row_img_colors, values=values,
+                                           row_colors=colors, row_img_colors=row_img_colors,
                                            skip_positions=skip_positions)
+
+            case Levels.LevelName.CLASSIC_MULTIPLIER_2:
+                colors = [constants.RED, constants.ORANGE, constants.GREEN,
+                          constants.GREEN, constants.LIGHT_BLUE]
+                multiplier_bricks = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
+                                     (6, 4), (7, 3), (8, 2), (9, 1), (10, 0)]
+                Levels.generate_grid_level(gw_list=gw_list,
+                                           rows=len(colors),
+                                           row_colors=colors,
+                                           strong_bricks=multiplier_bricks)
+
+            case Levels.LevelName.MODERN_MULTIPLIER_2:
+                colors = [constants.PINK, constants.ORANGE, constants.GREEN,
+                          constants.GREEN, constants.LIGHT_BLUE]
+                multiplier_bricks = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
+                                     (6, 4), (7, 3), (8, 2), (9, 1), (10, 0)]
+                Levels.generate_grid_level(gw_list=gw_list,
+                                           rows=len(colors),
+                                           use_random_imgs=True,
+                                           strong_bricks=multiplier_bricks)
+
+            case Levels.LevelName.CLASSIC_MIXED_1:
+                colors = [constants.RED, constants.ORANGE, constants.YELLOW,
+                          constants.GREEN, constants.LIGHT_BLUE]
+                skip_positions = [(3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5),
+                                  (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5)]
+                multiplier_bricks = [(4, 0), (5, 0), (6, 0), (4, 1), (4, 2), (5, 2),
+                                  (6, 2), (6, 3), (6, 4), (5, 4), (4, 4)]
+                Levels.generate_grid_level(gw_list=gw_list,
+                                           rows=len(colors),
+                                           row_colors=colors,
+                                           skip_positions=skip_positions,
+                                           strong_bricks=multiplier_bricks)
+
+            case Levels.LevelName.MODERN_MIXED_1:
+                colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
+                          constants.GREEN, constants.LIGHT_BLUE, constants.PURPLE]
+                skip_positions = [(3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5),
+                                  (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5)]
+                multiplier_bricks = [(4, 0), (5, 0), (6, 0), (4, 1), (4, 2), (5, 2),
+                                  (6, 2), (6, 3), (6, 4), (5, 4), (4, 4)]
+                Levels.generate_grid_level(gw_list=gw_list,
+                                           rows=len(colors),
+                                           use_random_imgs=True,
+                                           skip_positions=skip_positions,
+                                           strong_bricks=multiplier_bricks)
+
+            case Levels.LevelName.CLASSIC_UNBREAKABLE_2:
+                unbreakable = [(2, 2), (3, 2), (7, 2), (8, 2),
+                                  (2, 3), (3, 3), (7, 3), (8, 3)]
+                Levels.generate_grid_level(gw_list=gw_list, rows=5,
+                                           unbreakable=unbreakable)
+
+            case Levels.LevelName.MODERN_UNBREAKABLE_2:
+                unbreakable = [(2, 2), (3, 2), (7, 2), (8, 2),
+                                  (2, 3), (3, 3), (7, 3), (8, 3)]
+                Levels.generate_grid_level(gw_list=gw_list, rows=5,
+                                           use_random_imgs=True,
+                                           unbreakable=unbreakable)
+
+            case Levels.LevelName.CLASSIC_MIXED_2:
+                colors = [constants.PURPLE, constants.ORANGE, constants.LIGHT_BLUE,
+                          constants.GREEN, constants.RED]
+                multiplier_bricks = [(2, 0), (3, 0), (4, 0), (2, 1), (2, 2), (3, 2),
+                                  (4, 2), (4, 3), (4, 4), (3, 4), (2, 4),
+                                     (6, 0), (7, 0), (8, 0), (6, 1), (6, 2), (6, 3),
+                                     (6, 4), (7, 4), (8, 4)]
+                unbreakable = [(3, 1), (4, 1), (2, 3), (3, 3),
+                               (7, 1), (7, 2), (7, 3), (8, 1), (8, 2), (8, 3)]
+                Levels.generate_grid_level(gw_list=gw_list,
+                                           rows=len(colors),
+                                           row_colors=colors,
+                                           unbreakable=unbreakable,
+                                           strong_bricks=multiplier_bricks)
+
+            case Levels.LevelName.MODERN_MIXED_2:
+                colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
+                          constants.GREEN, constants.LIGHT_BLUE,
+                          constants.PURPLE]
+                multiplier_bricks = [(2, 0), (3, 0), (4, 0), (2, 1), (2, 2), (3, 2),
+                                  (4, 2), (4, 3), (4, 4), (3, 4), (2, 4),
+                                     (6, 0), (7, 0), (8, 0), (6, 1), (6, 2), (6, 3),
+                                     (6, 4), (7, 4), (8, 4)]
+                unbreakable = [(3, 1), (4, 1), (2, 3), (3, 3),
+                               (7, 1), (7, 2), (7, 3), (8, 1), (8, 2), (8, 3)]
+                Levels.generate_grid_level(gw_list=gw_list,
+                                           rows=len(colors),
+                                           use_random_imgs=True,
+                                           unbreakable=unbreakable,
+                                           strong_bricks=multiplier_bricks)
 
             case _:
                 pass
@@ -208,7 +299,6 @@ class Levels:
     @staticmethod
     def generate_grid_level(gw_list: list[WorldObject],
                             rows: int = 5,
-                            values: list[int] = None,
                             row_colors: list[int] = None,
                             use_random_imgs: bool = False,
                             row_img_colors: list[pygame.image] = None,
@@ -227,9 +317,8 @@ class Levels:
 
         :param gw_list: list[WorldObject]
         :param rows: Number of rows for the grid
-        :param values: List of values for each row index (if none use decreasing values based on row)
-        :param row_colors: List of colors for each row (if none use random colors)
-        :param use_random_imgs: bool use random images
+        :param row_colors: List of colors for each row (if none use random row colors)
+        :param use_random_imgs: bool use random row images
         :param row_img_colors: if not using random images, list of images for each row
         :param skip_positions: x,y brick positions to skip
         :param strong_bricks: (x, y) x, y position of bricks to make strong
@@ -239,6 +328,7 @@ class Levels:
         brk_width: int = 100
         brk_height: int = 50
         grid_margins: list[int] = [10, 120]
+        values = [10, 7, 5, 3, 1]
 
         # set brick strength and bonus
         strong_brick_strength: int = 5
@@ -258,6 +348,8 @@ class Levels:
         if use_random_imgs is False and row_img_colors is not None:
             rows = min(rows, len(row_img_colors))
 
+        if row_colors is None:
+            row_colors = sample(constants.BRICK_SOLIDS, rows)
         # assign random images, else use colors
         if use_random_imgs and row_img_colors is None:
             row_img_colors = sample(assets.BRICK_COLORS, rows)
@@ -270,17 +362,8 @@ class Levels:
                 if skip_positions is not None and (i, j) in skip_positions:
                     continue
 
-                # randomize  brick color if not set
-                if row_colors is None:
-                    row_color = rnd(30, 256), rnd(30, 256), rnd(30, 256)
-                else:
-                    row_color = row_colors[j]
-
-                # no values passed in, value is the row # descending
-                if values is None:
-                    value = rows-j
-                else:
-                    value = values[j]
+                row_color = row_colors[j]
+                value = values[j]
 
                 # x,y position for brick
                 brk_x, brk_y = (grid_margins[0] + pos_x * i, grid_margins[1] + pos_y * j)
