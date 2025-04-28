@@ -43,7 +43,8 @@ def mock_pygame():
          mock.patch("pygame.rect") as mock_rect, \
          mock.patch("pygame.time.Clock") as mock_clock, \
          mock.patch("pygame.Surface") as mock_surface, \
-         mock.patch("pygame.display.set_mode") as mock_set_mode:
+         mock.patch("pygame.display.set_mode") as mock_set_mode, \
+         mock.patch("pygame.draw.line") as mock_draw_line:
 
         # Setup return values if needed
         mock_set_mode.return_value = mock.MagicMock(name="screen")
@@ -62,7 +63,8 @@ def mock_pygame():
             "mixer_init": mock_mixer_init,
             "mixer.music": mock_mixer_music,
             "event.get": mock_event_get,
-            "quit": mock_pygame_quit
+            "quit": mock_pygame_quit,
+            "draw_line": mock_draw_line
         }
 
 
@@ -86,6 +88,8 @@ def starting_ge(mock_pygame):
 
         ui.start_button_rect = mock.MagicMock()
         ui.credits_button_rect = mock.MagicMock()
+
+        gset.is_fullscreen = False
 
         ge = GameEngine(lb, ps, gw, gs, gset, ui)
         return ge, mock_pygame
