@@ -329,7 +329,7 @@ class UserInterface:
         self.screen.blit(dev_overlay2, ((constants.WIDTH - dev_overlay2.get_width()) / 2,
                                         constants.HEIGHT - dev_overlay2.get_height() - 24))
 
-    def draw_splash_screen(self) -> None:
+    def draw_logo(self, logo_x, logo_y) -> None:
         """
         Show the splash screen
 
@@ -339,7 +339,6 @@ class UserInterface:
         text_color = constants.WHITE
         shadow_color = (100, 100, 100)
 
-        logo_x, logo_y = constants.WIDTH // 2 - 150, constants.HEIGHT // 3
         text_smash = self.font_logo.render("Smash", True, text_color)
         text_smash_shadow = self.font_logo.render("Smash", True, shadow_color)
 
@@ -365,6 +364,9 @@ class UserInterface:
         text_logo_tagline = self.font_logo_tagline.render("The Retro Arcade Experience", True, (200, 200, 200))
         text_logo_tagline_rect = text_logo_tagline.get_rect(center=(logo_x + 150, logo_y + 150))
         self.screen.blit(text_logo_tagline, text_logo_tagline_rect)
+
+    def draw_splash_screen(self):
+        self.draw_logo(constants.WIDTH // 2 - 150, constants.HEIGHT // 3)
 
     def initialize_background_elements(self):
         """Creates a set of bricks with different colors and multiple balls."""
