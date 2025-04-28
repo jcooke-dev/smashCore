@@ -32,14 +32,17 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         super().__init__()
 
         # Set starting location for paddle in the bottom center of screen
-        self.rect: pygame.rect = pygame.Rect([((constants.WIDTH/2) - (width/2)),
-                                 (constants.HEIGHT - (height * 2) -
-                                  constants.PADDLE_START_POSITION_OFFSET), width, height])
+        self.rect: pygame.rect = pygame.Rect([((constants.WIDTH / 2) - (width / 2)),
+                                              (constants.HEIGHT - (height * 2) -
+                                               constants.PADDLE_START_POSITION_OFFSET), width, height])
 
         self.color: pygame.color = color
         self.image: pygame.image = image
 
-        self.commanded_pos_x: int = 0
+        self.commanded_pos_x: int = self.rect.centerx
+
+        self.delta_x: int = 0
+        self.prev_x: int = self.rect.x
 
     def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard) -> None:
         """
@@ -50,6 +53,8 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         :param ps: PlayerState
         :return:
         """
+
+        old_x = self.rect.x
 
         # update pos based on arrow key commands (if using)
         if gs.paddle_under_key_control_left:
@@ -64,8 +69,17 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         gs.paddle_under_key_control_right = False
 
         gs.paddle_pos_x = self.commanded_pos_x
-
         self.move_to_x(self.commanded_pos_x)
+
+        # detects if the paddle is moving to the right or to the left for both keyboard and mouse controls
+        if self.rect.x - old_x > 0:
+            self.delta_x = 1
+        elif self.rect.x - old_x < 0:
+            self.delta_x = -1
+        else:
+            self.delta_x = 0
+
+        self.prev_x = self.rect.x
 
     def draw_wo(self, screen: pygame.Surface) -> None:
         """
