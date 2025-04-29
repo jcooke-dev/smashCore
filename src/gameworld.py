@@ -13,6 +13,7 @@
 import constants
 import assets
 from brick import Brick
+from leveltheme import LevelTheme
 from obstacle import Obstacle
 from ball import Ball
 from paddle import Paddle
@@ -23,7 +24,7 @@ from worldobject import WorldObject
 class GameWorld:
     """ The GameWorld holds all objects in the game for update() and draw() processing """
 
-    def __init__(self, level_name: Levels.LevelName = None) -> None:
+    def __init__(self, level_theme: LevelTheme = LevelTheme.CLASSIC, level_name: Levels.LevelName = None) -> None:
         """
         Allows for setting the initial level build, but with a default if None passed
 
@@ -35,13 +36,14 @@ class GameWorld:
         # place the ball into the world
         self.world_objects.append(Ball(((constants.WIDTH/2) - (constants.PAD_WIDTH/2)),
             (constants.HEIGHT - constants.PAD_HEIGHT - constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)),
-            image=assets.BALL_IMG))
+            image=assets.BALL_IMG if level_theme == LevelTheme.MODERN else None))
 
         # place the paddle into the world
-        self.world_objects.append(Paddle(constants.RED, constants.PAD_WIDTH, constants.PAD_HEIGHT, image=assets.PADDLE_IMG))
+        self.world_objects.append(Paddle(constants.RED, constants.PAD_WIDTH, constants.PAD_HEIGHT,
+                                         image=assets.PADDLE_IMG if level_theme == LevelTheme.MODERN else None))
 
         # set up the initial bricks level
-        Levels.build_level(self.world_objects, Levels.LevelName.SMASHCORE_1 if level_name is None else level_name)
+        Levels.build_level(self.world_objects, Levels.get_level_name_from_num(level_theme, 1) if level_name is None else level_name)
 
     def remove_obstacles(self) -> None:
         """

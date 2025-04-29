@@ -18,6 +18,8 @@ class GameSettings:
 
     def __init__(self) -> None:
 
+        self.is_fullscreen: bool = False
+
         self.paddle_under_auto_control: bool = True
         self.paddle_under_mouse_control: bool = True
 

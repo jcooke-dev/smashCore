@@ -8,6 +8,7 @@
 
     Module Description: This is the test harness for the GameEngine class.
 """
+from unittest.mock import patch
 
 import pytest
 
@@ -17,6 +18,7 @@ from unittest import mock
 from gameengine import GameEngine
 from gamesettings import GameSettings
 from gamestate import GameState
+from leveltheme import LevelTheme
 from userinterface import UserInterface
 from playerstate import PlayerState
 from leaderboard import Leaderboard
@@ -41,7 +43,8 @@ def mock_pygame():
          mock.patch("pygame.rect") as mock_rect, \
          mock.patch("pygame.time.Clock") as mock_clock, \
          mock.patch("pygame.Surface") as mock_surface, \
-         mock.patch("pygame.display.set_mode") as mock_set_mode:
+         mock.patch("pygame.display.set_mode") as mock_set_mode, \
+         mock.patch("pygame.draw.line") as mock_draw_line:
 
         # Setup return values if needed
         mock_set_mode.return_value = mock.MagicMock(name="screen")
@@ -60,7 +63,8 @@ def mock_pygame():
             "mixer_init": mock_mixer_init,
             "mixer.music": mock_mixer_music,
             "event.get": mock_event_get,
-            "quit": mock_pygame_quit
+            "quit": mock_pygame_quit,
+            "draw_line": mock_draw_line
         }
 
 
@@ -85,6 +89,8 @@ def starting_ge(mock_pygame):
         ui.start_button_rect = mock.MagicMock()
         ui.credits_button_rect = mock.MagicMock()
 
+        gset.is_fullscreen = False
+
         ge = GameEngine(lb, ps, gw, gs, gset, ui)
         return ge, mock_pygame
 
@@ -107,25 +113,29 @@ def test_gamestate_reset(starting_ge):
     :param starting_ge:
     :return:
     """
-    ge, mock_pygame = starting_ge
-    ge.fps = 500 # any number is fine as long as it isn't initial FPS
-    ge.gs.cur_state = GameState.GameStateName.GAME_OVER
-    ge.ps.lives = 0
-    ge.ps.score = 90
-    ge.current_music_path = "/assets/music"
+    dummy_colors = ["red", "green", "blue"]
+    with patch("assets.BRICK_COLORS", new=dummy_colors) as mock_assets, patch("pygame.transform.scale") as mock_image:
 
-    ge.reset_game()
+        ge, mock_pygame = starting_ge
+        ge.fps = 500 # any number is fine as long as it isn't initial FPS
+        ge.gs.cur_state = GameState.GameStateName.GAME_OVER
+        ge.ps.lives = 0
+        ge.ps.theme = LevelTheme.MODERN
+        ge.ps.score = 90
+        ge.current_music_path = "/assets/music"
 
-    assert ge.fps == constants.INITIAL_FPS_SIMPLE
-    # enums should be compared by identity
-    # assert starting_ge.gs.cur_state is GameStates.READY_TO_LAUNCH
-    # but it isn't working so comparing by name
-    assert ge.gs.cur_state.name is GameState.GameStateName.READY_TO_LAUNCH.name
-    assert ge.ps.lives == constants.START_LIVES
-    assert ge.ps.score == 0
-    assert ge.current_music_path is None
-    mock_pygame["set_visible"].assert_called_with(False)
-    mock_pygame["mixer_init"].assert_called_once()
+        ge.reset_game()
+
+        assert ge.fps == constants.INITIAL_FPS_SIMPLE
+        # enums should be compared by identity
+        # assert starting_ge.gs.cur_state is GameStates.READY_TO_LAUNCH
+        # but it isn't working so comparing by name
+        assert ge.gs.cur_state.name is GameState.GameStateName.READY_TO_LAUNCH.name
+        assert ge.ps.lives == constants.START_LIVES
+        assert ge.ps.score == 0
+        assert ge.current_music_path is None
+        mock_pygame["set_visible"].assert_called_with(False)
+        mock_pygame["mixer_init"].assert_called_once()
 
 
 def test_next_level(starting_ge):
@@ -146,6 +156,7 @@ def test_next_level(starting_ge):
 
         # Set initial player state and level
         ge.ps.level = 1
+        ge.ps.theme = LevelTheme.MODERN
 
         # Call next_level
         ge.next_level()
@@ -158,7 +169,7 @@ def test_next_level(starting_ge):
         assert mock_ball.speed == constants.BALL_SPEED_SIMPLE + (ge.ps.level * constants.BALL_SPEED_LEVEL_INCREMENT)
 
         # Ensure the level is built
-        mock_get_level_name.assert_called_once_with(ge.ps.level)
+        mock_get_level_name.assert_called_once_with(ge.ps.theme, ge.ps.level)
         mock_build_level.assert_called()
 
         # Ensure FPS is reset and game state is ready to launch

@@ -34,6 +34,10 @@ class Obstacle(WorldObject):
         self.color: pygame.color = color
         self.image: pygame.image = image
         self.text: str = text
+        if self.text.strip != "":
+            self.font_text = pygame.font.Font(None, self.rect.height - 20)
+        else:
+            self.font_text = None
 
     def draw_wo(self, screen: pygame.Surface) -> None:
         """
@@ -48,10 +52,6 @@ class Obstacle(WorldObject):
         else:
             screen.blit(self.image, self.rect)
         if self.text.strip != "":
-            font_text = pygame.font.SysFont("Courier",
-                                                     self.rect.height - 20,
-                                                     True)
-            text_surface = font_text.render(self.text, True,
-                                                     constants.BLACK)
+            text_surface = self.font_text.render(self.text, True, constants.BLACK)
             text_rect = text_surface.get_rect(center=self.rect.center)
             screen.blit(text_surface, text_rect)

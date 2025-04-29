@@ -36,9 +36,14 @@ FONT_DIR: str = 'assets/fonts/'
 
 SPLASH_MUSIC_FILENAME: str = 'splash_music.wav'
 MENU_MUSIC_FILENAME: str = 'menu_music.wav'
-GAME_MUSIC_FILENAME: str = 'game_music.wav'
+GAME_MUSIC_FILENAME: str = 'game_music.mp3'
 GAME_OVER_MUSIC_FILENAME: str = 'game_over_music.wav'
 SCORE_MUSIC_FILENAME: str = 'score_music.wav'
+BRICK_SFX_FILENAME: str = 'brick.wav'
+PADDLE_SFX_FILENAME: str = 'paddle.wav'
+LEFT_WALL_SFX_FILENAME: str = 'left_wall.wav'
+RIGHT_WALL_SFX_FILENAME: str = 'right_wall.wav'
+TOP_WALL_SFX_FILENAME: str = 'top_wall.wav'
 
 BACKGROUND_FILENAME: str = 'background.png'
 BRK_YELLOW_FILENAME: str = 'yellow_brick_hd.png'
@@ -52,6 +57,7 @@ BRK_PURPLE_FILENAME: str = 'purple_brick_hd.png'
 BRK_TEAL_FILENAME: str = 'teal_brick_hd.png'
 BRK_LAVENDER_FILENAME: str = 'lavender_brick_hd.png'
 BRK_GOLD_FILENAME: str = 'gold_brick.png'
+BRK_OBSTACLE_FILENAME: str = 'unbreakable_brick_hd.png'
 BALL_FILENAME: str = 'ball.png'
 PADDLE_FILENAME: str = 'paddle.png'
 
@@ -80,20 +86,20 @@ BACKGROUND_IMG, BALL_IMG, PADDLE_IMG = None, None, None
 BRK_YELLOW_IMG, BRK_BLUE_IMG, BRK_GREEN_IMG = None, None, None
 BRK_RED_IMG, BRK_PINK_IMG, BRK_ORANGE_IMG, = None, None, None
 BRK_LTBLUE_IMG, BRK_PURPLE_IMG, BRK_TEAL_IMG = None, None, None
-BRK_LAVENDER_IMG, BRK_GOLD_IMG = None, None
+BRK_LAVENDER_IMG, BRK_GOLD_IMG, BRK_OBSTACLE_IMG = None, None, None
 ANIMATE_BRICK_0_IMG, ANIMATE_BRICK_1_IMG, ANIMATE_BRICK_2_IMG = None, None, None
 ANIMATE_BRICK_3_IMG, ANIMATE_BRICK_4_IMG, ANIMATE_BRICK_5_IMG, ANIMATE_BRICK_6_IMG = None, None, None, None
 ANIMATE_BRICK_7_IMG, ANIMATE_BRICK_8_IMG, ANIMATE_BRICK_9_IMG, ANIMATE_BRICK_10_IMG = None, None, None, None
 ANIMATE_BRICK_11_IMG, ANIMATE_BRICK_12_IMG, ANIMATE_BRICK_13_IMG, ANIMATE_BRICK_14_IMG = None, None, None, None
 ANIMATE_BRICK_15_IMG, ANIMATE_BRICK_16_IMG = None, None
-MUTE_ICON, VOLUME_ICON = None, None
+MUTE_ICON, VOLUME_ICON, CHANNEL = None, None, None
 
 BRICK_COLORS = []
 
 BRICK_ANIMATION = []
 
 MUSIC_PATHS = {}
-
+BRICK_SFX, LEFT_WALL_SFX, RIGHT_WALL_SFX, TOP_WALL_SFX, PADDLE_SFX = None, None, None, None, None
 
 def load_assets():
     """
@@ -104,12 +110,13 @@ def load_assets():
     global BRK_YELLOW_IMG, BRK_BLUE_IMG, BRK_GREEN_IMG, BRK_RED_IMG
     global BRK_PINK_IMG, BRK_ORANGE_IMG, BRK_LTBLUE_IMG, BRK_PURPLE_IMG
     global BRK_TEAL_IMG, BRK_LAVENDER_IMG, BRK_GOLD_IMG, BRICK_COLORS
+    global BRK_OBSTACLE_IMG
     global BRICK_ANIMATION, ANIMATE_BRICK_0_IMG, ANIMATE_BRICK_1_IMG, ANIMATE_BRICK_2_IMG
     global ANIMATE_BRICK_3_IMG, ANIMATE_BRICK_4_IMG, ANIMATE_BRICK_5_IMG, ANIMATE_BRICK_6_IMG
     global ANIMATE_BRICK_7_IMG, ANIMATE_BRICK_8_IMG, ANIMATE_BRICK_9_IMG, ANIMATE_BRICK_10_IMG, ANIMATE_BRICK_11_IMG
     global ANIMATE_BRICK_12_IMG, ANIMATE_BRICK_13_IMG, ANIMATE_BRICK_14_IMG, ANIMATE_BRICK_15_IMG, ANIMATE_BRICK_16_IMG
-    global MUSIC_PATHS
-    global MUTE_ICON, VOLUME_ICON
+    global MUSIC_PATHS, BRICK_SFX, LEFT_WALL_SFX, RIGHT_WALL_SFX, TOP_WALL_SFX, PADDLE_SFX
+    global MUTE_ICON, VOLUME_ICON, CHANNEL
 
     BACKGROUND_IMG = pygame.image.load(asset_path(ART_DIR, BACKGROUND_FILENAME))
     BRK_YELLOW_IMG = pygame.image.load(asset_path(ART_DIR, BRK_YELLOW_FILENAME))
@@ -123,6 +130,7 @@ def load_assets():
     BRK_TEAL_IMG = pygame.image.load(asset_path(ART_DIR, BRK_TEAL_FILENAME))
     BRK_LAVENDER_IMG = pygame.image.load(asset_path(ART_DIR, BRK_LAVENDER_FILENAME))
     BRK_GOLD_IMG = pygame.image.load(asset_path(ART_DIR, BRK_GOLD_FILENAME))  # do not put in array of BRICK_COLORS
+    BRK_OBSTACLE_IMG = pygame.image.load(asset_path(ART_DIR, BRK_OBSTACLE_FILENAME)) # do not put in array of BRICK_COLORS
     BALL_IMG = pygame.image.load(asset_path(ART_DIR, BALL_FILENAME))
     PADDLE_IMG = pygame.image.load(asset_path(ART_DIR, PADDLE_FILENAME))
 
@@ -167,3 +175,10 @@ def load_assets():
     MUSIC_PATHS[GameState.GameStateName.GAME_OVER] = asset_path(SOUND_DIR, GAME_OVER_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.GET_HIGH_SCORE] = asset_path(SOUND_DIR, SCORE_MUSIC_FILENAME)
     MUSIC_PATHS[GameState.GameStateName.READY_TO_LAUNCH] = asset_path(SOUND_DIR, GAME_MUSIC_FILENAME)
+
+    # soundfx
+    BRICK_SFX = asset_path(SOUND_DIR, BRICK_SFX_FILENAME)
+    PADDLE_SFX = asset_path(SOUND_DIR, PADDLE_SFX_FILENAME)
+    LEFT_WALL_SFX = asset_path(SOUND_DIR, LEFT_WALL_SFX_FILENAME)
+    RIGHT_WALL_SFX = asset_path(SOUND_DIR, RIGHT_WALL_SFX_FILENAME)
+    TOP_WALL_SFX = asset_path(SOUND_DIR, TOP_WALL_SFX_FILENAME)
