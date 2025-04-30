@@ -11,7 +11,10 @@
 from collections.abc import Callable
 import random
 import pygame
+
+import brick
 import constants
+import obstacle
 from gamesettings import GameSettings
 from gamestate import GameState
 from leaderboard import Leaderboard
@@ -140,8 +143,9 @@ class UserInterface:
         else:
             pad_btn_text = self.font_buttons.render("Mouse", True,
                                                     constants.BLACK) if gset.paddle_under_mouse_control else self.font_buttons.render(
-                                                "Keyboard", True, constants.BLACK)
-        self.pad_btn_rect = self.draw_button(pad_btn_text, pad_btn_lbl_rect.x + pad_btn_lbl.get_width() + 10, pad_btn_lbl_rect.y - 3,
+                "Keyboard", True, constants.BLACK)
+        self.pad_btn_rect = self.draw_button(pad_btn_text, pad_btn_lbl_rect.x + pad_btn_lbl.get_width() + 10,
+                                             pad_btn_lbl_rect.y - 3,
                                              200, 40, (200, 200, 200), constants.GRAY)
 
         button_width = 200
@@ -347,14 +351,15 @@ class UserInterface:
         # find center of logo smash core text
         logo_width = text_smash.get_width() + text_core.get_width()
         logo_center = logo_width // 2
-        smash_x = logo_x - logo_center # offset smash x position by the center of logo
+        smash_x = logo_x - logo_center  # offset smash x position by the center of logo
 
         text_smash_rect = text_smash.get_rect(x=smash_x, y=(logo_y + 40))
         text_smash_shadow_rect = text_smash_rect.copy()
         text_smash_shadow_rect.move_ip(3, 3)
 
         # start Core after Smash (smash x position + smash width)
-        text_core_rect = text_core.get_rect(x=(text_smash_rect.x + text_smash_rect.width), y=(text_smash_rect.y + text_smash_rect.height))
+        text_core_rect = text_core.get_rect(x=(text_smash_rect.x + text_smash_rect.width),
+                                            y=(text_smash_rect.y + text_smash_rect.height))
 
         text_core_shadow_rect = text_core_rect.copy()
         text_core_shadow_rect.move_ip(3, 3)
@@ -366,14 +371,14 @@ class UserInterface:
         pygame.draw.line(self.screen, logo_color, (line_start_x, line_y), (line_end_x, line_y), 3)
 
         text_logo_tagline = self.font_logo_tagline.render("The Retro Arcade Experience", True, (200, 200, 200))
-        text_logo_tagline_rect = text_logo_tagline.get_rect(center=(logo_x, text_core_shadow_rect.y + text_core_shadow_rect.height + 40))
+        text_logo_tagline_rect = text_logo_tagline.get_rect(
+            center=(logo_x, text_core_shadow_rect.y + text_core_shadow_rect.height + 40))
 
         self.screen.blit(text_smash_shadow, text_smash_shadow_rect)
         self.screen.blit(text_smash, text_smash_rect)
         self.screen.blit(text_core_shadow, text_core_shadow_rect)
         self.screen.blit(text_core, text_core_rect)
         self.screen.blit(text_logo_tagline, text_logo_tagline_rect)
-
 
     def draw_splash_screen(self):
         self.draw_logo(constants.WIDTH // 2, constants.HEIGHT // 4)
@@ -457,17 +462,15 @@ class UserInterface:
         for brick in self.background_bricks:
             self.surface.blit(brick['image'], brick['rect'])
 
-
-
         # Draw Click to Play CLASSIC button
         start_text = self.font_menu_main.render("PLAY CLASSIC MODE", True, constants.BLACK)
         button_width = start_text.get_width() + 30
         button_height = start_text.get_height() + 40
-        button_x =  constants.WIDTH // 2 - button_width
+        button_x = constants.WIDTH // 2 - button_width
         self.start_classic_button_rect = self.draw_button(start_text, button_x,
-                                                  340, button_width,
-                                                  button_height,
-                                                  constants.GREEN, constants.DARK_GREEN)
+                                                          340, button_width,
+                                                          button_height,
+                                                          constants.GREEN, constants.DARK_GREEN)
 
         # Draw Click to Play MODERN button
         start_text = self.font_menu_main.render("PLAY MODERN MODE", True, constants.BLACK)
@@ -483,7 +486,7 @@ class UserInterface:
         sub_button_height = 50
         sub_button_spacing = sub_button_height + 15
         sub_button_x = (constants.WIDTH - sub_button_width) // 2
-        sub_button_y = self.start_modern_button_rect.y + self.start_modern_button_rect.height + sub_button_height # Add or subtract to this to adjust sub_buttons y_position
+        sub_button_y = self.start_modern_button_rect.y + self.start_modern_button_rect.height + sub_button_height  # Add or subtract to this to adjust sub_buttons y_position
         # Draw How to Play Button
         how_to_play_text = self.font_menu_sub.render("How to Play", True, constants.BLACK)
         self.how_to_play_button_rect = self.draw_button(how_to_play_text, sub_button_x, sub_button_y,
@@ -512,23 +515,27 @@ class UserInterface:
 
         # Draw Quit button
         quit_text = self.font_menu_sub.render("Quit", True, constants.BLACK)
-        self.quit_button_start_rect = self.draw_button(quit_text, sub_button_x, sub_button_y + int(4.3 * sub_button_spacing),
+        self.quit_button_start_rect = self.draw_button(quit_text, sub_button_x,
+                                                       sub_button_y + int(4.3 * sub_button_spacing),
                                                        sub_button_width, sub_button_height,
                                                        constants.RED, constants.DARK_RED)
 
         self.screen.blit(self.surface, (0, 0))
         self.draw_logo(constants.WIDTH // 2, 30)
 
-
-
     def draw_how_to_play_screen(self) -> None:
         """Shows how to play information when button is clicked"""
         self.surface.fill(constants.BLACK)
-        text_lines = [
+        text1_lines = [
+            "GAMEPLAY INSTRUCTIONS",
+            "",
             "SmashCore is a brick-breaking game.",
             "Use a mouse, trackpad, or the arrow keys to control the paddle.",
             "Use the paddle to reflect the ball and hit the bricks.",
             "Breaking all of the bricks clears the level.",
+        ]
+        text2_lines = [
+            "KEYBOARD SHORTCUTS",
             "",
             "ESC to pause.",
             "CTRL + D for dev stats.",
@@ -536,14 +543,87 @@ class UserInterface:
             "CTRL + = to increase overall volume."
         ]
 
-        y = constants.HEIGHT // 4
+        y1 = 75
+        y2 = y1
         line_height = self.font_h2p.get_linesize() + 10
 
-        for line in text_lines:
+        for line in text1_lines:
             rendered_text = self.font_h2p.render(line, True, constants.WHITE)
-            text_rect = rendered_text.get_rect(center=(constants.WIDTH // 2, y))
+            text_rect = rendered_text.get_rect(topleft=(50, y1))
             self.surface.blit(rendered_text, text_rect)
-            y += line_height
+            y1 += line_height
+
+        for line in text2_lines:
+            rendered_text = self.font_h2p.render(line, True, constants.WHITE)
+            text_rect = rendered_text.get_rect(topleft=(constants.WIDTH // 2 + 150, y2))
+            self.surface.blit(rendered_text, text_rect)
+            y2 += line_height
+
+        pygame.draw.line(self.surface, constants.ORANGE, (75, y2 + 25), (constants.WIDTH - 75, y2 + 25), 3)
+
+        btn_text = self.font_menu_main.render("CLASSIC MODE", True, constants.BLACK)
+        button_width = btn_text.get_width() + 20
+        button_height = btn_text.get_height() + 20
+        self.draw_button(btn_text, 50, y2 + 50, button_width,
+                         button_height, constants.GREEN, constants.DARK_GREEN)
+
+        mode_text = self.font_h2p.render("Play the game with solid color bricks.", True, constants.WHITE)
+        mode_text_rect = mode_text.get_rect(topleft=(button_width + 75, y2 + 50 + (btn_text.get_height() // 2)))
+        self.surface.blit(mode_text, mode_text_rect)
+
+        btn_text = self.font_menu_main.render("MODERN MODE", True, constants.BLACK)
+        self.draw_button(btn_text, 50, y2 + 125, button_width,
+                         button_height, constants.LIGHT_BLUE, constants.DARK_BLUE)
+
+        mode_text = self.font_h2p.render("Play the game with modern image bricks.", True, constants.WHITE)
+        mode_text_rect = mode_text.get_rect(topleft=(button_width + 75, y2 + 125 + (btn_text.get_height() // 2)))
+        self.surface.blit(mode_text, mode_text_rect)
+
+        y3 = y2 + 175 + (button_height // 2)
+        pygame.draw.line(self.surface, constants.ORANGE, (75, y3), (constants.WIDTH - 75, y3), 3)
+
+        norm_brick = pygame.Rect(50, y3 + 25, 100, 50)
+        brick.Brick(norm_brick, constants.RED).draw_wo(self.surface)
+        norm_brick = pygame.Rect(50 + 125, y3 + 25, 100, 50)
+        norm_img_brick = pygame.transform.scale(assets.BRK_RED_IMG, (norm_brick.width, norm_brick.height))
+        brick.Brick(norm_brick, constants.GREEN, image=norm_img_brick).draw_wo(self.surface)
+        brick_lbl = self.font_h2p.render("Normal Bricks", True, constants.WHITE)
+        brick_lbl_rect = brick_lbl.get_rect(midleft=(norm_brick.x + norm_brick.width + 20, norm_brick.centery))
+        self.surface.blit(brick_lbl, brick_lbl_rect)
+
+        mult_brick = pygame.Rect(50, y3 + 100, 100, 50)
+        brick.Brick(mult_brick, constants.YELLOW, strength=5, bonus=1).draw_wo(self.surface)
+        mult_brick = pygame.Rect(50 + 125, y3 + 100, 100, 50)
+        mult_img_brick = pygame.transform.scale(assets.BRK_GOLD_IMG, (mult_brick.width, mult_brick.height))
+        brick.Brick(mult_brick, constants.YELLOW, image=mult_img_brick, strength=5, bonus=1).draw_wo(self.surface)
+        brick_lbl = self.font_h2p.render("Multi-Hit Breakable Bricks", True, constants.WHITE)
+        brick_lbl_rect = brick_lbl.get_rect(midleft=(mult_brick.x + mult_brick.width + 20, mult_brick.centery))
+        self.surface.blit(brick_lbl, brick_lbl_rect)
+
+        obst_brick = pygame.Rect(50, y3 + 175, 100, 50)
+        obstacle.Obstacle(obst_brick, constants.GRAY, text="X X X").draw_wo(self.surface)
+        obst_brick = pygame.Rect(50 + 125, y3 + 175, 100, 50)
+        obst_img_brick = pygame.transform.scale(assets.BRK_OBSTACLE_IMG, (obst_brick.width, obst_brick.height))
+        obstacle.Obstacle(obst_brick, constants.GRAY, image=obst_img_brick).draw_wo(self.surface)
+        brick_lbl = self.font_h2p.render("Unbreakable Bricks", True, constants.WHITE)
+        brick_lbl_rect = brick_lbl.get_rect(midleft=(obst_brick.x + obst_brick.width + 20, obst_brick.centery))
+        self.surface.blit(brick_lbl, brick_lbl_rect)
+
+        text3_lines = [
+            "SCORING SYSTEM",
+            "",
+            "On random levels, each brick has a random value",
+            "in the range of (1 - 10).",
+            "On other levels, each brick in a row has a value",
+            "of [10, 7, 5, 3, 1] starting from the top.",
+            "Multi-hit bricks have a 10 point bonus."
+        ]
+
+        for line in text3_lines:
+            rendered_text = self.font_h2p.render(line, True, constants.WHITE)
+            text_rect = rendered_text.get_rect(topleft=(brick_lbl_rect.width + brick_lbl_rect.x + 150, y3 + 25))
+            self.surface.blit(rendered_text, text_rect)
+            y3 += line_height
 
         # Back button
         self.draw_back_button()
@@ -610,7 +690,7 @@ class UserInterface:
         :return:
         """
         bg_sound = assets.VOLUME_ICON.convert_alpha() if gset.bgm_sounds and gset.music_volume > 0 else assets.MUTE_ICON.convert_alpha()
-        sfx_sound = assets.VOLUME_ICON.convert_alpha() if gset.bgm_sounds and gset.sfx_volume > 0 else assets.MUTE_ICON.convert_alpha()
+        sfx_sound = assets.VOLUME_ICON.convert_alpha() if gset.sfx_sounds and gset.sfx_volume > 0 else assets.MUTE_ICON.convert_alpha()
 
         self.surface.fill(constants.BLACK)
 
@@ -622,7 +702,8 @@ class UserInterface:
         # show the graphics windowed/fullscreen toggle
         graphics_btn_lbl_y = (constants.HEIGHT // 3)
         graphics_btn_lbl = self.font_settings.render('Graphics Mode       ', True, constants.WHITE)
-        self.surface.blit(graphics_btn_lbl, graphics_btn_lbl.get_rect(bottomleft=(left_align_x, graphics_btn_lbl_y - 10)))
+        self.surface.blit(graphics_btn_lbl,
+                          graphics_btn_lbl.get_rect(bottomleft=(left_align_x, graphics_btn_lbl_y - 10)))
 
         if gset.is_fullscreen:
             graphics_btn_text = self.font_buttons.render("Fullscreen", True, constants.BLACK)
@@ -630,8 +711,8 @@ class UserInterface:
             graphics_btn_text = self.font_buttons.render("Windowed", True, constants.BLACK)
 
         self.graphics_btn_rect = self.draw_button(graphics_btn_text, left_align_x + graphics_btn_lbl.get_width() + 20,
-                                             graphics_btn_lbl_y - graphics_btn_lbl.get_height() - 10,
-                                             210, 40, (200, 200, 200), constants.GRAY)
+                                                  graphics_btn_lbl_y - graphics_btn_lbl.get_height() - 10,
+                                                  210, 40, (200, 200, 200), constants.GRAY)
 
         #icon_width, icon_height default = 330, 50
         icon_width, icon_height = 75, 75
@@ -648,7 +729,8 @@ class UserInterface:
 
         slider_bg_x = self.vol_bgm_btn_rect.centerx + 75
         slider_bg_y = self.vol_bgm_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
-        knob_bg_x = slider_bg_x - knob_radius + int(gset.music_volume * constants.SLIDER_WIDTH) if gset.bgm_sounds else slider_bg_x - knob_radius
+        knob_bg_x = slider_bg_x - knob_radius + int(
+            gset.music_volume * constants.SLIDER_WIDTH) if gset.bgm_sounds else slider_bg_x - knob_radius
         knob_bg_y = slider_bg_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
         slider_bgm_rect = pygame.Rect(slider_bg_x, slider_bg_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
@@ -667,7 +749,8 @@ class UserInterface:
 
         slider_sf_x = self.vol_sfx_btn_rect.centerx + 75
         slider_sf_y = self.vol_sfx_btn_rect.centery - (constants.SLIDER_HEIGHT // 2)
-        knob_sf_x = slider_sf_x - knob_radius + int(gset.sfx_volume * constants.SLIDER_WIDTH) if gset.sfx_sounds else slider_sf_x - knob_radius
+        knob_sf_x = slider_sf_x - knob_radius + int(
+            gset.sfx_volume * constants.SLIDER_WIDTH) if gset.sfx_sounds else slider_sf_x - knob_radius
         knob_sf_y = slider_sf_y + (constants.SLIDER_HEIGHT // 2) - knob_radius
 
         slider_sfx_rect = pygame.Rect(slider_sf_x, slider_sf_y, constants.SLIDER_WIDTH, constants.SLIDER_HEIGHT)
@@ -685,13 +768,13 @@ class UserInterface:
         else:
             pad_btn_text = self.font_buttons.render("Mouse", True,
                                                     constants.BLACK) if gset.paddle_under_mouse_control else self.font_buttons.render(
-                                                "Keyboard", True, constants.BLACK)
+                "Keyboard", True, constants.BLACK)
 
-        self.pad_btn_rect = self.draw_button(pad_btn_text, left_align_x + pad_btn_lbl.get_width() + 20, pad_btn_lbl_y - pad_btn_lbl.get_height() - 10,
+        self.pad_btn_rect = self.draw_button(pad_btn_text, left_align_x + pad_btn_lbl.get_width() + 20,
+                                             pad_btn_lbl_y - pad_btn_lbl.get_height() - 10,
                                              210, 40, (200, 200, 200), constants.GRAY)
 
         self.draw_back_button()
 
         # draw everything
         self.screen.blit(self.surface, (0, 0))
-
