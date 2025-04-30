@@ -36,7 +36,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         super().__init__()
 
         # general world object properties
-        self.can_react: bool = True #  allow object to react to collisions with other objects
+        self.can_react: bool = True  # allow object to react to collisions with other objects
         # ball settings
         self.radius: int = constants.BALL_RADIUS
         self.ball_rect: pygame.rect = self.radius * 2 ** 0.5
@@ -194,14 +194,14 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # SIMPLE_1 motion model defaults
         self.rect.x = self.commanded_pos_x
         self.rect.y = (constants.HEIGHT - constants.PAD_HEIGHT -
-                        constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))
+                       constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3))
         self.dx = rnd.choice([1, -1])
         self.dy = -1
 
         # VECTOR motion models defaults
         self.v_pos = pygame.Vector2(self.commanded_pos_x,
-                             (constants.HEIGHT - constants.PAD_HEIGHT -
-                              constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)))
+                                    (constants.HEIGHT - constants.PAD_HEIGHT -
+                                     constants.PADDLE_START_POSITION_OFFSET - (constants.BALL_RADIUS * 3)))
         self.rect.x = int(self.v_pos.x)
         self.rect.y = int(self.v_pos.y)
 
@@ -242,6 +242,8 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
             if isinstance(wo, paddle.Paddle):
                 pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.PADDLE_SFX))
+                if wo.delta_x * self.dx < 0:
+                    self.dx = -self.dx
 
         ##############################################################
         # determine how/which direction to bounce after collision under
@@ -287,6 +289,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
             if isinstance(wo, paddle.Paddle):
                 pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.PADDLE_SFX))
+                if wo.delta_x * self.v_vel_unit.x < 0:
+                    self.v_vel_unit.x = -self.v_vel_unit.x
+                    self.v_vel.x = -self.v_vel.x
 
     def move_to_x(self, pos_x: int) -> None:
         """
