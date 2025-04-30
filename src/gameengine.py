@@ -215,6 +215,285 @@ class GameEngine:
             pygame.mixer.music.stop()
             self.current_music_path = None
 
+    def handle_gamestate(self, events):
+        """
+        Handles screen based on the current gamestate
+        :param events:
+        :return:
+        """
+        match self.gs.cur_state:
+
+            ##############################################################
+            # display the SPLASH screen
+            ##############################################################
+            case GameState.GameStateName.SPLASH:
+                # placeholder for the splash screen graphic
+                self.ui.draw_splash_screen()
+
+                # go beyond the splash GameState after desired time
+                cur_ticks = pygame.time.get_ticks()
+                if ((cur_ticks - self.app_start_ticks) / 1000) > SPLASH_TIME_SECS:
+                    self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
+            ##############################################################
+            # display the MENU SCREEN
+            ##############################################################
+            case GameState.GameStateName.MENU_SCREEN:
+                self.ui.draw_start_screen()
+                pygame.mouse.set_visible(True)
+                for event in events:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if self.ui.start_classic_button_rect.collidepoint(event.pos):
+                            self.ps.theme = LevelTheme.CLASSIC
+                            self.reset_game()
+                            self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
+                        elif self.ui.start_modern_button_rect.collidepoint(event.pos):
+                            self.ps.theme = LevelTheme.MODERN
+                            self.reset_game()
+                            self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
+                        elif self.ui.credits_button_rect.collidepoint(event.pos):
+                            self.gs.cur_state = GameState.GameStateName.CREDITS
+                        elif self.ui.settings_button_rect.collidepoint(event.pos):
+                            self.gs.cur_state = GameState.GameStateName.SETTINGS
+                        elif self.ui.leader_button_rect.collidepoint(event.pos):
+                            self.gs.cur_state = GameState.GameStateName.LEADERBOARD
+                        elif self.ui.how_to_play_button_rect and self.ui.how_to_play_button_rect.collidepoint(event.pos):
+                            self.gs.cur_state = GameState.GameStateName.HOW_TO_PLAY
+                        elif self.ui.quit_button_start_rect.collidepoint(event.pos):
+                            self.clean_shutdown()
+
+            ##############################################################
+            # display how to play screen
+            ##############################################################
+            case GameState.GameStateName.HOW_TO_PLAY:
+                self.ui.draw_how_to_play_screen()
+                pygame.mouse.set_visible(True)
+                for event in events:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if hasattr(self.ui, 'back_button_rect') and self.ui.back_button_rect.collidepoint(event.pos):
+                            self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
+            ##############################################################
+            # display credits screen
+            ##############################################################
+            case GameState.GameStateName.CREDITS:
+                self.ui.draw_credits_screen()
+                pygame.mouse.set_visible(True)
+                for event in events:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if self.ui.back_button_rect.collidepoint(event.pos):
+                            self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
+            ##############################################################
+            # display leaderboard screen
+            ##############################################################
+            case GameState.GameStateName.LEADERBOARD:
+                self.ui.draw_leaderboard_screen(self.lb)
+                pygame.mouse.set_visible(True)
+                for event in events:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if self.ui.back_button_rect.collidepoint(event.pos):
+                            self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
+            ##############################################################
+            # display settings screen
+            ##############################################################
+            case GameState.GameStateName.SETTINGS:
+                self.ui.draw_settings_screen(self.gset)
+                pygame.mouse.set_visible(True)
+
+                for event in events:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if self.ui.vol_bgm_btn_rect.collidepoint(event.pos):
+                            self.gset.bgm_sounds = not self.gset.bgm_sounds
+                            if not self.gset.bgm_sounds and self.gset.music_volume <= 0:
+                                self.gset.bgm_sounds = True
+                                self.gset.music_volume = 0.2
+                                pygame.mixer.music.set_volume(
+                                    self.gset.music_volume)
+                        elif self.ui.vol_sfx_btn_rect.collidepoint(event.pos):
+                            self.gset.sfx_sounds = not self.gset.sfx_sounds
+                            if not self.gset.sfx_sounds and self.gset.sfx_volume <= 0:
+                                self.gset.sfx_sounds = True
+                                self.gset.sfx_volume = 0.2
+                                pygame.mixer.music.set_volume(
+                                    self.gset.sfx_volume)
+                        elif self.ui.back_button_rect.collidepoint(event.pos):
+                            self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+                        elif self.ui.knob_bg_rect.collidepoint(event.pos):
+                            self.dragging_bgm_slider = True
+                        elif self.ui.knob_sf_rect.collidepoint(event.pos):
+                            self.dragging_sfx_slider = True
+                        elif self.ui.pad_btn_rect.collidepoint(event.pos):
+                            if not self.gset.paddle_under_auto_control:
+                                self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+                            else:
+                                self.gset.paddle_under_mouse_control = not self.gset.paddle_under_mouse_control
+                                self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+                        elif self.ui.graphics_btn_rect.collidepoint(event.pos):
+                            self.gset.is_fullscreen = not self.gset.is_fullscreen
+                            self.set_graphics_mode()
+
+                    elif event.type == pygame.MOUSEMOTION:
+                        if self.dragging_bgm_slider:
+                            slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75
+                            new_vol = (event.pos[0] - (
+                                        slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
+                            self.gset.music_volume = max(0.0, min(1.0, round(
+                                new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                            pygame.mixer.music.set_volume(
+                                self.gset.music_volume)
+                        if self.dragging_sfx_slider:
+                            slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75
+                            new_vol = (event.pos[0] - (
+                                        slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
+                            self.gset.sfx_volume = max(0.0, min(1.0, round(
+                                new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                    elif event.type == pygame.MOUSEBUTTONUP:
+                        self.dragging_bgm_slider = False
+                        self.dragging_sfx_slider = False
+
+            ##############################################################
+            # display the PLAYING gameplay screen
+            ##############################################################
+            case GameState.GameStateName.PLAYING | GameState.GameStateName.READY_TO_LAUNCH:
+                # Hide the mouse again when transitioning away from the start screen.
+                pygame.mouse.set_visible(False)
+                # update all objects in GameWorld
+
+                mouse_pos = pygame.mouse.get_pos()
+
+                if self.gset.paddle_under_auto_control:
+                    # detect mouse motion, since that should shift paddle control from keys back to the mouse
+                    if mouse_pos[0] != self.gs.last_mouse_pos_x:
+                        # mouse is moving
+                        self.gset.paddle_under_mouse_control = True
+
+                self.gs.last_mouse_pos_x = mouse_pos[0]
+
+                for current_wo in self.gw.world_objects:
+
+                    if isinstance(current_wo, Paddle):
+                        # this controls whether the AutoPlay system or the
+                        # player's mouse input is driving the paddle
+                        if self.gs.auto_play:
+                            current_wo.commanded_pos_x = self.gs.cur_ball_x
+                        elif self.gset.paddle_under_mouse_control:
+                            current_wo.commanded_pos_x = mouse_pos[0]
+                            if self.gset.paddle_under_auto_control:
+                                self.gset.paddle_under_mouse_control = False
+
+                    if isinstance(current_wo,
+                                  Ball) and GameState.GameStateName.READY_TO_LAUNCH:
+                        current_wo.commanded_pos_x = self.gs.paddle_pos_x
+
+                    # generic WorldObject update()
+                    current_wo.update_wo(self.gs, self.ps, self.lb)
+
+                    # test for collisions between world_objects, but ignore
+                    # objects that can't be affected (for performance)
+                    if current_wo.can_react:
+                        for other_wo in self.gw.world_objects:
+                            # don't check for collisions with self
+                            if current_wo is not other_wo:
+                                if current_wo.rect.colliderect(other_wo.rect):
+                                    # a collision was detected - should we react to it?  this matters because two
+                                    # objects can overlap/collide across multiple looping collision checks - if
+                                    # we don't deactivate the collision detection, the object can bounce back and
+                                    # forth, getting trapped
+                                    if other_wo.allow_collision():
+                                        # bounce object properly -
+                                        # determining in which direction
+                                        # to bounce, based on approach
+                                        current_wo.detect_collision(other_wo,
+                                                                    self.gs)
+                                        other_wo.add_collision()
+                                        if other_wo.should_score():
+                                            self.ps.score += other_wo.value
+                                        if other_wo.should_remove():
+                                            self.ps.score += other_wo.bonus
+
+                                            # trigger the special effect - the Brick adds the appropriate Animation object to the world
+                                            other_wo.trigger_destruction_effect(
+                                                self.gw.world_objects)
+
+                                            # now remove the actual Brick object
+                                            self.gw.world_objects.remove(
+                                                other_wo)
+
+                                            current_wo.speed += .20
+                                            # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
+                                            # VECTOR models
+                                            if isinstance(current_wo, Ball):
+                                                current_wo.speed_v += self.gs.ball_speed_step
+                                                self.gs.ball_speed_increased_ratio = current_wo.speed_v / BALL_SPEED_VECTOR
+                                                current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
+
+                                else:
+                                    # this is the other side of the allow_collision logic above, since
+                                    # not colliding now, it resets the latch or 'primed for collision' flag
+                                    other_wo.prime_for_collision()
+
+                    # remove the Animation object from world if it's run its course
+                    if isinstance(current_wo, Animation):
+                        if current_wo.should_remove():
+                            self.gw.world_objects.remove(current_wo)
+
+                # draw all objects in GameWorld
+                self.draw_world_and_status()
+
+                # note this is the way the player enters the gameplay
+                # screen, in a pending, ready to launch mode, with the
+                # ball stuck to the paddle
+                if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
+                    self.ui.draw_game_intro()
+
+                # don't advance to the next level until all bricks are gone AND animations have completed
+                if not any(
+                        isinstance(wo, Brick) or isinstance(wo, Animation) for
+                        wo in self.gw.world_objects):
+                    self.ps.level += 1
+                    self.next_level()
+
+            ##############################################################
+            # display the PAUSED popup over the frozen gameplay
+            ##############################################################
+            case GameState.GameStateName.PAUSED:
+                # draw all objects in GameWorld
+                self.draw_world_and_status()
+                # getting the rects for the UI buttons for later collision
+                # detection (button pressing)
+                self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu(
+                    self.gset)
+                for event in events:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if self.ui.pad_btn_rect.collidepoint(event.pos):
+                            if not self.gset.paddle_under_auto_control:
+                                self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+                            else:
+                                self.gset.paddle_under_mouse_control = not self.gset.paddle_under_mouse_control
+                                self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+
+            ##############################################################
+            # display the GET_HIGH_SCORE popup over the frozen gameplay
+            ##############################################################
+            case GameState.GameStateName.GET_HIGH_SCORE:
+                # draw all objects in GameWorld
+                self.draw_world_and_status()
+                # getting the rects for the UI buttons for later collision
+                # detection (button pressing)
+                self.high_score_enter_btn = self.ui.draw_get_high_score()
+
+            ##############################################################
+            # display the GAME_OVER popup over the frozen gameplay
+            ##############################################################
+            case GameState.GameStateName.GAME_OVER:
+                # draw all objects in GameWorld
+                self.draw_world_and_status()
+                # getting the rects for the UI buttons for later collision
+                # detection (button pressing)
+                self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_game_over_menu()
+
     def run_loop(self) -> None:
         """
         Runs the main game loop
@@ -225,275 +504,12 @@ class GameEngine:
         while self.gs.running:
             # fill the screen with black as a good default
             self.screen.fill(BLACK)
-
             self.play_music()
 
             # get all events from queue for handling
             events = pygame.event.get()
 
-            match self.gs.cur_state:
-
-                ##############################################################
-                # display the SPLASH screen
-                ##############################################################
-                case GameState.GameStateName.SPLASH:
-                    # placeholder for the splash screen graphic
-                    self.ui.draw_splash_screen()
-
-                    # go beyond the splash GameState after desired time
-                    cur_ticks = pygame.time.get_ticks()
-                    if ((cur_ticks - self.app_start_ticks) / 1000) > SPLASH_TIME_SECS:
-                        self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
-
-                ##############################################################
-                # display the MENU SCREEN
-                ##############################################################
-                case GameState.GameStateName.MENU_SCREEN:
-                    self.ui.draw_start_screen()
-                    pygame.mouse.set_visible(True)
-                    for event in events:
-                        if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.start_classic_button_rect.collidepoint(event.pos):
-                                self.ps.theme = LevelTheme.CLASSIC
-                                self.reset_game()
-                                self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
-                            elif self.ui.start_modern_button_rect.collidepoint(event.pos):
-                                self.ps.theme = LevelTheme.MODERN
-                                self.reset_game()
-                                self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
-                            elif self.ui.credits_button_rect.collidepoint(event.pos):
-                                self.gs.cur_state = GameState.GameStateName.CREDITS
-                            elif self.ui.settings_button_rect.collidepoint(event.pos):
-                                self.gs.cur_state = GameState.GameStateName.SETTINGS
-                            elif self.ui.leader_button_rect.collidepoint(event.pos):
-                                self.gs.cur_state = GameState.GameStateName.LEADERBOARD
-                            elif self.ui.how_to_play_button_rect and self.ui.how_to_play_button_rect.collidepoint(
-                                    event.pos):
-                                self.gs.cur_state = GameState.GameStateName.HOW_TO_PLAY
-                            elif self.ui.quit_button_start_rect.collidepoint(event.pos):
-                                self.clean_shutdown()
-
-                ##############################################################
-                # display how to play screen
-                ##############################################################
-                case GameState.GameStateName.HOW_TO_PLAY:
-                    self.ui.draw_how_to_play_screen()
-                    pygame.mouse.set_visible(True)
-                    for event in events:
-                        if event.type == pygame.MOUSEBUTTONDOWN:
-                            if hasattr(self.ui,
-                                       'back_button_rect') and self.ui.back_button_rect.collidepoint(
-                                event.pos):
-                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
-
-                ##############################################################
-                # display credits screen
-                ##############################################################
-                case GameState.GameStateName.CREDITS:
-                    self.ui.draw_credits_screen()
-                    pygame.mouse.set_visible(True)
-                    for event in events:
-                        if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.back_button_rect.collidepoint(event.pos):
-                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
-
-                ##############################################################
-                # display leaderboard screen
-                ##############################################################
-                case GameState.GameStateName.LEADERBOARD:
-                    self.ui.draw_leaderboard_screen(self.lb)
-                    pygame.mouse.set_visible(True)
-                    for event in events:
-                        if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.back_button_rect.collidepoint(event.pos):
-                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
-
-                ##############################################################
-                # display settings screen
-                ##############################################################
-                case GameState.GameStateName.SETTINGS:
-                    self.ui.draw_settings_screen(self.gset)
-                    pygame.mouse.set_visible(True)
-
-                    for event in events:
-                        if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.vol_bgm_btn_rect.collidepoint(event.pos):
-                                self.gset.bgm_sounds = not self.gset.bgm_sounds
-                                if not self.gset.bgm_sounds and self.gset.music_volume <= 0:
-                                    self.gset.bgm_sounds = True
-                                    self.gset.music_volume = 0.2
-                                    pygame.mixer.music.set_volume(self.gset.music_volume)
-                            elif self.ui.vol_sfx_btn_rect.collidepoint(event.pos):
-                                self.gset.sfx_sounds = not self.gset.sfx_sounds
-                                if not self.gset.sfx_sounds and self.gset.sfx_volume <= 0:
-                                    self.gset.sfx_sounds = True
-                                    self.gset.sfx_volume = 0.2
-                                    pygame.mixer.music.set_volume(self.gset.sfx_volume)
-                            elif self.ui.back_button_rect.collidepoint(event.pos):
-                                self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
-                            elif self.ui.knob_bg_rect.collidepoint(event.pos):
-                                self.dragging_bgm_slider = True
-                            elif self.ui.knob_sf_rect.collidepoint(event.pos):
-                                self.dragging_sfx_slider = True
-                            elif self.ui.pad_btn_rect.collidepoint(event.pos):
-                                if not self.gset.paddle_under_auto_control:
-                                    self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
-                                else:
-                                    self.gset.paddle_under_mouse_control = not self.gset.paddle_under_mouse_control
-                                    self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
-                            elif self.ui.graphics_btn_rect.collidepoint(event.pos):
-                                self.gset.is_fullscreen = not self.gset.is_fullscreen
-                                self.set_graphics_mode()
-
-                        elif event.type == pygame.MOUSEMOTION:
-                            if self.dragging_bgm_slider:
-                                slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75
-                                new_vol = (event.pos[0] - (slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                                self.gset.music_volume = max(0.0, min(1.0, round(
-                                    new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
-                                pygame.mixer.music.set_volume(self.gset.music_volume)
-                            if self.dragging_sfx_slider:
-                                slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75
-                                new_vol = (event.pos[0] - (slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                                self.gset.sfx_volume = max(0.0, min(1.0, round(
-                                    new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
-                        elif event.type == pygame.MOUSEBUTTONUP:
-                            self.dragging_bgm_slider = False
-                            self.dragging_sfx_slider = False
-
-                ##############################################################
-                # display the PLAYING gameplay screen
-                ##############################################################
-                case GameState.GameStateName.PLAYING | GameState.GameStateName.READY_TO_LAUNCH:
-                    # Hide the mouse again when transitioning away from the start screen.
-                    pygame.mouse.set_visible(False)
-                    # update all objects in GameWorld
-
-                    mouse_pos = pygame.mouse.get_pos()
-
-                    if self.gset.paddle_under_auto_control:
-                        # detect mouse motion, since that should shift paddle control from keys back to the mouse
-                        if mouse_pos[0] != self.gs.last_mouse_pos_x:
-                            # mouse is moving
-                            self.gset.paddle_under_mouse_control = True
-
-                    self.gs.last_mouse_pos_x = mouse_pos[0]
-
-                    for current_wo in self.gw.world_objects:
-
-                        if isinstance(current_wo, Paddle):
-                            # this controls whether the AutoPlay system or the
-                            # player's mouse input is driving the paddle
-                            if self.gs.auto_play:
-                                current_wo.commanded_pos_x = self.gs.cur_ball_x
-                            elif self.gset.paddle_under_mouse_control:
-                                current_wo.commanded_pos_x = mouse_pos[0]
-                                if self.gset.paddle_under_auto_control:
-                                    self.gset.paddle_under_mouse_control = False
-
-                        if isinstance(current_wo, Ball) and GameState.GameStateName.READY_TO_LAUNCH:
-                            current_wo.commanded_pos_x = self.gs.paddle_pos_x
-
-                        # generic WorldObject update()
-                        current_wo.update_wo(self.gs, self.ps, self.lb)
-
-                        # test for collisions between world_objects, but ignore
-                        # objects that can't be affected (for performance)
-                        if current_wo.can_react:
-                            for other_wo in self.gw.world_objects:
-                                # don't check for collisions with self
-                                if current_wo is not other_wo:
-                                    if current_wo.rect.colliderect(other_wo.rect):
-                                        # a collision was detected - should we react to it?  this matters because two
-                                        # objects can overlap/collide across multiple looping collision checks - if
-                                        # we don't deactivate the collision detection, the object can bounce back and
-                                        # forth, getting trapped
-                                        if other_wo.allow_collision():
-                                            # bounce object properly -
-                                            # determining in which direction
-                                            # to bounce, based on approach
-                                            current_wo.detect_collision(other_wo, self.gs)
-                                            other_wo.add_collision()
-                                            if other_wo.should_score():
-                                                self.ps.score += other_wo.value
-                                            if other_wo.should_remove():
-                                                self.ps.score += other_wo.bonus
-
-                                                # trigger the special effect - the Brick adds the appropriate Animation object to the world
-                                                other_wo.trigger_destruction_effect(self.gw.world_objects)
-
-                                                # now remove the actual Brick object
-                                                self.gw.world_objects.remove(other_wo)
-
-                                                current_wo.speed += .20
-                                                # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
-                                                # VECTOR models
-                                                if isinstance(current_wo, Ball):
-                                                    current_wo.speed_v += self.gs.ball_speed_step
-                                                    self.gs.ball_speed_increased_ratio = current_wo.speed_v / BALL_SPEED_VECTOR
-                                                    current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
-
-                                    else:
-                                        # this is the other side of the allow_collision logic above, since
-                                        # not colliding now, it resets the latch or 'primed for collision' flag
-                                        other_wo.prime_for_collision()
-
-                        # remove the Animation object from world if it's run its course
-                        if isinstance(current_wo, Animation):
-                            if current_wo.should_remove():
-                                self.gw.world_objects.remove(current_wo)
-
-                    # draw all objects in GameWorld
-                    self.draw_world_and_status()
-
-                    # note this is the way the player enters the gameplay
-                    # screen, in a pending, ready to launch mode, with the
-                    # ball stuck to the paddle
-                    if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
-                        self.ui.draw_game_intro()
-
-                    # don't advance to the next level until all bricks are gone AND animations have completed
-                    if not any(isinstance(wo, Brick) or isinstance(wo, Animation) for wo in self.gw.world_objects):
-                        self.ps.level += 1
-                        self.next_level()
-
-                ##############################################################
-                # display the PAUSED popup over the frozen gameplay
-                ##############################################################
-                case GameState.GameStateName.PAUSED:
-                    # draw all objects in GameWorld
-                    self.draw_world_and_status()
-                    # getting the rects for the UI buttons for later collision
-                    # detection (button pressing)
-                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_pause_menu(self.gset)
-                    for event in events:
-                        if event.type == pygame.MOUSEBUTTONDOWN:
-                            if self.ui.pad_btn_rect.collidepoint(event.pos):
-                                if not self.gset.paddle_under_auto_control:
-                                    self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
-                                else:
-                                    self.gset.paddle_under_mouse_control = not self.gset.paddle_under_mouse_control
-                                    self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
-
-                ##############################################################
-                # display the GET_HIGH_SCORE popup over the frozen gameplay
-                ##############################################################
-                case GameState.GameStateName.GET_HIGH_SCORE:
-                    # draw all objects in GameWorld
-                    self.draw_world_and_status()
-                    # getting the rects for the UI buttons for later collision
-                    # detection (button pressing)
-                    self.high_score_enter_btn = self.ui.draw_get_high_score()
-
-                ##############################################################
-                # display the GAME_OVER popup over the frozen gameplay
-                ##############################################################
-                case GameState.GameStateName.GAME_OVER:
-                    # draw all objects in GameWorld
-                    self.draw_world_and_status()
-                    # getting the rects for the UI buttons for later collision
-                    # detection (button pressing)
-                    self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_game_over_menu()
+            self.handle_gamestate(events)
 
             ##############################################################
             # event handling
