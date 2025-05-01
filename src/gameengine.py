@@ -26,7 +26,7 @@ from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
                        BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
                        PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
                        BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
-                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS, LIGHT_GRAY)
+                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS, LIGHT_GRAY, CLOSE_TO_ZERO)
 from levels import Levels
 from gameworld import GameWorld
 from userinterface import UserInterface
@@ -97,6 +97,7 @@ class GameEngine:
         self.ps.lives = START_LIVES
         self.ps.score = START_SCORE
         self.ps.level = 1
+        self.gs.level_cleared = False
         pygame.mouse.set_visible(False)  # Hide the cursor when game restarts
         pygame.mixer.music.stop()
         self.current_music_path = None
@@ -122,6 +123,7 @@ class GameEngine:
         # builds the next level (NOTE this doesn't actually increment the level num)
         next_level = Levels.get_level_name_from_num(self.ps.theme, self.ps.level)
         Levels.build_level(self.gw.world_objects, next_level)
+        self.gs.level_cleared = False
 
         self.fps = INITIAL_FPS_SIMPLE
         self.gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
@@ -383,12 +385,11 @@ class GameEngine:
                             if self.gset.paddle_under_auto_control:
                                 self.gset.paddle_under_mouse_control = False
 
-                    if isinstance(current_wo,
-                                  Ball) and GameState.GameStateName.READY_TO_LAUNCH:
+                    if isinstance(current_wo, Ball) and GameState.GameStateName.READY_TO_LAUNCH:
                         current_wo.commanded_pos_x = self.gs.paddle_pos_x
 
                     # generic WorldObject update()
-                    current_wo.update_wo(self.gs, self.ps, self.lb)
+                    current_wo.update_wo(self.gs, self.ps, self.lb, self.gset)
 
                     # test for collisions between world_objects, but ignore
                     # objects that can't be affected (for performance)
@@ -405,8 +406,7 @@ class GameEngine:
                                         # bounce object properly -
                                         # determining in which direction
                                         # to bounce, based on approach
-                                        current_wo.detect_collision(other_wo,
-                                                                    self.gs)
+                                        current_wo.detect_collision(other_wo, self.gs, self.gset)
                                         other_wo.add_collision()
                                         if other_wo.should_score():
                                             self.ps.score += other_wo.value
@@ -415,11 +415,10 @@ class GameEngine:
 
                                             # trigger the special effect - the Brick adds the appropriate Animation object to the world
                                             other_wo.trigger_destruction_effect(
-                                                self.gw.world_objects)
+                                                self.gw.world_objects, self.gset, self.ps)
 
                                             # now remove the actual Brick object
-                                            self.gw.world_objects.remove(
-                                                other_wo)
+                                            self.gw.world_objects.remove(other_wo)
 
                                             current_wo.speed += .20
                                             # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
@@ -448,10 +447,13 @@ class GameEngine:
                 if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
                     self.ui.draw_game_intro()
 
+                # set latch to ignore ball below screen once all Bricks cleared (mostly so that Animations
+                # can complete without penalty if the player stops reflecting the Ball)
+                if not any(isinstance(wo, Brick) for wo in self.gw.world_objects):
+                    self.gs.level_cleared = True
+
                 # don't advance to the next level until all bricks are gone AND animations have completed
-                if not any(
-                        isinstance(wo, Brick) or isinstance(wo, Animation) for
-                        wo in self.gw.world_objects):
+                if self.gs.level_cleared and (not any(isinstance(wo, Animation) for wo in self.gw.world_objects)):
                     self.ps.level += 1
                     self.next_level()
 

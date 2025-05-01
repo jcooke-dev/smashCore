@@ -10,14 +10,15 @@
 """
 
 import random as rnd
-
 import pygame
+
 import constants
 import paddle
+import assets
+from gamesettings import GameSettings
 from gamestate import GameState
 from playerstate import PlayerState
 from leaderboard import Leaderboard
-import assets
 from worldobject import WorldObject
 from motionmodels import MotionModels
 
@@ -66,11 +67,12 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         self.commanded_pos_x = 0
 
-    def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard) -> None:
+    def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard, gset: GameSettings) -> None:
         """
         Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
 
-        :param lb:
+        :param gset: GameSettings
+        :param lb: Leaderboard
         :param gs: GameState
         :param ps: PlayerState
         :return:
@@ -157,10 +159,12 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         gs.cur_ball_x = self.x
 
-        # Decrement lives everytime ball goes below the window and resets its
+        # Decrement lives every time ball goes below the window and resets its
         # position to above the paddle.
         # Prompts for SPACEBAR key to continue the game
-        if self.rect.top > constants.HEIGHT:
+        # NOTE: don't care about the ball IF the level is already cleared (this can happen if waiting for an
+        # Animation to complete)
+        if (self.rect.top > constants.HEIGHT) and (not gs.level_cleared):
             ps.lives -= 1
             self.reset_position()
             gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
@@ -209,10 +213,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         self.v_vel_unit = self.v_vel_unit.rotate(rnd.choice([-45.0, -135.0]))
         self.v_vel = self.v_vel_unit * self.speed_v
 
-    def detect_collision(self, wo: pygame.rect, gs: GameState) -> None:
+    def detect_collision(self, wo: pygame.rect, gs: GameState, gset: GameSettings) -> None:
         """
         Detects collisions between the ball and other objects
 
+        :param gset: GameSettings
         :param wo: another world_object
         :param gs: GameState
         :return:

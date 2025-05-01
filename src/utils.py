@@ -15,6 +15,7 @@
 import collections
 import statistics
 
+from gamestate import GameState
 
 # these are queues used to store the shifting window of recorded values for the dev overlay
 fps_q = collections.deque(maxlen=60)
