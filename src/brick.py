@@ -149,13 +149,13 @@ class Brick(WorldObject, pygame.sprite.Sprite):
                 world_objects.append(Animation(EFFECT_POWER_UP_DURATION,
                                                self.rect,
                                                self.color, is_ball=True, fade=True,
-                                               v_acc=Vector2(0.0, EFFECT_POWER_UP_DROP_ACC_Y)))
+                                               v_acc=Vector2(0.0, -1.0 * EFFECT_POWER_UP_DROP_ACC_Y)))
             else:
                 # if an image Brick, the animation is a moving image ball
                 world_objects.append(Animation(EFFECT_POWER_UP_DURATION,
                                                self.rect,
                                                self.color, is_ball=True, fade=True,
-                                               v_acc=Vector2(0.0, EFFECT_POWER_UP_DROP_ACC_Y),
+                                               v_acc=Vector2(0.0, -1.0 * EFFECT_POWER_UP_DROP_ACC_Y),
                                                images=[assets.BALL_IMG]))
                                                
         pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.BRICK_SFX))

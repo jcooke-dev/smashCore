@@ -228,7 +228,7 @@ class Levels:
                           constants.GREEN, constants.LIGHT_BLUE]
                 multiplier_bricks = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
                                      (6, 4), (7, 3), (8, 2), (9, 1), (10, 0)]
-                power_ups: list[list[Any]] = [[9, 0, PowerUpType.EXTRA_LIFE]]
+                power_ups: list[list[Any]] = [[4, 3, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
                                            row_colors=colors,
@@ -240,7 +240,7 @@ class Levels:
                           constants.GREEN, constants.LIGHT_BLUE]
                 multiplier_bricks = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
                                      (6, 4), (7, 3), (8, 2), (9, 1), (10, 0)]
-                power_ups: list[list[Any]] = [[9, 0, PowerUpType.EXTRA_LIFE]]
+                power_ups: list[list[Any]] = [[4, 3, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
                                            use_random_imgs=True,
@@ -254,7 +254,7 @@ class Levels:
                                   (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5)]
                 multiplier_bricks = [(4, 0), (5, 0), (6, 0), (4, 1), (4, 2), (5, 2),
                                   (6, 2), (6, 3), (6, 4), (5, 4), (4, 4)]
-                power_ups: list[list[Any]] = [[5, 1, PowerUpType.EXTRA_LIFE]]
+                power_ups: list[list[Any]] = [[5, 3, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
                                            row_colors=colors,
@@ -269,7 +269,7 @@ class Levels:
                                   (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5)]
                 multiplier_bricks = [(4, 0), (5, 0), (6, 0), (4, 1), (4, 2), (5, 2),
                                   (6, 2), (6, 3), (6, 4), (5, 4), (4, 4)]
-                power_ups: list[list[Any]] = [[5, 1, PowerUpType.EXTRA_LIFE]]
+                power_ups: list[list[Any]] = [[5, 3, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
                                            use_random_imgs=True,
@@ -280,7 +280,7 @@ class Levels:
             case Levels.LevelName.CLASSIC_UNBREAKABLE_2:
                 unbreakable = [(2, 2), (3, 2), (7, 2), (8, 2),
                                   (2, 3), (3, 3), (7, 3), (8, 3)]
-                power_ups: list[list[Any]] = [[8, 1, PowerUpType.EXTRA_LIFE]]
+                power_ups: list[list[Any]] = [[2, 1, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list, rows=5,
                                            unbreakable=unbreakable,
                                            power_ups=power_ups)
@@ -288,7 +288,7 @@ class Levels:
             case Levels.LevelName.MODERN_UNBREAKABLE_2:
                 unbreakable = [(2, 2), (3, 2), (7, 2), (8, 2),
                                   (2, 3), (3, 3), (7, 3), (8, 3)]
-                power_ups: list[list[Any]] = [[8, 1, PowerUpType.EXTRA_LIFE]]
+                power_ups: list[list[Any]] = [[2, 1, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list, rows=5,
                                            use_random_imgs=True,
                                            unbreakable=unbreakable,
