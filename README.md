@@ -33,8 +33,10 @@ This is a list of all parameters that can be toggled/adjusted in game, along wit
 | **CTRL + s**         | Increase the Speed Step (speed added to ball after breaking bricks)     |
 | **CTRL + SHIFT + s** | Decrease the Speed Step (speed added to ball after breaking bricks)     |
 | **CTRL + m**         | Cycles through motion calculation models (only SIMPLE_1 and VECTOR_1)   |
-| **CTRL + =**         | (the '+' key) Increase the overall volume                               |
-| **CTRL + -**         | Decrease the overall volume                                             |
+| **CTRL + =**         | (the '+' key) Increase the music volume                                 |
+| **CTRL + -**         | Decrease the music volume                                               |
+| **CTRL + SHIFT + =** | (the '+' key) Increase the sound effects volume                         |
+| **CTRL + SHIFT + -** | Decrease the sound effects volume                                       |
 | **CTRL + l**         | Cycles through all available levels (can use to force load a new level) |
 
 

@@ -10,7 +10,9 @@
 """
 
 import pygame
+
 import constants
+from gamesettings import GameSettings
 from gamestate import GameState
 from playerstate import PlayerState
 from leaderboard import Leaderboard
@@ -44,11 +46,12 @@ class Paddle(WorldObject, pygame.sprite.Sprite):
         self.delta_x: int = 0
         self.prev_x: int = self.rect.x
 
-    def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard) -> None:
+    def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard, gset: GameSettings) -> None:
         """
         Update the Paddle's pos
 
-        :param lb:
+        :param gset: GameSettings
+        :param lb: Leaderboard
         :param gs: GameState
         :param ps: PlayerState
         :return:
