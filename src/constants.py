@@ -11,6 +11,8 @@
 
 GAME_NAME = "SmashCore"
 
+CLOSE_TO_ZERO = 0.00001 # for float comparisons to zero
+
 # width and height of game board
 WIDTH, HEIGHT = 1200, 800
 
@@ -64,8 +66,9 @@ SLIDER_HEIGHT = 15
 KNOB_RADIUS = 20
 
 MUSIC_VOLUME_INITIAL = 1.0
-SFX_VOLUME_INITIAL = 1.0
-MUSIC_VOLUME_STEP = 0.2
+SFX_VOLUME_INITIAL = 0.5
+MUSIC_VOLUME_STEP = 0.125
+SFX_VOLUME_STEP = 0.125
 
 SHAKE_STRENGTH_THRESHOLD = 2 # brick initial strength >= this threshold triggers the screen shake
 SHAKE_OFFSET_BASE = 2 # the offset shake effect multiplier

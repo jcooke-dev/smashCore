@@ -10,11 +10,11 @@
 """
 from enum import Enum, auto
 from unittest import mock
-
 import pygame
 import pytest
-from paddle import Paddle
 from pygame import Vector2
+
+from paddle import Paddle
 from ball import Ball
 from constants import BALL_RADIUS, BALL_SPEED_SIMPLE, WIDTH, HEIGHT, WHITE
 from gamestate import GameState
@@ -77,6 +77,23 @@ def gamestate():
     return GameState()
 
 @pytest.fixture
+def gamesettings():
+    """
+    Set up gamesettings for tests
+    :return:
+    """
+    class GameSettings:
+        def __init__(self):
+            self.is_fullscreen: bool = False
+            self.paddle_under_auto_control: bool = True
+            self.paddle_under_mouse_control: bool = True
+            self.bgm_sounds: bool = True
+            self.sfx_sounds: bool = True
+            self.music_volume = 1.0
+            self.sfx_volume = 0.5
+    return GameSettings()
+
+@pytest.fixture
 def leaderboard():
     """
     Setup leaderboard for tests
@@ -113,7 +130,7 @@ def test_initial_state(ball):
     assert ball.primed_collision_wall_top is True
 
 
-def test_update_wo_position_update_simple(ball, gamestate):
+def test_update_wo_position_update_simple(ball, gamestate, gamesettings):
     """
     Test the ball position is updated based on gamestate
     :param ball:
@@ -121,15 +138,16 @@ def test_update_wo_position_update_simple(ball, gamestate):
     :return:
     """
     gs = gamestate
+    gset = gamesettings
     gs.motion_model = MotionModels.SIMPLE_1
 
-    ball.update_wo(gs, None, None)
+    ball.update_wo(gs, None, None, gset)
 
     assert ball.rect.x == ball.x
     assert ball.rect.y == ball.y
 
 @mock.patch('pygame.mixer')
-def test_update_wo_wall_collision_left_simple(mock_mixer, ball, gamestate):
+def test_update_wo_wall_collision_left_simple(mock_mixer, ball, gamestate, gamesettings):
     """
     Test the ball direction on collision from left
     :param ball:
@@ -137,18 +155,19 @@ def test_update_wo_wall_collision_left_simple(mock_mixer, ball, gamestate):
     :return:
     """
     gs = gamestate
+    gset = gamesettings
     gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.SIMPLE_1
 
     ball.dx = -1 # must ensure moving to the left before collision test (since __init__ has it randomly either -1, 1)
 
     ball.rect.centerx = 0  # simulate collision with left wall
-    ball.update_wo(gs, None, None)
+    ball.update_wo(gs, None, None, gset)
 
     assert ball.dx == 1  # direction should reverse
 
 @mock.patch('pygame.mixer')
-def test_update_wo_wall_collision_right_simple(mock_mixer, ball, gamestate):
+def test_update_wo_wall_collision_right_simple(mock_mixer, ball, gamestate, gamesettings):
     """
     Test ball direction on collision from right
     :param ball:
@@ -156,18 +175,19 @@ def test_update_wo_wall_collision_right_simple(mock_mixer, ball, gamestate):
     :return:
     """
     gs = gamestate
+    gset = gamesettings
     gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.SIMPLE_1
 
     ball.dx = 1  # must ensure moving to the right before collision test (since __init__ has it randomly either -1, 1)
 
     ball.rect.centerx = WIDTH  # simulate collision with right wall
-    ball.update_wo(gs, None, None)
+    ball.update_wo(gs, None, None, gset)
 
     assert ball.dx == -1  # direction should reverse
 
 @mock.patch('pygame.mixer')
-def test_update_wo_wall_collision_top_simple(mock_mixer, ball, gamestate):
+def test_update_wo_wall_collision_top_simple(mock_mixer, ball, gamestate, gamesettings):
     """
     Test ball direction on collision from top
     :param ball:
@@ -175,16 +195,17 @@ def test_update_wo_wall_collision_top_simple(mock_mixer, ball, gamestate):
     :return:
     """
     gs = gamestate
+    gset = gamesettings
     gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.SIMPLE_1
 
     ball.rect.centery = 0  # simulate collision with top wall
-    ball.update_wo(gs, None, None)
+    ball.update_wo(gs, None, None, gset)
 
     assert ball.dy == 1  # direction should reverse
 
 @mock.patch('pygame.mixer')
-def test_update_wo_gravity_application_vector(mock_mixer, ball, gamestate):
+def test_update_wo_gravity_application_vector(mock_mixer, ball, gamestate, gamesettings):
     """
     Test ball velocity
     :param ball:
@@ -192,6 +213,7 @@ def test_update_wo_gravity_application_vector(mock_mixer, ball, gamestate):
     :return:
     """
     gs = gamestate
+    gset = gamesettings
     gs.cur_state = GameState.GameStateName.PLAYING
     gs.motion_model = MotionModels.VECTOR_1
     gs.gravity_acc_length = 1.0
@@ -199,12 +221,12 @@ def test_update_wo_gravity_application_vector(mock_mixer, ball, gamestate):
     gs.tick_time = 1
 
     initial_velocity = ball.v_vel.y
-    ball.update_wo(gs, None, None)
+    ball.update_wo(gs, None, None, gset)
 
     assert ball.v_vel.y > initial_velocity # gravity should increase y velocity
 
 
-def test_update_wo_game_state_ready_to_launch(ball, gamestate):
+def test_update_wo_game_state_ready_to_launch(ball, gamestate, gamesettings):
     """
     Test ball position on READY_TO_LAUNCH state
     :param ball:
@@ -212,14 +234,15 @@ def test_update_wo_game_state_ready_to_launch(ball, gamestate):
     :return:
     """
     gs = gamestate
+    gset = gamesettings
     gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
 
-    ball.update_wo(gs, None, None)
+    ball.update_wo(gs, None, None, gset)
 
     assert gs.cur_ball_x == ball.x  # ball should not move
 
 
-def test_update_wo_game_state_game_over(ball, gamestate, playerstate, leaderboard):
+def test_update_wo_game_state_game_over(ball, gamestate, playerstate, leaderboard, gamesettings):
     """
     Test game state is GAME_OVER when ball goes below window
     :param ball:
@@ -231,15 +254,16 @@ def test_update_wo_game_state_game_over(ball, gamestate, playerstate, leaderboar
     gs = gamestate
     ps = playerstate
     lb = leaderboard
+    gset = gamesettings
     ball.rect.top = HEIGHT + 100  # simulate ball going below window
     ps.lives = 1
 
-    ball.update_wo(gs, ps, lb)
+    ball.update_wo(gs, ps, lb, gset)
 
     assert gs.cur_state == GameState.GameStateName.GAME_OVER  # game should be over
 
 
-def test_simple_horizontal_collision(ball, gamestate):
+def test_simple_horizontal_collision(ball, gamestate, gamesettings):
     """
     Test ball direction for horizontal collision
     :param ball:
@@ -249,6 +273,7 @@ def test_simple_horizontal_collision(ball, gamestate):
     ball.paddle_impulse_vel_length = 0
 
     gs = gamestate
+    gset = gamesettings
     gs.motion_model = MotionModels.SIMPLE_1
     ball.dx = 1  # moving right
     wo = pygame.sprite.Sprite()
@@ -256,12 +281,12 @@ def test_simple_horizontal_collision(ball, gamestate):
         ball.rect.right - 1,
         ball.rect.y, 10, 10)  # simulate collision from right
 
-    ball.detect_collision(wo, gs)
+    ball.detect_collision(wo, gs, gset)
 
     assert ball.dx == -1  # direction should reverse
 
 
-def test_simple_vertical_collision(ball, gamestate):
+def test_simple_vertical_collision(ball, gamestate, gamesettings):
     """
     Test ball y position after vertical collision
     :param ball:
@@ -269,6 +294,7 @@ def test_simple_vertical_collision(ball, gamestate):
     :return:
     """
     gs = gamestate
+    gset = gamesettings
     gs.motion_model = MotionModels.SIMPLE_1
     ball.dy = 1  # moving down
     wo = pygame.sprite.Sprite()
@@ -276,12 +302,12 @@ def test_simple_vertical_collision(ball, gamestate):
         ball.rect.x,
         ball.rect.bottom - 1, 10, 10)  # simulate collision from bottom
 
-    ball.detect_collision(wo, gs)
+    ball.detect_collision(wo, gs, gset)
 
     assert ball.dy == -1  # direction should reverse
 
 
-def test_simple_diagonal_collision(ball, gamestate):
+def test_simple_diagonal_collision(ball, gamestate, gamesettings):
     """
     Test ball position after diagonal collision
     :param ball:
@@ -289,6 +315,7 @@ def test_simple_diagonal_collision(ball, gamestate):
     :return:
     """
     gs = gamestate
+    gset = gamesettings
     gs.motion_model = MotionModels.SIMPLE_1
     ball.dx = 1  # moving right
     ball.dy = 1  # moving down
@@ -297,13 +324,13 @@ def test_simple_diagonal_collision(ball, gamestate):
         ball.rect.right - 1,
         ball.rect.bottom - 1, 10, 10)  # simulate diagonal collision
 
-    ball.detect_collision(wo, gs)
+    ball.detect_collision(wo, gs, gset)
 
     assert ball.dx == -1  # direction should reverse
     assert ball.dy == -1  # direction should reverse
 
 @mock.patch('pygame.mixer')
-def test_paddle_impulse(mock_mixer, ball, gamestate, paddle):
+def test_paddle_impulse(mock_mixer, ball, gamestate, paddle, gamesettings):
     """
     Test ball velocity changes after collision when impulse is set
     :param ball:
@@ -312,12 +339,13 @@ def test_paddle_impulse(mock_mixer, ball, gamestate, paddle):
     :return:
     """
     gs = gamestate
+    gset = gamesettings
     gs.paddle_impulse_vel_length = 0
     gs.motion_model = MotionModels.VECTOR_1
     gs.paddle_impulse_vel_length = 10.0  # set impulse
     initial_velocity = ball.v_vel.y
 
-    ball.detect_collision(paddle, gs)
+    ball.detect_collision(paddle, gs, gset)
 
     assert ball.v_vel.y != initial_velocity  # velocity should change
 
