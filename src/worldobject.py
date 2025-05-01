@@ -26,6 +26,8 @@ class WorldObject:
         self.rect: pygame.rect = None
         self.can_react: bool = False  # can this object react to collisions with other objects?
         self.primed_collision: bool = True
+        self.strength: int = 1
+        self.strength_initial: int = self.strength
 
     def update_wo(self, gs: gs_.GameState, ps: ps_.PlayerState, lb: lb_.Leaderboard):
         """

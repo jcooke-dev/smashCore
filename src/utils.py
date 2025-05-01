@@ -15,6 +15,7 @@
 import collections
 import statistics
 
+from gamestate import GameState
 
 # these are queues used to store the shifting window of recorded values for the dev overlay
 fps_q = collections.deque(maxlen=60)
@@ -32,3 +33,43 @@ def calculate_timing_averages(fps: float, loop_time: float) -> tuple:
     fps_q.appendleft(fps)
     loop_time_q.appendleft(loop_time)
     return statistics.mean(fps_q), statistics.mean(loop_time_q)
+
+def start_shake(gs: GameState, initial_offset: int) -> None:
+    """
+    This begins the screen shaking effect.
+
+    :param gs: GameState
+    :param initial_offset: the initial offset in pixels to use for screen 'shaking'
+    :return:
+    """
+
+    gs.shake_screen_brick = True
+    gs.shake_offset_x = initial_offset
+    gs.shake_offset_y = initial_offset
+
+def get_shaking_offset(gs: GameState) -> tuple[int, int]:
+    """
+    This very simply calculates a kind of oscillation in pixels around the base
+    (0, 0) offset.
+
+    :param gs: GameState
+    :return: the offset in pixels
+    """
+
+    if gs.shake_screen_brick:
+        if gs.shake_offset_x > 0:
+            shift_x = (abs(2 * gs.shake_offset_x) - 1) * -1
+            shift_y = (abs(2 * gs.shake_offset_y) - 1) * -1
+        else:
+            shift_x = (abs(2 * gs.shake_offset_x) - 1) * 1
+            shift_y = (abs(2 * gs.shake_offset_y) - 1) * 1
+
+        gs.shake_offset_x += shift_x
+        gs.shake_offset_y += shift_y
+
+        if (abs(gs.shake_offset_x) < 1) and (abs(gs.shake_offset_y) < 1):
+            gs.shake_screen_brick = False
+
+        return gs.shake_offset_x, gs.shake_offset_y
+    else:
+        return 0, 0

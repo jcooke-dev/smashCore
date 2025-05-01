@@ -26,7 +26,8 @@ from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
                        BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
                        PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
                        BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
-                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS, LIGHT_GRAY)
+                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS, LIGHT_GRAY,
+                       SHAKE_OFFSET_BASE, SHAKE_STRENGTH_THRESHOLD)
 from levels import Levels
 from gameworld import GameWorld
 from userinterface import UserInterface
@@ -168,6 +169,11 @@ class GameEngine:
         # draw every game object
         for world_object in self.gw.world_objects:
             world_object.draw_wo(self.screen)
+
+        # get the shake offset and draw the shifted screen
+        shake_offset = utils.get_shaking_offset(self.gs)
+        self.screen.blit(self.screen, shake_offset)
+
         # draw any status overlays
         self.ui.draw_status(self.ps.lives, self.ps.score, self.ps.level)
 
@@ -416,6 +422,10 @@ class GameEngine:
                                             # trigger the special effect - the Brick adds the appropriate Animation object to the world
                                             other_wo.trigger_destruction_effect(
                                                 self.gw.world_objects)
+
+                                            # if this Brick is strong enough for the shake, get that started
+                                            if other_wo.strength_initial >= SHAKE_STRENGTH_THRESHOLD:
+                                                utils.start_shake(self.gs, other_wo.strength_initial * SHAKE_OFFSET_BASE)
 
                                             # now remove the actual Brick object
                                             self.gw.world_objects.remove(
