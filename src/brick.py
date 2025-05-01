@@ -14,6 +14,7 @@ import pygame
 import constants
 import assets
 from animation import Animation
+from gamesettings import GameSettings
 from worldobject import WorldObject
 
 class Brick(WorldObject, pygame.sprite.Sprite):
@@ -85,10 +86,11 @@ class Brick(WorldObject, pygame.sprite.Sprite):
         """
         return self.strength <= 0
 
-    def trigger_destruction_effect(self, world_objects: list[WorldObject]) -> None:
+    def trigger_destruction_effect(self, world_objects: list[WorldObject], gset: GameSettings) -> None:
         """
         This is called to create and trigger the animation effect (for Brick destruction, in this case).
 
+        :param gset: GameSettings
         :param world_objects: list of WorldObjects
         :return:
         """
@@ -108,5 +110,6 @@ class Brick(WorldObject, pygame.sprite.Sprite):
                                                self.rect.height * constants.EFFECT_BRICK_IMAGE_DESTROY_INFLATION),
                                            self.color, constants.EFFECT_BRICK_IMAGE_DESTROY_FADE, images=assets.BRICK_ANIMATION))
 
-        pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.BRICK_SFX))
-
+        snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.BRICK_SFX)
+        snd.set_volume(gset.sfx_volume)
+        pygame.mixer.find_channel(True).play(snd)

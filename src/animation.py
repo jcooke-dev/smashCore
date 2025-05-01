@@ -12,6 +12,7 @@
 import pygame
 from pygame import Vector2, Color, SRCALPHA
 
+from gamesettings import GameSettings
 from gamestate import GameState
 from leaderboard import Leaderboard
 from playerstate import PlayerState
@@ -59,10 +60,11 @@ class Animation(WorldObject, pygame.sprite.Sprite):
         self.num_images: int = 0 if self.images is None else len(self.images)
         self.images_index: int = 0
 
-    def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard) -> None:
+    def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard, gset: GameSettings) -> None:
         """
         Update the WorldObject's pos, vel, acc, and image info (alpha, animation frame)
 
+        :param gset: GameSettings
         :param lb: Leaderboard
         :param gs: GameState
         :param ps: PlayerState

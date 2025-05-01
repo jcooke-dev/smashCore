@@ -10,9 +10,11 @@
                         GameWorld, although there isn't much commonality between the types.
 """
 import pygame
+
 import gamestate as gs_
 import playerstate as ps_
 import leaderboard as lb_
+import gamesettings as gst_
 
 
 class WorldObject:
@@ -27,13 +29,14 @@ class WorldObject:
         self.can_react: bool = False  # can this object react to collisions with other objects?
         self.primed_collision: bool = True
 
-    def update_wo(self, gs: gs_.GameState, ps: ps_.PlayerState, lb: lb_.Leaderboard):
+    def update_wo(self, gs: gs_.GameState, ps: ps_.PlayerState, lb: lb_.Leaderboard, gset: gst_.GameSettings):
         """
         Update the WorldObject's pos, vel, acc, etc. (and possibly GameState)
 
-        :param lb:
-        :param gs:
-        :param ps:
+        :param gset: GameSettings
+        :param lb: Leaderboard
+        :param gs: GameState
+        :param ps: PlayerState
         :return:
         """
 
@@ -45,10 +48,11 @@ class WorldObject:
         :return:
         """
 
-    def detect_collision(self, wo: pygame.rect, gs: gs_.GameState) -> None:
+    def detect_collision(self, wo: pygame.rect, gs: gs_.GameState, gset: gst_.GameSettings) -> None:
         """
         Function to detect collisions
 
+        :param gset: GameSettings
         :param wo: the other Rect in the collision detection check
         :param gs: GameState
         :return:
@@ -96,10 +100,11 @@ class WorldObject:
         """
         self.primed_collision = True
 
-    def trigger_destruction_effect(self, world_objects) -> None:
+    def trigger_destruction_effect(self, world_objects, gset: gst_.GameSettings) -> None:
         """
         This is called to create and trigger the animation effect.
 
+        :param gset: GameSettings
         :param world_objects: list of WorldObjects
         :return:
         """

@@ -11,6 +11,8 @@
 
 GAME_NAME = "SmashCore"
 
+CLOSE_TO_ZERO = 0.00001 # for float comparisons to zero
+
 # width and height of game board
 WIDTH, HEIGHT = 1200, 800
 
@@ -64,8 +66,9 @@ SLIDER_HEIGHT = 15
 KNOB_RADIUS = 20
 
 MUSIC_VOLUME_INITIAL = 1.0
-SFX_VOLUME_INITIAL = 1.0
-MUSIC_VOLUME_STEP = 0.2
+SFX_VOLUME_INITIAL = 0.5
+MUSIC_VOLUME_STEP = 0.125
+SFX_VOLUME_STEP = 0.125
 
 EFFECT_BRICK_PLAIN_DESTROY_DURATION = 40 # lifetime of fading plain Brick after destruction, in ms
 EFFECT_BRICK_PLAIN_DESTROY_INFLATION = 0.25 # rect inflation of fading plain Brick after destruction
