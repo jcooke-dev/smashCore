@@ -95,6 +95,7 @@ def starting_ge(mock_pygame):
         ge = GameEngine(lb, ps, gw, gs, gset, ui)
         return ge, mock_pygame
 
+
 @pytest.fixture
 def starting_ge_main_menu(starting_ge):
     """
@@ -111,6 +112,7 @@ def starting_ge_main_menu(starting_ge):
     ge.ui.credits_button_rect = pygame.Rect(100, 600, 100, 50)
     ge.ui.quit_button_start_rect = pygame.Rect(100, 700, 100, 50)
     return ge, mock_pygame
+
 
 def test_initial_state(starting_ge):
     """
@@ -483,9 +485,8 @@ def test_gamestate_paused_toggle_paddle_control(starting_auto_state, starting_mo
 
 def test_gamestate_highscore(starting_ge):
     """
-    Tests that when the game state is GET_HIGH_SCORE that ui.draw_leaderboard_screen is called
-    Tests that  pygame.mouse_set_visible is called with True
-    Tests that the event to click the back button is pressed and the game state is changed the MENU_SCREEN
+    Tests that when the game state is GET_HIGH_SCORE that ui.draw_get_high_score is called
+    game state is changed the MENU_SCREEN
     :param starting_ge:
     :return:
     """
@@ -502,7 +503,6 @@ def test_gamestate_highscore(starting_ge):
 def test_gamestate_game_over(starting_ge):
     """
     Tests that when the game state is GAME_OVER that ge.draw_world_and_status is called, ui.draw_game_over_menu is called
-    Tests that  pygame.mouse_set_visible is called with True
     :param starting_ge:
     :return:
     """
