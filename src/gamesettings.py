@@ -20,6 +20,11 @@ class GameSettings:
 
         self.is_fullscreen: bool = False
 
+        # paddle_under_auto_control and paddle_under_mouse_control together control the 3 states of paddle control
+        # for auto detection auto_control is T, mouse_control is T or F
+        # for mouse control, auto_control is F and mouse_control is T
+        # for keyboard control, auto_control is F and mouse_control is F
+        # This allows for the toggle progression: auto -> mouse -> auto -> keyboard -> repeat
         self.paddle_under_auto_control: bool = True
         self.paddle_under_mouse_control: bool = True
 
