@@ -171,8 +171,9 @@ class GameEngine:
             world_object.draw_wo(self.screen)
 
         # get the shake offset and draw the shifted screen
-        shake_offset = utils.get_shaking_offset(self.gs)
-        self.screen.blit(self.screen, shake_offset)
+        if self.gs.shake_screen_brick:
+            shake_offset = utils.get_shaking_offset(self.gs)
+            self.screen.blit(self.screen, shake_offset)
 
         # draw any status overlays
         self.ui.draw_status(self.ps.lives, self.ps.score, self.ps.level)
