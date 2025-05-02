@@ -70,6 +70,9 @@ SFX_VOLUME_INITIAL = 0.5
 MUSIC_VOLUME_STEP = 0.125
 SFX_VOLUME_STEP = 0.125
 
+SHAKE_STRENGTH_THRESHOLD = 2 # brick initial strength >= this threshold triggers the screen shake
+SHAKE_OFFSET_BASE = 2 # the offset shake effect multiplier
+
 EFFECT_BRICK_PLAIN_DESTROY_DURATION = 40 # lifetime of fading plain Brick after destruction, in ms
 EFFECT_BRICK_PLAIN_DESTROY_INFLATION = 0.25 # rect inflation of fading plain Brick after destruction
 EFFECT_BRICK_PLAIN_DESTROY_FADE = True # fade the destroyed Brick?

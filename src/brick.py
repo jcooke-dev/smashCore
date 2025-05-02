@@ -42,6 +42,7 @@ class Brick(WorldObject, pygame.sprite.Sprite):
         self.value: int = value
         self.image: pygame.image = image
         self.strength: int = strength  # Number of hits required to break the brick
+        self.strength_initial: int = strength
         self.bonus = bonus
         if bonus > 0:
             self.font_strength = pygame.font.Font(None, self.rect.height - 20)
