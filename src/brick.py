@@ -12,13 +12,12 @@
 import pygame
 from pygame import Vector2
 
-import constants
 import assets
 from animation import Animation
 from constants import (BALL_RADIUS, EFFECT_BRICK_PLAIN_DESTROY_DURATION, EFFECT_BRICK_PLAIN_DESTROY_INFLATION,
                        EFFECT_BRICK_PLAIN_DESTROY_FADE, EFFECT_BRICK_IMAGE_DESTROY_DURATION,
                        EFFECT_BRICK_IMAGE_DESTROY_INFLATION, EFFECT_BRICK_IMAGE_DESTROY_FADE,
-                       EFFECT_POWER_UP_DURATION, EFFECT_POWER_UP_DROP_ACC_Y)
+                       EFFECT_POWER_UP_DURATION, EFFECT_POWER_UP_DROP_ACC_Y, BLACK, WHITE)
 
 from gamesettings import GameSettings
 from playerstate import PlayerState
@@ -51,6 +50,7 @@ class Brick(WorldObject, pygame.sprite.Sprite):
         self.value: int = value
         self.image: pygame.image = image
         self.strength: int = strength  # Number of hits required to break the brick
+        self.strength_initial: int = strength
         self.bonus = bonus
         self.power_up: PowerUpType = power_up
 
@@ -60,7 +60,7 @@ class Brick(WorldObject, pygame.sprite.Sprite):
             self.font_strength = None
 
     def _add_strength_indicator(self, screen: pygame.Surface) -> None:
-        text_surface = self.font_strength.render(str(self.strength), True, constants.BLACK)
+        text_surface = self.font_strength.render(str(self.strength), True, BLACK)
         text_rect = text_surface.get_rect(center=self.rect.center)
         screen.blit(text_surface, text_rect)
 
@@ -78,9 +78,9 @@ class Brick(WorldObject, pygame.sprite.Sprite):
             match self.power_up:
                 case PowerUpType.EXTRA_LIFE:
                     # draw an outline first
-                    pygame.draw.circle(screen, constants.BLACK, self.rect.center, BALL_RADIUS + 1)
+                    pygame.draw.circle(screen, BLACK, self.rect.center, BALL_RADIUS + 1)
                     # then, the fill
-                    pygame.draw.circle(screen, constants.WHITE, self.rect.center, BALL_RADIUS)
+                    pygame.draw.circle(screen, WHITE, self.rect.center, BALL_RADIUS)
                 case _:
                     pass
         else:
@@ -158,4 +158,6 @@ class Brick(WorldObject, pygame.sprite.Sprite):
                                                v_acc=Vector2(0.0, -1.0 * EFFECT_POWER_UP_DROP_ACC_Y),
                                                images=[assets.BALL_IMG]))
                                                
-        pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.BRICK_SFX))
+        snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.BRICK_SFX)
+        snd.set_volume(gset.sfx_volume)
+        pygame.mixer.find_channel(True).play(snd)

@@ -26,7 +26,8 @@ from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
                        BALL_SPEED_LEVEL_INCREMENT, BLACK, SPLASH_TIME_SECS,
                        PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
                        BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
-                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS, LIGHT_GRAY, CLOSE_TO_ZERO)
+                       MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS, LIGHT_GRAY, SFX_VOLUME_STEP, CLOSE_TO_ZERO,
+                       SHAKE_OFFSET_BASE, SHAKE_STRENGTH_THRESHOLD)
 from levels import Levels
 from gameworld import GameWorld
 from userinterface import UserInterface
@@ -170,6 +171,12 @@ class GameEngine:
         # draw every game object
         for world_object in self.gw.world_objects:
             world_object.draw_wo(self.screen)
+
+        # get the shake offset and draw the shifted screen
+        if self.gs.shake_screen_brick:
+            shake_offset = utils.get_shaking_offset(self.gs)
+            self.screen.blit(self.screen, shake_offset)
+
         # draw any status overlays
         self.ui.draw_status(self.ps.lives, self.ps.score, self.ps.level)
 
@@ -303,23 +310,22 @@ class GameEngine:
             case GameState.GameStateName.SETTINGS:
                 self.ui.draw_settings_screen(self.gset)
                 pygame.mouse.set_visible(True)
+				
+                old_sfx_vol = self.gset.sfx_volume
 
                 for event in events:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if self.ui.vol_bgm_btn_rect.collidepoint(event.pos):
                             self.gset.bgm_sounds = not self.gset.bgm_sounds
-                            if not self.gset.bgm_sounds and self.gset.music_volume <= 0:
+                            if not self.gset.bgm_sounds and abs(self.gset.music_volume) < CLOSE_TO_ZERO:
                                 self.gset.bgm_sounds = True
-                                self.gset.music_volume = 0.2
-                                pygame.mixer.music.set_volume(
-                                    self.gset.music_volume)
+                                self.gset.music_volume = MUSIC_VOLUME_STEP
+                                pygame.mixer.music.set_volume(self.gset.music_volume)
                         elif self.ui.vol_sfx_btn_rect.collidepoint(event.pos):
                             self.gset.sfx_sounds = not self.gset.sfx_sounds
-                            if not self.gset.sfx_sounds and self.gset.sfx_volume <= 0:
+                            if not self.gset.sfx_sounds and abs(self.gset.sfx_volume) < CLOSE_TO_ZERO:
                                 self.gset.sfx_sounds = True
-                                self.gset.sfx_volume = 0.2
-                                pygame.mixer.music.set_volume(
-                                    self.gset.sfx_volume)
+                                self.gset.sfx_volume = SFX_VOLUME_STEP
                         elif self.ui.back_button_rect.collidepoint(event.pos):
                             self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
                         elif self.ui.knob_bg_rect.collidepoint(event.pos):
@@ -343,17 +349,34 @@ class GameEngine:
                                         slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
                             self.gset.music_volume = max(0.0, min(1.0, round(
                                 new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
-                            pygame.mixer.music.set_volume(
-                                self.gset.music_volume)
+                            pygame.mixer.music.set_volume(self.gset.music_volume)
+								
+                            # you have to set this mute toggle based on the dragged volume setting, otherwise
+                            # once muted with an icon press, you can ONLY unmute with another press - the slider
+                            # is locked at the mute position
+                            self.gset.bgm_sounds = False if abs(self.gset.music_volume) < CLOSE_TO_ZERO else True
+								
                         if self.dragging_sfx_slider:
                             slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75
                             new_vol = (event.pos[0] - (
                                         slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
                             self.gset.sfx_volume = max(0.0, min(1.0, round(
-                                new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                                new_vol / SFX_VOLUME_STEP) * SFX_VOLUME_STEP))
+								
+                            # you have to set this mute toggle based on the dragged volume setting, otherwise
+                            # once muted with an icon press, you can ONLY unmute with another press - the slider
+                            # is locked at the mute position
+                            self.gset.sfx_sounds = False if abs(self.gset.sfx_volume) < CLOSE_TO_ZERO else True
+							
                     elif event.type == pygame.MOUSEBUTTONUP:
                         self.dragging_bgm_slider = False
                         self.dragging_sfx_slider = False
+						
+                # check for a changed SFX volume, if so, play a sample sound
+                if( abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO ):
+                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
+                    snd.set_volume(self.gset.sfx_volume)
+                    pygame.mixer.find_channel(True).play(snd)
 
             ##############################################################
             # display the PLAYING gameplay screen
@@ -414,8 +437,11 @@ class GameEngine:
                                             self.ps.score += other_wo.bonus
 
                                             # trigger the special effect - the Brick adds the appropriate Animation object to the world
-                                            other_wo.trigger_destruction_effect(
-                                                self.gw.world_objects, self.gset, self.ps)
+                                            other_wo.trigger_destruction_effect(self.gw.world_objects, self.gset, self.ps)
+
+                                            # if this Brick is strong enough for the shake, get that started
+                                            if other_wo.strength_initial >= SHAKE_STRENGTH_THRESHOLD:
+                                                utils.start_shake(self.gs, other_wo.strength_initial * SHAKE_OFFSET_BASE)
 
                                             # now remove the actual Brick object
                                             self.gw.world_objects.remove(other_wo)
@@ -596,19 +622,50 @@ class GameEngine:
                     # detect the CTRL+'=' and CTRL+'-' key combos to adjust music volume
                     if event.key == pygame.K_EQUALS:
                         if event.mod & pygame.KMOD_CTRL:
-                            self.gset.bgm_sounds = True
-                            self.gset.music_volume += MUSIC_VOLUME_STEP
-                            self.gset.music_volume = min(self.gset.music_volume, 1.0)
-                            pygame.mixer.music.set_volume(self.gset.music_volume)
+                            if event.mod & pygame.KMOD_SHIFT:
+
+                                old_sfx_vol = self.gset.sfx_volume
+
+                                self.gset.sfx_sounds = True
+                                self.gset.sfx_volume += SFX_VOLUME_STEP
+                                self.gset.sfx_volume = min(self.gset.sfx_volume, 1.0)
+
+                                # check for a changed SFX volume, if so, play a sample sound
+                                if (self.gs.cur_state == GameState.GameStateName.SETTINGS) and (abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO):
+                                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
+                                    snd.set_volume(self.gset.sfx_volume)
+                                    pygame.mixer.find_channel(True).play(snd)
+
+                            else:
+                                self.gset.bgm_sounds = True
+                                self.gset.music_volume += MUSIC_VOLUME_STEP
+                                self.gset.music_volume = min(self.gset.music_volume, 1.0)
+                                pygame.mixer.music.set_volume(self.gset.music_volume)
 
                     # detect the CTRL+'+' and CTRL+'-' key combos to adjust music volume
                     if event.key == pygame.K_MINUS:
                         if event.mod & pygame.KMOD_CTRL:
-                            self.gset.music_volume -= MUSIC_VOLUME_STEP
-                            self.gset.music_volume = max(self.gset.music_volume, 0.0)
-                            if self.gset.music_volume < 0.01:
-                                self.gset.bgm_sounds = False
-                            pygame.mixer.music.set_volume(self.gset.music_volume)
+                            if event.mod & pygame.KMOD_SHIFT:
+
+                                old_sfx_vol = self.gset.sfx_volume
+
+                                self.gset.sfx_volume -= SFX_VOLUME_STEP
+                                self.gset.sfx_volume = max(self.gset.sfx_volume, 0.0)
+                                if abs(self.gset.sfx_volume) < CLOSE_TO_ZERO:
+                                    self.gset.sfx_sounds = False
+
+                                # check for a changed SFX volume, if so, play a sample sound
+                                if (self.gs.cur_state == GameState.GameStateName.SETTINGS) and (abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO):
+                                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
+                                    snd.set_volume(self.gset.sfx_volume)
+                                    pygame.mixer.find_channel(True).play(snd)
+
+                            else:
+                                self.gset.music_volume -= MUSIC_VOLUME_STEP
+                                self.gset.music_volume = max(self.gset.music_volume, 0.0)
+                                if abs(self.gset.music_volume) < CLOSE_TO_ZERO:
+                                    self.gset.bgm_sounds = False
+                                pygame.mixer.music.set_volume(self.gset.music_volume)
 
                     # detect the CTRL+l to force-load next level in sequence
                     if event.key == pygame.K_l:

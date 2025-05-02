@@ -88,15 +88,21 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                 # ball collision wall left
                 if self.rect.centerx < self.radius:
                     self.dx = -self.dx
-                    pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.LEFT_WALL_SFX))
+                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.LEFT_WALL_SFX)
+                    snd.set_volume(gset.sfx_volume)
+                    pygame.mixer.find_channel(True).play(snd)
                 # ball collision wall right
                 if self.rect.centerx > constants.WIDTH - self.radius:
                     self.dx = -self.dx
-                    pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.RIGHT_WALL_SFX))
+                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.RIGHT_WALL_SFX)
+                    snd.set_volume(gset.sfx_volume)
+                    pygame.mixer.find_channel(True).play(snd)
                 # ball collision wall top
                 if self.rect.centery < self.radius:
                     self.dy = -self.dy
-                    pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.TOP_WALL_SFX))
+                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.TOP_WALL_SFX)
+                    snd.set_volume(gset.sfx_volume)
+                    pygame.mixer.find_channel(True).play(snd)
 
                 self.rect.x += self.speed * self.dx
                 self.rect.y += self.speed * self.dy
@@ -115,7 +121,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_left = False
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
-                    pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.LEFT_WALL_SFX))
+                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.LEFT_WALL_SFX)
+                    snd.set_volume(gset.sfx_volume)
+                    pygame.mixer.find_channel(True).play(snd)
                 # reset the latch allowing collision detection since the ball has moved fully away
                 if self.v_pos.x >= self.radius:
                     self.primed_collision_wall_left = True
@@ -125,7 +133,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_right = False
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
-                    pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.RIGHT_WALL_SFX))
+                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.RIGHT_WALL_SFX)
+                    snd.set_volume(gset.sfx_volume)
+                    pygame.mixer.find_channel(True).play(snd)
                 # reset the latch allowing collision detection since the ball has moved fully away
                 if self.v_pos.x <= (constants.WIDTH - self.radius):
                     self.primed_collision_wall_right = True
@@ -135,7 +145,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                     self.primed_collision_wall_top = False
                     self.v_vel_unit.y = -self.v_vel_unit.y
                     self.v_vel.y = -self.v_vel.y
-                    pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.TOP_WALL_SFX))
+                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.TOP_WALL_SFX)
+                    snd.set_volume(gset.sfx_volume)
+                    pygame.mixer.find_channel(True).play(snd)
                 # reset the latch allowing collision detection since the ball
                 # has moved fully away
                 if self.v_pos.y >= self.radius:
@@ -246,7 +258,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                 self.dx = -self.dx
 
             if isinstance(wo, paddle.Paddle):
-                pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.PADDLE_SFX))
+                snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
+                snd.set_volume(gset.sfx_volume)
+                pygame.mixer.find_channel(True).play(snd)
                 if wo.delta_x * self.dx < 0:
                     self.dx = -self.dx
 
@@ -293,7 +307,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                 self.v_vel_unit = self.v_vel.normalize()
 
             if isinstance(wo, paddle.Paddle):
-                pygame.mixer.find_channel(True).play(pygame.mixer.Sound(assets.PADDLE_SFX))
+                snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
+                snd.set_volume(gset.sfx_volume)
+                pygame.mixer.find_channel(True).play(snd)
                 if wo.delta_x * self.v_vel_unit.x < 0:
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
