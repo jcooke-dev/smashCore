@@ -102,7 +102,7 @@ class WorldObject:
         """
         self.primed_collision = True
 
-    def trigger_destruction_effect(self, world_objects, gset: gst_.GameSettings) -> None:
+    def trigger_destruction_effect(self, world_objects, gset: gst_.GameSettings, ps: ps_.PlayerState) -> None:
         """
         This is called to create and trigger the animation effect.
 

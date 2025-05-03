@@ -171,10 +171,12 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         gs.cur_ball_x = self.x
 
-        # Decrement lives everytime ball goes below the window and resets its
+        # Decrement lives every time ball goes below the window and resets its
         # position to above the paddle.
         # Prompts for SPACEBAR key to continue the game
-        if self.rect.top > constants.HEIGHT:
+        # NOTE: don't care about the ball IF the level is already cleared (this can happen if waiting for an
+        # Animation to complete)
+        if (self.rect.top > constants.HEIGHT) and (not gs.level_cleared):
             ps.lives -= 1
             self.reset_position()
             gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH

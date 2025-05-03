@@ -79,4 +79,7 @@ EFFECT_BRICK_PLAIN_DESTROY_FADE = True # fade the destroyed Brick?
 
 EFFECT_BRICK_IMAGE_DESTROY_DURATION = 160 # lifetime of animating image Brick after destruction, in ms
 EFFECT_BRICK_IMAGE_DESTROY_INFLATION = 0.0 # rect inflation of image Brick after destruction
-EFFECT_BRICK_IMAGE_DESTROY_FADE = False # fade the destroyed Brick? -- not yet working for images
+EFFECT_BRICK_IMAGE_DESTROY_FADE = False # fade the destroyed Brick?
+
+EFFECT_POWER_UP_DURATION = 2000 # lifetime of fading power-up image, in ms
+EFFECT_POWER_UP_DROP_ACC_Y = 0.00025 # y-comp of power-up image dropping acceleration

@@ -12,6 +12,8 @@
 import pygame
 from pygame import Vector2, Color, SRCALPHA
 
+import constants
+from constants import BLACK, WHITE, BALL_RADIUS
 from gamesettings import GameSettings
 from gamestate import GameState
 from leaderboard import Leaderboard
@@ -24,8 +26,8 @@ class Animation(WorldObject, pygame.sprite.Sprite):
     animation frames, fade, velocity, etc.
     """
 
-    def __init__(self, duration: int, rect: pygame.rect, color: Color, fade: bool = False, v_vel: Vector2 = Vector2(0.0, 0.0),
-                 v_acc: Vector2 = Vector2(0.0, 0.0), images: list[pygame.image] = None ) -> None:
+    def __init__(self, duration: int, rect: pygame.rect, color: Color, is_ball: bool = False, fade: bool = False,
+                 v_vel: Vector2 = None, v_acc: Vector2 = None, images: list[pygame.image] = None ) -> None:
         """
         Initializes an Animation object.
 
@@ -52,8 +54,16 @@ class Animation(WorldObject, pygame.sprite.Sprite):
 
         self.rect: pygame.rect = pygame.Rect(rect)
         self.v_pos: Vector2 = Vector2(self.rect.x, self.rect.y)
-        self.v_vel: Vector2 = v_vel
-        self.v_acc: Vector2 = v_acc
+        if v_vel is None:
+            self.v_vel: Vector2 = Vector2(0.0, 0.0)
+        else:
+            self.v_vel: Vector2 = v_vel
+        if v_acc is None:
+            self.v_acc: Vector2 = Vector2(0.0, 0.0)
+        else:
+            self.v_acc: Vector2 = v_acc
+
+        self.is_ball: bool = is_ball
 
         self.color: Color = color
         self.images: list[pygame.image] = images
@@ -101,14 +111,35 @@ class Animation(WorldObject, pygame.sprite.Sprite):
         :return:
         """
 
-        color = Color(self.color[0], self.color[1], self.color[2], self.alpha)
+        color_rect = Color(self.color[0], self.color[1], self.color[2], self.alpha)
+        color_ball_outline = Color(BLACK[0], BLACK[1], BLACK[2], self.alpha)
+        color_ball_fill = Color(WHITE[0], WHITE[1], WHITE[2], self.alpha)
         alpha_surf = pygame.Surface((self.rect.width, self.rect.height), SRCALPHA)
 
         if self.images is None:
-            pygame.draw.rect(alpha_surf, color, (0, 0, self.rect.width, self.rect.height))
+            if not self.is_ball:
+                pygame.draw.rect(alpha_surf, color_rect, (0, 0, self.rect.width, self.rect.height))
+            else:
+                # draw an outline first
+                pygame.draw.circle(alpha_surf, color_ball_outline,
+                                   (self.rect.width // 2, self.rect.height // 2), constants.BALL_RADIUS + 1)
+                # now, the fill
+                pygame.draw.circle(alpha_surf, color_ball_fill,
+                                   (self.rect.width // 2, self.rect.height // 2), constants.BALL_RADIUS)
+
             screen.blit(alpha_surf, self.rect)
+
         else:
-            screen.blit(pygame.transform.scale(self.images[self.images_index], (self.rect.width * 1.0, self.rect.height * 1.0)), self.rect)
+            if not self.is_ball:
+                alpha_surf.blit(pygame.transform.scale(self.images[self.images_index],
+                                                       (self.rect.width * 1.0, self.rect.height * 1.0)), (0, 0))
+                dest = self.rect
+            else:
+                alpha_surf.blit(self.images[self.images_index], (0, 0))
+                dest = (self.rect.centerx - BALL_RADIUS, self.rect.centery - BALL_RADIUS)
+
+            alpha_surf.set_alpha(self.alpha)
+            screen.blit(alpha_surf, dest)
 
     def should_remove(self) -> bool:
         """
