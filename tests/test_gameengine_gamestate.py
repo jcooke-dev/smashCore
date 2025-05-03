@@ -27,10 +27,9 @@ from leaderboard import Leaderboard
 from ball import Ball
 from brick import Brick
 from paddle import Paddle
-from worldobject import WorldObject
 from animation import Animation
-from worldobject import WorldObject
 import utils
+
 
 @pytest.fixture
 def mock_pygame():
@@ -71,6 +70,9 @@ def starting_ge(mock_pygame):
         gset = mock.MagicMock(GameSettings)
         gset.paddle_under_auto_control = True
         gset.paddle_under_mouse_control = True
+        gset.sfx_volume = 0.5
+        gset.music_volume = 0.5
+
         gs = GameState()
         gw = mock.MagicMock(GameWorld)
         gw.world_objects = []
@@ -98,6 +100,17 @@ def starting_ge_main_menu(starting_ge):
     ge.ui.quit_button_start_rect = pygame.Rect(100, 700, 100, 50)
     return ge, mock_pygame
 
+
+@pytest.fixture
+def starting_ge_settings(starting_ge):
+    """
+    Set up the buttons as if settings screen
+    """
+    ge, mock_pygame = starting_ge
+    ge.ui.vol_bgm_btn_rect = mock.MagicMock(pygame.Rect)
+    ge.ui.vol_bgm_btn_rect.collidepoint.return_value = False
+
+    return ge, mock_pygame
 
 
 def test_gamestate_splash(starting_ge_main_menu):
@@ -531,3 +544,50 @@ def test_handle_collisions_no_effect_on_disallowed_collision(starting_ge):
     other_wo.add_collision.assert_not_called()
     other_wo.trigger_destruction_effect.assert_not_called()
     assert other_wo in ge.gw.world_objects
+
+
+def test_settings_initialization(starting_ge):
+    """
+    Test GameState is SETTNGS, mouse is visible, draw_settings_screen was called
+    """
+    ge, mock_pygame = starting_ge
+    ge.gs.cur_state = GameState.GameStateName.SETTINGS
+
+    ge.handle_gamestate([])
+
+    ge.ui.draw_settings_screen.assert_called_once_with(ge.gset)
+    mock_pygame["mouse_set_visible"].assert_called_with(True)
+
+
+@pytest.mark.parametrize('bgm_sound, bgm_volume', [(True, 0.5), (False, 0.0), (False, 0.5)])
+def test_settings_toggle_bgm(bgm_sound, bgm_volume, starting_ge_settings):
+    ge, mock_pygame = starting_ge_settings
+    ge.gs.cur_state = GameState.GameStateName.SETTINGS
+    ge.gset.bgm_sounds = bgm_sound
+    ge.gset.music_volume = bgm_volume
+    print()
+    print("original value of bgm_sound ", bgm_sound)
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEBUTTONDOWN
+    event.pos = (100, 100)
+    ge.ui.vol_bgm_btn_rect.collidepoint.return_value = True
+
+    ge.handle_gamestate([event])
+
+    if bgm_sound: # previous had sound, should now be mute
+        print("previous had sound, is now mute")
+        print("bgm_sound started out true", bgm_sound)
+        print("should be false", ge.gset.bgm_sounds)
+        assert not ge.gset.bgm_sounds
+    else: # was previously mute, now has sound
+        print("was previously mute, now has sound")
+        print("bgm_sound started out false", bgm_sound)
+        print("should be true", ge.gset.bgm_sounds)
+        assert ge.gset.bgm_sounds
+        print("test after", ge.gset.music_volume)
+        assert ge.gset.music_volume == constants.MUSIC_VOLUME_STEP
+        #mock_pygame['mixer.music'].assert_has_calls('set_volume')
+
+
+
