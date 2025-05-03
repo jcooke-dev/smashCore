@@ -37,7 +37,9 @@ def mock_pygame():
     """
     Set up mock pygame object dependencies
     """
-    with mock.patch("pygame.mouse.set_visible") as mock_mouse_set_visible, \
+    with mock.patch("pygame.mixer.init") as mock_mixer_init, \
+         mock.patch("pygame.mixer.music") as mock_mixer_music, \
+         mock.patch("pygame.mouse.set_visible") as mock_mouse_set_visible, \
          mock.patch("pygame.mouse.get_pos", return_value=[4]) as mock_mouse_pos, \
          mock.patch("pygame.time.get_ticks", return_value=123456) as mock_get_ticks, \
          mock.patch("pygame.display.set_mode") as mock_set_mode, \
@@ -47,6 +49,8 @@ def mock_pygame():
         mock_set_mode.return_value = mock.MagicMock(name="screen")
 
         yield {
+            "mixer_init": mock_mixer_init,
+            "mixer.music": mock_mixer_music,
             "set_mode": mock_set_mode,
             "get_ticks": mock_get_ticks,
             "mouse_set_visible": mock_mouse_set_visible,
