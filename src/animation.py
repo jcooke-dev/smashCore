@@ -26,8 +26,9 @@ class Animation(WorldObject, pygame.sprite.Sprite):
     animation frames, fade, velocity, etc.
     """
 
-    def __init__(self, duration: int, rect: pygame.rect, color: Color, is_ball: bool = False, fade: bool = False,
-                 v_vel: Vector2 = None, v_acc: Vector2 = None, images: list[pygame.image] = None ) -> None:
+    def __init__(self, duration: int, rect: pygame.rect, color: Color, fade: bool = False,
+                 v_vel: Vector2 = None, v_acc: Vector2 = None, images: list[pygame.image] = None,
+                 is_ball: bool = False, is_lvl_clr_msg: bool = False) -> None:
         """
         Initializes an Animation object.
 
@@ -70,6 +71,9 @@ class Animation(WorldObject, pygame.sprite.Sprite):
         self.num_images: int = 0 if self.images is None else len(self.images)
         self.images_index: int = 0
 
+        self.is_cleared_msg: bool = is_lvl_clr_msg
+        self.font_logo: pygame.font = pygame.font.Font(None, 100)
+
     def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard, gset: GameSettings) -> None:
         """
         Update the WorldObject's pos, vel, acc, and image info (alpha, animation frame)
@@ -102,7 +106,6 @@ class Animation(WorldObject, pygame.sprite.Sprite):
             self.images_index = int(((self.cur_ticks - self.start_ticks) / self.duration) * self.num_images)
             self.images_index = max(min(self.images_index, self.num_images - 1), 0)
 
-
     def draw_wo(self, screen: pygame.Surface) -> None:
         """
         Draws the Animation to the screen.
@@ -116,30 +119,38 @@ class Animation(WorldObject, pygame.sprite.Sprite):
         color_ball_fill = Color(WHITE[0], WHITE[1], WHITE[2], self.alpha)
         alpha_surf = pygame.Surface((self.rect.width, self.rect.height), SRCALPHA)
 
-        if self.images is None:
-            if not self.is_ball:
-                pygame.draw.rect(alpha_surf, color_rect, (0, 0, self.rect.width, self.rect.height))
-            else:
-                # draw an outline first
-                pygame.draw.circle(alpha_surf, color_ball_outline,
-                                   (self.rect.width // 2, self.rect.height // 2), constants.BALL_RADIUS + 1)
-                # now, the fill
-                pygame.draw.circle(alpha_surf, color_ball_fill,
-                                   (self.rect.width // 2, self.rect.height // 2), constants.BALL_RADIUS)
-
+        if self.is_cleared_msg:
+            # display the level cleared message
+            self.draw_cleared_msg(alpha_surf, self.rect.centerx, self.rect.centery - 200)
+            alpha_surf.set_alpha(self.alpha)
             screen.blit(alpha_surf, self.rect)
 
         else:
-            if not self.is_ball:
-                alpha_surf.blit(pygame.transform.scale(self.images[self.images_index],
-                                                       (self.rect.width * 1.0, self.rect.height * 1.0)), (0, 0))
-                dest = self.rect
-            else:
-                alpha_surf.blit(self.images[self.images_index], (0, 0))
-                dest = (self.rect.centerx - BALL_RADIUS, self.rect.centery - BALL_RADIUS)
 
-            alpha_surf.set_alpha(self.alpha)
-            screen.blit(alpha_surf, dest)
+            if self.images is None:
+                if not self.is_ball:
+                    pygame.draw.rect(alpha_surf, color_rect, (0, 0, self.rect.width, self.rect.height))
+                else:
+                    # draw an outline first
+                    pygame.draw.circle(alpha_surf, color_ball_outline,
+                                       (self.rect.width // 2, self.rect.height // 2), constants.BALL_RADIUS + 1)
+                    # now, the fill
+                    pygame.draw.circle(alpha_surf, color_ball_fill,
+                                       (self.rect.width // 2, self.rect.height // 2), constants.BALL_RADIUS)
+
+                screen.blit(alpha_surf, self.rect)
+
+            else:
+                if not self.is_ball:
+                    alpha_surf.blit(pygame.transform.scale(self.images[self.images_index],
+                                                           (self.rect.width * 1.0, self.rect.height * 1.0)), (0, 0))
+                    dest = self.rect
+                else:
+                    alpha_surf.blit(self.images[self.images_index], (0, 0))
+                    dest = (self.rect.centerx - BALL_RADIUS, self.rect.centery - BALL_RADIUS)
+
+                alpha_surf.set_alpha(self.alpha)
+                screen.blit(alpha_surf, dest)
 
     def should_remove(self) -> bool:
         """
@@ -166,3 +177,39 @@ class Animation(WorldObject, pygame.sprite.Sprite):
         :return:
         """
         self.primed_collision = False
+
+    def draw_cleared_msg(self, surface: pygame.Surface, msg_x, msg_y) -> None:
+        """
+        Show the level cleared message
+
+        :return:
+        """
+
+        text_color = constants.WHITE
+        shadow_color = constants.ORANGE
+
+        text_cleared_1 = self.font_logo.render("Level", True, text_color)
+        text_cleared_shadow_1 = self.font_logo.render("Level", True, shadow_color)
+        text_cleared_2 = self.font_logo.render("Cleared!", True, text_color)
+        text_cleared_shadow_2 = self.font_logo.render("Cleared!", True, shadow_color)
+
+        # find center of message text
+        msg_width = text_cleared_1.get_width() + text_cleared_2.get_width()
+        msg_center = msg_width // 2
+        msg_1_x = msg_x - msg_center  # offset 1 x position by the center of msg
+
+        text_cleared_1_rect = text_cleared_1.get_rect(x=msg_1_x, y=(msg_y + 40))
+        text_cleared_shadow_1_rect = text_cleared_1_rect.copy()
+        text_cleared_shadow_1_rect.move_ip(3, 3)
+
+        # start 2 after 1 (1 x position + 1 width)
+        text_cleared_2_rect = text_cleared_2.get_rect(x=(text_cleared_1_rect.x + text_cleared_1_rect.width),
+                                            y=(text_cleared_1_rect.y + text_cleared_1_rect.height))
+
+        text_cleared_shadow_2_rect = text_cleared_2_rect.copy()
+        text_cleared_shadow_2_rect.move_ip(3, 3)
+
+        surface.blit(text_cleared_shadow_1, text_cleared_shadow_1_rect)
+        surface.blit(text_cleared_1, text_cleared_1_rect)
+        surface.blit(text_cleared_shadow_2, text_cleared_shadow_2_rect)
+        surface.blit(text_cleared_2, text_cleared_2_rect)

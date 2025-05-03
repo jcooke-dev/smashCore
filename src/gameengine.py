@@ -9,6 +9,7 @@
     Module Description: This brings together the various modules that make up the game (GameWorld,
                         GameState, UI, etc.) and runs the main game loop.
 """
+
 from sys import exit
 import pygame
 
@@ -27,7 +28,8 @@ from constants import (WIDTH, HEIGHT, INITIAL_FPS_SIMPLE, GAME_NAME,
                        PADDLE_IMPULSE_INCREMENT, WORLD_GRAVITY_ACC_INCREMENT,
                        BALL_SPEED_STEP_INCREMENT, MAX_FPS_VECTOR, SCORE_INITIALS_MAX,
                        MUSIC_VOLUME_STEP, SLIDER_WIDTH, KNOB_RADIUS, LIGHT_GRAY, SFX_VOLUME_STEP, CLOSE_TO_ZERO,
-                       SHAKE_OFFSET_BASE, SHAKE_STRENGTH_THRESHOLD)
+                       SHAKE_OFFSET_BASE, SHAKE_STRENGTH_THRESHOLD, LEVEL_CLEARED_DURATION,
+                       LEVEL_CLEARED_SHAKE_MAGNITUDE)
 from levels import Levels
 from gameworld import GameWorld
 from userinterface import UserInterface
@@ -49,6 +51,7 @@ class GameEngine:
         :param gset: GameSettings
         :param ui: UserInterface
         """
+
         self.prev_state = None
         self.quit_game_button = None
         self.restart_game_button = None
@@ -318,15 +321,17 @@ class GameEngine:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if self.ui.vol_bgm_btn_rect.collidepoint(event.pos):
                             self.gset.bgm_sounds = not self.gset.bgm_sounds
-                            if not self.gset.bgm_sounds and abs(self.gset.music_volume) < CLOSE_TO_ZERO:
-                                self.gset.bgm_sounds = True
+                            if self.gset.bgm_sounds:
                                 self.gset.music_volume = MUSIC_VOLUME_STEP
-                                pygame.mixer.music.set_volume(self.gset.music_volume)
+                            else:
+                                self.gset.music_volume = 0.0
+                            pygame.mixer.music.set_volume(self.gset.music_volume)
                         elif self.ui.vol_sfx_btn_rect.collidepoint(event.pos):
                             self.gset.sfx_sounds = not self.gset.sfx_sounds
-                            if not self.gset.sfx_sounds and abs(self.gset.sfx_volume) < CLOSE_TO_ZERO:
-                                self.gset.sfx_sounds = True
+                            if self.gset.sfx_sounds:
                                 self.gset.sfx_volume = SFX_VOLUME_STEP
+                            else:
+                                self.gset.sfx_volume = 0.0
                         elif self.ui.back_button_rect.collidepoint(event.pos):
                             self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
                         elif self.ui.knob_bg_rect.collidepoint(event.pos):
@@ -439,7 +444,14 @@ class GameEngine:
 
                 # set latch to ignore ball below screen once all Bricks cleared (mostly so that Animations
                 # can complete without penalty if the player stops reflecting the Ball)
-                if not any(isinstance(wo, Brick) for wo in self.gw.world_objects):
+                if (not self.gs.level_cleared) and (not any(isinstance(wo, Brick) for wo in self.gw.world_objects)):
+                    # add a level-cleared animation
+                    self.gw.world_objects.append(Animation(LEVEL_CLEARED_DURATION,
+                                                           (0, 0, WIDTH, HEIGHT),
+                                                           BLACK, fade=True, is_lvl_clr_msg=True))
+                    # trigger the big, final brick cleared shake
+                    utils.start_shake(self.gs, LEVEL_CLEARED_SHAKE_MAGNITUDE)
+
                     self.gs.level_cleared = True
 
                 # don't advance to the next level until all bricks are gone AND animations have completed
