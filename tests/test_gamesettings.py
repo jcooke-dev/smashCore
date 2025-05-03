@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from src.gamesettings import GameSettings
+from gamesettings import GameSettings
 import persistence
 import constants
 
