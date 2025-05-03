@@ -15,6 +15,7 @@ import pygame
 import constants
 import paddle
 import assets
+from constants import HEIGHT
 from gamesettings import GameSettings
 from gamestate import GameState
 from playerstate import PlayerState
@@ -66,6 +67,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         self.primed_collision_wall_top: bool = True
 
         self.commanded_pos_x = 0
+        self.freeze_ball: bool = False
 
     def update_wo(self, gs: GameState, ps: PlayerState, lb: Leaderboard, gset: GameSettings) -> None:
         """
@@ -77,7 +79,7 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         :param ps: PlayerState
         :return:
         """
-        if gs.cur_state == GameState.GameStateName.PLAYING:
+        if (gs.cur_state == GameState.GameStateName.PLAYING) and (not self.freeze_ball):
 
             ##############################################################
             # perform the wall collision detection and overall position
@@ -176,18 +178,25 @@ class Ball(WorldObject, pygame.sprite.Sprite):
         # Prompts for SPACEBAR key to continue the game
         # NOTE: don't care about the ball IF the level is already cleared (this can happen if waiting for an
         # Animation to complete)
-        if (self.rect.top > constants.HEIGHT) and (not gs.level_cleared):
-            ps.lives -= 1
-            self.reset_position()
-            gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
+        if self.rect.top > constants.HEIGHT:
+            if not gs.level_cleared:
+                ps.lives -= 1
+                self.reset_position()
+                gs.cur_state = GameState.GameStateName.READY_TO_LAUNCH
 
-            # Displays game_over menu if user loses all of their lives
-            if ps.lives <= 0:
-                # collects the player's initials if this is a high score
-                if lb.is_high_score(ps.score):
-                    gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
-                else:
-                    gs.cur_state = GameState.GameStateName.GAME_OVER
+                # Displays game_over menu if user loses all of their lives
+                if ps.lives <= 0:
+                    # collects the player's initials if this is a high score
+                    if lb.is_high_score(ps.score):
+                        gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
+                    else:
+                        gs.cur_state = GameState.GameStateName.GAME_OVER
+
+            else:
+                # stop the ball and ensure off-screen
+                self.freeze_ball = True
+                self.rect.y = HEIGHT + 1000
+
 
     def draw_wo(self, screen: pygame.Surface) -> None:
         """
@@ -207,6 +216,9 @@ class Ball(WorldObject, pygame.sprite.Sprite):
 
         :return:
         """
+
+        self.freeze_ball = False
+
         # SIMPLE_1 motion model defaults
         self.rect.x = self.commanded_pos_x
         self.rect.y = (constants.HEIGHT - constants.PAD_HEIGHT -
@@ -285,12 +297,10 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                 self.v_vel.x = -self.v_vel.x
                 self.v_vel_unit.y = -self.v_vel_unit.y
                 self.v_vel.y = -self.v_vel.y
-            # TODO check - this logic seems backwards, but works?
             elif x_delta > y_delta:  # vertical collision
                 # elif y_delta > x_delta:  # vertical collision
                 self.v_vel_unit.y = -self.v_vel_unit.y
                 self.v_vel.y = -self.v_vel.y
-            # TODO check - this logic seems backwards, but works?
             elif y_delta > x_delta:  # horizontal collision
                 # elif x_delta > y_delta:  # horizontal collision
                 self.v_vel_unit.x = -self.v_vel_unit.x

@@ -15,6 +15,7 @@ import pytest
 
 import constants
 from unittest import mock
+from unittest.mock import MagicMock
 
 import playerstate
 from gameengine import GameEngine
@@ -42,16 +43,19 @@ def mock_pygame():
          mock.patch("pygame.mouse.get_pos", return_value=[4]) as mock_mouse_pos, \
          mock.patch("pygame.time.get_ticks", return_value=123456) as mock_get_ticks, \
          mock.patch("pygame.display.set_mode") as mock_set_mode, \
-         mock.patch("pygame.draw.line") as mock_draw_line:
+         mock.patch("pygame.draw.line") as mock_draw_line, \
+         mock.patch("pygame.font") as mock_font:
 
         # Setup return values if needed
         mock_set_mode.return_value = mock.MagicMock(name="screen")
+        mock_font.return_value.render = MagicMock(return_value=pygame.Surface)
 
         yield {
             "mixer_init": mock_mixer_init,
             "mixer.music": mock_mixer_music,
             "set_mode": mock_set_mode,
             "get_ticks": mock_get_ticks,
+            "font": mock_font,
             "mouse_set_visible": mock_mouse_set_visible,
             "mouse_mock_position": mock_mouse_pos,
             "draw_line": mock_draw_line
@@ -338,7 +342,7 @@ def test_gamestate_ready_to_launch_initialization(mock_levels, starting_ge):
 @mock.patch("levels.Levels")
 def test_gamestate_playing(mock_levels, starting_ge):
     """
-    Test GameState PLAYING, no bricks indicating level is over
+    Test GameState PLAYING, no bricks and level_cleared == True indicating level is over
     Test draw_world_and_status was called once
     Test draw_game_intro was not called
     Test that last_mouse_pos_x changed to 4
@@ -347,6 +351,7 @@ def test_gamestate_playing(mock_levels, starting_ge):
     """
     ge, mock_pygame = starting_ge
     ge.gs.cur_state = GameState.GameStateName.PLAYING
+    ge.gs.level_cleared = True
     ge.gs.last_mouse_pos_x = 5
     ge.ps.level = 1
 
