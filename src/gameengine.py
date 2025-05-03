@@ -420,44 +420,7 @@ class GameEngine:
                         for other_wo in self.gw.world_objects:
                             # don't check for collisions with self
                             if current_wo is not other_wo:
-                                if current_wo.rect.colliderect(other_wo.rect):
-                                    # a collision was detected - should we react to it?  this matters because two
-                                    # objects can overlap/collide across multiple looping collision checks - if
-                                    # we don't deactivate the collision detection, the object can bounce back and
-                                    # forth, getting trapped
-                                    if other_wo.allow_collision():
-                                        # bounce object properly -
-                                        # determining in which direction
-                                        # to bounce, based on approach
-                                        current_wo.detect_collision(other_wo, self.gs, self.gset)
-                                        other_wo.add_collision()
-                                        if other_wo.should_score():
-                                            self.ps.score += other_wo.value
-                                        if other_wo.should_remove():
-                                            self.ps.score += other_wo.bonus
-
-                                            # trigger the special effect - the Brick adds the appropriate Animation object to the world
-                                            other_wo.trigger_destruction_effect(self.gw.world_objects, self.gset, self.ps)
-
-                                            # if this Brick is strong enough for the shake, get that started
-                                            if other_wo.strength_initial >= SHAKE_STRENGTH_THRESHOLD:
-                                                utils.start_shake(self.gs, other_wo.strength_initial * SHAKE_OFFSET_BASE)
-
-                                            # now remove the actual Brick object
-                                            self.gw.world_objects.remove(other_wo)
-
-                                            current_wo.speed += .20
-                                            # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
-                                            # VECTOR models
-                                            if isinstance(current_wo, Ball):
-                                                current_wo.speed_v += self.gs.ball_speed_step
-                                                self.gs.ball_speed_increased_ratio = current_wo.speed_v / BALL_SPEED_VECTOR
-                                                current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
-
-                                else:
-                                    # this is the other side of the allow_collision logic above, since
-                                    # not colliding now, it resets the latch or 'primed for collision' flag
-                                    other_wo.prime_for_collision()
+                                self.handle_collisions_between_worldobjects(current_wo, other_wo)
 
                     # remove the Animation object from world if it's run its course
                     if isinstance(current_wo, Animation):
@@ -521,6 +484,52 @@ class GameEngine:
                 # getting the rects for the UI buttons for later collision
                 # detection (button pressing)
                 self.restart_game_button, self.main_menu_button, self.quit_game_button = self.ui.draw_game_over_menu()
+
+    def handle_collisions_between_worldobjects(self, current_wo, other_wo):
+        """
+        Handle collisions between world objects
+        :param current_wo:
+        :param other_wo:
+        :return:
+        """
+        if current_wo.rect.colliderect(other_wo.rect):
+            # a collision was detected - should we react to it?  this matters because two
+            # objects can overlap/collide across multiple looping collision checks - if
+            # we don't deactivate the collision detection, the object can bounce back and
+            # forth, getting trapped
+            if other_wo.allow_collision():
+                # bounce object properly -
+                # determining in which direction
+                # to bounce, based on approach
+                current_wo.detect_collision(other_wo, self.gs, self.gset)
+                other_wo.add_collision()
+                if other_wo.should_score():
+                    self.ps.score += other_wo.value
+                if other_wo.should_remove():
+                    self.ps.score += other_wo.bonus
+
+                    # trigger the special effect - the Brick adds the appropriate Animation object to the world
+                    other_wo.trigger_destruction_effect(self.gw.world_objects, self.gset, self.ps)
+
+                    # if this Brick is strong enough for the shake, get that started
+                    if other_wo.strength_initial >= SHAKE_STRENGTH_THRESHOLD:
+                        utils.start_shake(self.gs, other_wo.strength_initial * SHAKE_OFFSET_BASE)
+
+                    # now remove the actual Brick object
+                    self.gw.world_objects.remove(other_wo)
+
+                    current_wo.speed += .20
+                    # BALL_SPEED_STEP: adding to the ball speed, but diff logic for the
+                    # VECTOR models
+                    if isinstance(current_wo, Ball):
+                        current_wo.speed_v += self.gs.ball_speed_step
+                        self.gs.ball_speed_increased_ratio = current_wo.speed_v / BALL_SPEED_VECTOR
+                        current_wo.v_vel = current_wo.v_vel_unit * current_wo.speed_v
+
+        else:
+            # this is the other side of the allow_collision logic above, since
+            # not colliding now, it resets the latch or 'primed for collision' flag
+            other_wo.prime_for_collision()
 
     def run_loop(self) -> None:
         """
