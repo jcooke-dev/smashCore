@@ -28,6 +28,23 @@ def brick():
     yield brick
     pygame.quit()
 
+@pytest.fixture
+def gamesettings():
+    """
+    Set up gamesettings for tests
+    :return:
+    """
+    class GameSettings:
+        def __init__(self):
+            self.is_fullscreen: bool = False
+            self.paddle_under_auto_control: bool = True
+            self.paddle_under_mouse_control: bool = True
+            self.bgm_sounds: bool = True
+            self.sfx_sounds: bool = True
+            self.music_volume = 1.0
+            self.sfx_volume = 0.5
+    return GameSettings()
+
 
 def test_initial_state(brick):
     """
@@ -103,13 +120,13 @@ def test_draw_wo_with_image(mock_surface, mock_image):
     mock_surface.blit.assert_called_with(mock_image, rect)
 
 
-def test_add_collision(brick):
+def test_add_collision(brick, gamesettings):
     """
     Test brick strength is reduced after collision
     :param brick:
     :return:
     """
-    brick.add_collision()
+    brick.add_collision(gamesettings)
     assert brick.strength == 0
 
 
