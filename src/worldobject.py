@@ -60,7 +60,7 @@ class WorldObject:
         :return:
         """
 
-    def add_collision(self) -> None:
+    def add_collision(self, gset: gst_.GameSettings) -> None:
         """
         Record that something collided with this WorldObject
 
