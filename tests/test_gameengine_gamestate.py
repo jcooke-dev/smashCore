@@ -476,7 +476,7 @@ def test_handle_collisions_detects_collision(starting_ge):
         current_wo.detect_collision.assert_called_once_with(other_wo, ge.gs, ge.gset)
         other_wo.add_collision.assert_called_once()
         assert ge.ps.score == 15  # Score updated
-        other_wo.trigger_destruction_effect.assert_called_once_with(ge.gw.world_objects, ge.gset)
+        other_wo.trigger_destruction_effect.assert_called_once_with(ge.gw.world_objects, ge.gset, ge.ps)
 
         # Assert shake logic was triggered
         mock_shake.assert_called_once_with(ge.gs, (constants.SHAKE_STRENGTH_THRESHOLD + 1) * constants.SHAKE_OFFSET_BASE)

@@ -509,7 +509,7 @@ class GameEngine:
                     self.ps.score += other_wo.bonus
 
                     # trigger the special effect - the Brick adds the appropriate Animation object to the world
-                    other_wo.trigger_destruction_effect(self.gw.world_objects, self.gset)
+                    other_wo.trigger_destruction_effect(self.gw.world_objects, self.gset, self.ps)
 
                     # if this Brick is strong enough for the shake, get that started
                     if other_wo.strength_initial >= SHAKE_STRENGTH_THRESHOLD:
