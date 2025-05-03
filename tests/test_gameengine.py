@@ -10,6 +10,8 @@
     Does not test GameState.handle_gamestate
 """
 from unittest.mock import patch
+
+import pygame
 import pytest
 
 import assets
@@ -37,6 +39,7 @@ def mock_pygame():
          mock.patch("pygame.mixer.music") as mock_mixer_music, \
          mock.patch("pygame.mouse.set_visible") as mock_mouse_set_visible, \
          mock.patch("pygame.display.set_mode") as mock_set_mode, \
+         mock.patch.object(pygame.mixer, "set_num_channels"), \
          mock.patch("pygame.draw.line") as mock_draw_line:
 
         # Setup return values if needed
