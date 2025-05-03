@@ -53,9 +53,16 @@ class GameState:
 
         self.level_cleared: bool = False
 
+        # shake effect config
         self.shake_screen_brick: bool = False
-        self.shake_offset_x = 1
-        self.shake_offset_y = 1
+        self.shake_strength: int = 0
+
+        # these are used to index into the following lists on subsequent calls to utils.get_shaking_offset() to get the shake offset
+        self.shake_off_index_x = 0
+        self.shake_off_index_y = 0
+        # these are the shake offset values to sequence through -- better to hard-code these up front, rather than trying to calculate
+        self.shake_offsets_x = [5, 5, 3, -4, -1, -3, -2, -2, 3, 4, 1, 2, 0, -1, -2, -3, -2, 1, 0, 5, 2, 1, 0, -1, -2, -1, 0, 0]
+        self.shake_offsets_y = [5, -5, 0, -3, -3, 1, 1, 0, 4, -2, 1, -2, 1, 1, 2, 3, -2, -1, 4, 2, 2, -1, 2, 3, 2, -1, 0, 0]
 
         self.paddle_pos_x: int = 0  # used at READY_TO_LAUNCH to keep ball on paddle
 

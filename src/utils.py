@@ -34,42 +34,37 @@ def calculate_timing_averages(fps: float, loop_time: float) -> tuple:
     loop_time_q.appendleft(loop_time)
     return statistics.mean(fps_q), statistics.mean(loop_time_q)
 
-def start_shake(gs: GameState, initial_offset: int) -> None:
+def start_shake(gs: GameState, strength: int) -> None:
     """
     This begins the screen shaking effect.
 
     :param gs: GameState
-    :param initial_offset: the initial offset in pixels to use for screen 'shaking'
+    :param strength: the initial strength to use for screen 'shaking'
     :return:
     """
 
     gs.shake_screen_brick = True
-    gs.shake_offset_x = initial_offset
-    gs.shake_offset_y = initial_offset
+    gs.shake_strength = strength
+    # reset the indices into the lists with the offset shift values
+    gs.shake_off_index_x = gs.shake_off_index_y = 0
 
 def get_shaking_offset(gs: GameState) -> tuple[int, int]:
     """
-    This very simply calculates a kind of oscillation in pixels around the base
-    (0, 0) offset.
+    This iterates over the GameState.shake_offsets_x/y lists to get decent offset values.
 
     :param gs: GameState
     :return: the offset in pixels
     """
 
     if gs.shake_screen_brick:
-        if gs.shake_offset_x > 0:
-            shift_x = (abs(2 * gs.shake_offset_x) - 1) * -1
-            shift_y = (abs(2 * gs.shake_offset_y) - 1) * -1
-        else:
-            shift_x = (abs(2 * gs.shake_offset_x) - 1) * 1
-            shift_y = (abs(2 * gs.shake_offset_y) - 1) * 1
-
-        gs.shake_offset_x += shift_x
-        gs.shake_offset_y += shift_y
-
-        if (abs(gs.shake_offset_x) < 1) and (abs(gs.shake_offset_y) < 1):
+        if ((gs.shake_off_index_x + 1) > len(gs.shake_offsets_x)) or ((gs.shake_off_index_y + 1) > len(gs.shake_offsets_y)):
             gs.shake_screen_brick = False
-
-        return gs.shake_offset_x, gs.shake_offset_y
+            return 0, 0
+        else:
+            off_x = gs.shake_offsets_x[gs.shake_off_index_x] * gs.shake_strength / 4
+            off_y = gs.shake_offsets_y[gs.shake_off_index_y] * gs.shake_strength / 4
+            gs.shake_off_index_x += 1
+            gs.shake_off_index_y += 1
+            return off_x, off_y
     else:
         return 0, 0

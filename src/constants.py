@@ -83,3 +83,6 @@ EFFECT_BRICK_IMAGE_DESTROY_FADE = False # fade the destroyed Brick?
 
 EFFECT_POWER_UP_DURATION = 2000 # lifetime of fading power-up image, in ms
 EFFECT_POWER_UP_DROP_ACC_Y = 0.00025 # y-comp of power-up image dropping acceleration
+
+LEVEL_CLEARED_DURATION = 3500 # how long to display the fading 'Level Cleared' message
+LEVEL_CLEARED_SHAKE_MAGNITUDE = 40 # how much of a final shake to trigger
