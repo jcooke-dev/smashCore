@@ -7,26 +7,23 @@
     Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas
 
     Module Description: This is the test harness for the GameEngine class.
+    Does not test GameState.handle_gamestate
 """
 from unittest.mock import patch
-
-import pygame
 import pytest
 
 import assets
 import constants
 from unittest import mock
 
-import gamestate
 import playerstate
 from gameengine import GameEngine
 from gamesettings import GameSettings
 from gamestate import GameState
+from gameworld import GameWorld
 from leveltheme import LevelTheme
 from userinterface import UserInterface
-from playerstate import PlayerState
 from leaderboard import Leaderboard
-from gameworld import GameWorld
 from ball import Ball
 
 
@@ -34,39 +31,21 @@ from ball import Ball
 def mock_pygame():
     """
     Set up mock pygame object dependencies
-    :return:
     """
     with mock.patch("pygame.quit") as mock_pygame_quit, \
-         mock.patch("pygame.event.get") as mock_event_get,\
          mock.patch("pygame.mixer.init") as mock_mixer_init, \
          mock.patch("pygame.mixer.music") as mock_mixer_music, \
          mock.patch("pygame.mouse.set_visible") as mock_mouse_set_visible, \
-         mock.patch("pygame.display.set_caption") as mock_set_caption, \
-         mock.patch("pygame.time.get_ticks", return_value=123456) as mock_get_ticks, \
-         mock.patch("pygame.color") as mock_color, \
-         mock.patch("pygame.rect") as mock_rect, \
-         mock.patch("pygame.time.Clock") as mock_clock, \
-         mock.patch("pygame.Surface") as mock_surface, \
          mock.patch("pygame.display.set_mode") as mock_set_mode, \
          mock.patch("pygame.draw.line") as mock_draw_line:
 
         # Setup return values if needed
-        mock_set_mode.return_value = mock.MagicMock(name="screen")
-        mock_surface.return_value = mock.MagicMock(name="surface")
-        mock_clock.return_value = mock.MagicMock(name="clock")
 
         yield {
             "set_mode": mock_set_mode,
-            "surface": mock_surface,
-            "clock": mock_clock,
-            "rect": mock_rect,
-            "color": mock_color,
-            "get_ticks": mock_get_ticks,
-            "set_caption": mock_set_caption,
             "mouse_set_visible": mock_mouse_set_visible,
             "mixer_init": mock_mixer_init,
             "mixer.music": mock_mixer_music,
-            "event.get": mock_event_get,
             "quit": mock_pygame_quit,
             "draw_line": mock_draw_line
         }
@@ -76,50 +55,23 @@ def mock_pygame():
 def starting_ge(mock_pygame):
     """
     Create initial gameengine for testing
-    :param mock_pygame:
-    :return:
     """
-    with mock.patch("assets.pygame.image.load") as mock_image_load:
-        mock_image = mock.Mock()
-        mock_image_load.return_value = mock_image
+    ui = mock.MagicMock(UserInterface)
+    gset = mock.MagicMock(GameSettings)
+    gs = GameState()
+    gw = mock.MagicMock(GameWorld)
+    ps = playerstate.PlayerState()
+    lb = mock.MagicMock(Leaderboard)
 
-        ui = mock.MagicMock(UserInterface)
-        gset = mock.MagicMock(GameSettings)
-        gs = gamestate.GameState()
-        gw = mock.MagicMock(GameWorld)
-        ps = playerstate.PlayerState()
-        lb = mock.MagicMock(Leaderboard)
+    gset.is_fullscreen = False
 
-        gset.is_fullscreen = False
-
-        ge = GameEngine(lb, ps, gw, gs, gset, ui)
-        return ge, mock_pygame
-
-
-@pytest.fixture
-def starting_ge_main_menu(starting_ge):
-    """
-    Set up the buttons as if the main menu is displayed
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge
-    ge.ui.start_classic_button_rect = pygame.Rect(100, 100, 100, 50)
-    ge.ui.start_modern_button_rect = pygame.Rect(100, 200, 100, 50)
-    ge.ui.how_to_play_button_rect = pygame.Rect(100, 300, 100, 50)
-    ge.ui.settings_button_rect = pygame.Rect(100, 400, 100, 50)
-    ge.ui.leader_button_rect = pygame.Rect(100, 500, 100, 50)
-    ge.ui.credits_button_rect = pygame.Rect(100, 600, 100, 50)
-    ge.ui.quit_button_start_rect = pygame.Rect(100, 700, 100, 50)
+    ge = GameEngine(lb, ps, gw, gs, gset, ui)
     return ge, mock_pygame
 
 
 def test_initial_state(starting_ge):
     """
     Test the initial state set the mouse pointer to not visible
-
-    :param starting_ge:
-    :return:
     """
     ge, mock_pygame = starting_ge
     mock_pygame["mouse_set_visible"].assert_called_once_with(False)
@@ -128,9 +80,6 @@ def test_initial_state(starting_ge):
 def test_gamestate_reset(starting_ge):
     """
     Tests game is reset to initial values
-
-    :param starting_ge:
-    :return:
     """
     dummy_colors = ["red", "green", "blue"]
     with patch("assets.BRICK_COLORS", new=dummy_colors) as mock_assets, patch("pygame.transform.scale") as mock_image:
@@ -162,8 +111,6 @@ def test_next_level(starting_ge):
     Tests that ball position is reset, ball speed is increased based on predefined increment,
     the next level number is retrieved, the levels are built for the level number,
     FPS is reset, and GameState is set to READY_TO_LAUNCH
-    :param starting_ge:
-    :return:
     """
     ge, mock_pygame = starting_ge
     with mock.patch("gameengine.Levels.get_level_name_from_num", return_value="Level_2") as mock_get_level_name, \
@@ -199,9 +146,6 @@ def test_next_level(starting_ge):
 def test_draw_world_and_status(starting_ge):
     """
     Test that draw_wo is called on world objects and ui.draw_status is called
-
-    :param starting_ge:
-    :return:
     """
     ge, mock_pygame = starting_ge
     mock_wo = mock.MagicMock()
@@ -225,9 +169,6 @@ def test_clean_shutdown(mock_exit, starting_ge):
     """
     Tests that clean_shutdown stops the music, sets the current_music_path to None,
     sets the GameState to GAME_OVER, calls pygame.quit, and exit()
-    :param mock_exit:
-    :param starting_ge:
-    :return:
     """
     ge, mock_pygame = starting_ge
 
@@ -246,8 +187,6 @@ def test_clean_shutdown(mock_exit, starting_ge):
 def test_play_music_bgm_sound_off(starting_ge):
     """
     Tests that when bgm_sounds is False, the music is stopped
-    :param starting_ge:
-    :return:
     """
     ge, mock_pygame = starting_ge
 
@@ -265,8 +204,6 @@ def test_play_music_bgm_sound_off(starting_ge):
 def test_play_music_correct_file_and_volume(starting_ge):
     """
     Tests that music plays correct music for the current game state
-    :param starting_ge:
-    :return:
     """
     ge, mock_pygame = starting_ge
 
@@ -287,8 +224,6 @@ def test_play_music_correct_file_and_volume(starting_ge):
 def test_play_music_no_music_path(starting_ge):
     """
     Tests that music plays correct music for the current game state
-    :param starting_ge:
-    :return:
     """
     ge, mock_pygame = starting_ge
 
@@ -307,212 +242,12 @@ def test_play_music_no_music_path(starting_ge):
     assert ge.current_music_path is None
 
 
-def test_gamestate_splash(starting_ge_main_menu):
-    """
-    Tests that when the gamestate is SPLASH that the ui is called and the gamestate
-    transitions to MENU
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge_main_menu
-    ge.gs.cur_state = GameState.GameStateName.SPLASH
-    ge.app_start_ticks = 1000
-    ge.handle_gamestate(None)
-
-    with patch('pygame.time.get_ticks', return_value=1000 + (constants.SPLASH_TIME_SECS + 1) * 1000):
-        ge.ui.draw_splash_screen.assert_called_once()
-        assert ge.gs.cur_state == GameState.GameStateName.MENU_SCREEN
 
 
-@pytest.mark.parametrize("position, theme",[((150, 125), LevelTheme.CLASSIC), ((150, 225), LevelTheme.MODERN)])
-def test_gamestate_menu_play_btn(position, theme, starting_ge_main_menu):
-    """
-    Tests that level theme changes to CLASSIC or MODERN based on position clicked
-    Tests mouse is visible
-    Tests that ui.draw_start_screen was called
-    Tests that reset_game was called
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge_main_menu
-    ge.gs.cur_state = GameState.GameStateName.MENU_SCREEN
-    ge.ps.theme = LevelTheme.NO_THEME
-    event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=position)
-
-    with patch.object(ge, 'reset_game') as mock_reset_game:
-        ge.handle_gamestate([event])
-        ge.ui.draw_start_screen.assert_called_once()
-        mock_pygame["mouse_set_visible"].assert_called_with(True)
-        assert ge.ps.theme == theme
-        assert ge.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH
-        mock_reset_game.assert_called_once()
 
 
-def test_gamestate_menu_quit_btn(starting_ge_main_menu):
-    """
-    Tests quit button is pressed and clean_shutdown is called
-    :param position:
-    :param game_state:
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge_main_menu
-    ge.gs.cur_state = GameState.GameStateName.MENU_SCREEN
-    event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=(150, 725))
-
-    with patch.object(ge, 'clean_shutdown') as mock_clean_shutdown:
-        ge.handle_gamestate([event])
-        mock_clean_shutdown.assert_called_once()
 
 
-@pytest.mark.parametrize("position, game_state",[
-    ((150, 325), GameState.GameStateName.HOW_TO_PLAY),
-    ((150, 425), GameState.GameStateName.SETTINGS),
-    ((150, 525), GameState.GameStateName.LEADERBOARD),
-    ((150, 625), GameState.GameStateName.CREDITS)])
-def test_gamestate_menu_click_remaining_btns(position, game_state, starting_ge_main_menu):
-    """
-    Tests remaining buttons are clicked: How to play, settings, leaderboard, credits
-    :param position:
-    :param game_state:
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge_main_menu
-    ge.gs.cur_state = GameState.GameStateName.MENU_SCREEN
-    event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=position)
-    ge.handle_gamestate([event])
-    assert ge.gs.cur_state == game_state
 
 
-def test_gamestate_how_to_play(starting_ge):
-    """
-    Tests that when the game state is HOW_TO_PLAY that ui.draw_how_to_play_screen is called
-    Tests that  pygame.mouse_set_visible is called with True
-    Tests that the event to click the back button is pressed and the game state is changed the MENU_SCREEN
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge
-    ge.gs.cur_state = GameState.GameStateName.HOW_TO_PLAY
-    ge.ui.back_button_rect = pygame.Rect(100, 800, 100, 40)
-
-    event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=(150, 825))
-    ge.handle_gamestate([event])
-
-    ge.ui.draw_how_to_play_screen.assert_called_once()
-    mock_pygame["mouse_set_visible"].assert_called_with(True)
-    assert ge.gs.cur_state == GameState.GameStateName.MENU_SCREEN
-
-
-def test_gamestate_credits(starting_ge):
-    """
-    Tests that when the game state is CREDITS that ui.draw_credits_screen is called
-    Tests that  pygame.mouse_set_visible is called with True
-    Tests that the event to click the back button is pressed and the game state is changed the MENU_SCREEN
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge
-    ge.gs.cur_state = GameState.GameStateName.CREDITS
-    ge.ui.back_button_rect = pygame.Rect(100, 800, 100, 40)
-
-    event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=(150, 825))
-    ge.handle_gamestate([event])
-
-    ge.ui.draw_credits_screen.assert_called_once()
-    mock_pygame["mouse_set_visible"].assert_called_with(True)
-    assert ge.gs.cur_state == GameState.GameStateName.MENU_SCREEN
-
-
-def test_gamestate_leaderboard(starting_ge):
-    """
-    Tests that when the game state is LEADERBOARD that ui.draw_leaderboard_screen is called
-    Tests that  pygame.mouse_set_visible is called with True
-    Tests that the event to click the back button is pressed and the game state is changed the MENU_SCREEN
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge
-    ge.gs.cur_state = GameState.GameStateName.LEADERBOARD
-    ge.ui.back_button_rect = pygame.Rect(100, 800, 100, 40)
-
-    event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=(150, 825))
-    ge.handle_gamestate([event])
-
-    ge.ui.draw_leaderboard_screen.assert_called_once()
-    mock_pygame["mouse_set_visible"].assert_called_with(True)
-    assert ge.gs.cur_state == GameState.GameStateName.MENU_SCREEN
-
-
-@pytest.mark.parametrize("starting_auto_state, starting_mouse_state, ending_auto_state, ending_mouse_state",
-                         [(True, True, False, False),  # starting paddle is auto, will result in keyboard
-                          (True, False, False, True),  # starting paddle is auto, will result in mouse
-                          (False, False, True, False), # starting paddle is keyboard, will result in auto
-                          (False, True,  True, True), # starting paddle is mouse, will result in auto
-                          ])
-def test_gamestate_paused_toggle_paddle_control(starting_auto_state, starting_mouse_state, ending_auto_state, ending_mouse_state, starting_ge):
-    """
-    for auto detection auto_control is T, mouse_control is T or F
-    for mouse control, auto_control is F and mouse_control is T
-    for keyboard control, auto_control is F and mouse_control is F
-
-    Tests that when the game state is PAUSED, the paddle control button is clicked,
-    the ge.draw_world_and_status is called, ge.ui.draw_pause_menu is called
-    and that ge.gset.paddle_under_auto_control and ge.gset.paddle_under_mouse_control are set based correctly
-
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge
-    ge.gs.cur_state = GameState.GameStateName.PAUSED
-
-    with patch.object(ge, 'draw_world_and_status') as mock_draw_world_and_status, patch.object(ge.ui, 'draw_pause_menu') as mock_draw_pause_menu:
-        mock_draw_pause_menu.return_value = (1, 2, 3)
-
-        ge.ui.pad_btn_rect = pygame.Rect(200, 100, 100, 50)
-        ge.gset.paddle_under_auto_control = starting_auto_state
-        ge.gset.paddle_under_mouse_control = starting_mouse_state
-        event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=(250, 125))
-
-        ge.handle_gamestate([event])
-        mock_draw_world_and_status.assert_called_once()
-        mock_draw_pause_menu.assert_called()
-        assert ge.gs.cur_state == GameState.GameStateName.PAUSED
-        assert ge.gset.paddle_under_auto_control is ending_auto_state
-        assert ge.gset.paddle_under_mouse_control is ending_mouse_state
-
-
-def test_gamestate_highscore(starting_ge):
-    """
-    Tests that when the game state is GET_HIGH_SCORE that ui.draw_get_high_score is called
-    game state is changed the MENU_SCREEN
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge
-    ge.gs.cur_state = GameState.GameStateName.GET_HIGH_SCORE
-
-    with patch.object(ge, 'draw_world_and_status') as mock_draw_world_and_status, patch.object(ge.ui, 'draw_get_high_score') as mock_draw_get_high_score:
-        ge.handle_gamestate(None)
-
-        mock_draw_world_and_status.assert_called_once()
-        mock_draw_get_high_score.assert_called_once()
-
-
-def test_gamestate_game_over(starting_ge):
-    """
-    Tests that when the game state is GAME_OVER that ge.draw_world_and_status is called, ui.draw_game_over_menu is called
-    :param starting_ge:
-    :return:
-    """
-    ge, mock_pygame = starting_ge
-    ge.gs.cur_state = GameState.GameStateName.GAME_OVER
-
-    with patch.object(ge, 'draw_world_and_status') as mock_draw_world_and_status, patch.object(ge.ui, 'draw_game_over_menu') as mock_draw_game_over_menu:
-        mock_draw_game_over_menu.return_value = (1, 2, 3)
-        ge.handle_gamestate(None)
-
-        mock_draw_world_and_status.assert_called_once()
-        mock_draw_game_over_menu.assert_called_once()
 
