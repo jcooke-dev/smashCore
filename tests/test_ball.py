@@ -74,6 +74,7 @@ def gamestate():
             self.v_gravity_acc = Vector2(0, 0)
             self.tick_time = 1
             self.cur_ball_x = 0
+            self.level_cleared = False
     return GameState()
 
 @pytest.fixture

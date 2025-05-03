@@ -13,12 +13,15 @@
 from random import randrange as rnd
 from random import choice, sample
 from enum import Enum
+from typing import Any
+
 import pygame
 import constants
 import assets
 from leveltheme import LevelTheme
 from brick import Brick
 from obstacle import Obstacle
+from poweruptype import PowerUpType
 from worldobject import WorldObject
 
 
@@ -225,20 +228,24 @@ class Levels:
                           constants.GREEN, constants.LIGHT_BLUE]
                 multiplier_bricks = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
                                      (6, 4), (7, 3), (8, 2), (9, 1), (10, 0)]
+                power_ups: list[list[Any]] = [[4, 3, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
                                            row_colors=colors,
-                                           strong_bricks=multiplier_bricks)
+                                           strong_bricks=multiplier_bricks,
+                                           power_ups=power_ups)
 
             case Levels.LevelName.MODERN_MULTIPLIER_2:
                 colors = [constants.PINK, constants.ORANGE, constants.GREEN,
                           constants.GREEN, constants.LIGHT_BLUE]
                 multiplier_bricks = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
                                      (6, 4), (7, 3), (8, 2), (9, 1), (10, 0)]
+                power_ups: list[list[Any]] = [[4, 3, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
                                            use_random_imgs=True,
-                                           strong_bricks=multiplier_bricks)
+                                           strong_bricks=multiplier_bricks,
+                                           power_ups=power_ups)
 
             case Levels.LevelName.CLASSIC_MIXED_1:
                 colors = [constants.RED, constants.ORANGE, constants.YELLOW,
@@ -247,11 +254,13 @@ class Levels:
                                   (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5)]
                 multiplier_bricks = [(4, 0), (5, 0), (6, 0), (4, 1), (4, 2), (5, 2),
                                   (6, 2), (6, 3), (6, 4), (5, 4), (4, 4)]
+                power_ups: list[list[Any]] = [[5, 3, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
                                            row_colors=colors,
                                            skip_positions=skip_positions,
-                                           strong_bricks=multiplier_bricks)
+                                           strong_bricks=multiplier_bricks,
+                                           power_ups=power_ups)
 
             case Levels.LevelName.MODERN_MIXED_1:
                 colors = [constants.PINK, constants.ORANGE, constants.YELLOW,
@@ -260,24 +269,30 @@ class Levels:
                                   (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5)]
                 multiplier_bricks = [(4, 0), (5, 0), (6, 0), (4, 1), (4, 2), (5, 2),
                                   (6, 2), (6, 3), (6, 4), (5, 4), (4, 4)]
+                power_ups: list[list[Any]] = [[5, 3, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list,
                                            rows=len(colors),
                                            use_random_imgs=True,
                                            skip_positions=skip_positions,
-                                           strong_bricks=multiplier_bricks)
+                                           strong_bricks=multiplier_bricks,
+                                           power_ups=power_ups)
 
             case Levels.LevelName.CLASSIC_UNBREAKABLE_2:
                 unbreakable = [(2, 2), (3, 2), (7, 2), (8, 2),
                                   (2, 3), (3, 3), (7, 3), (8, 3)]
+                power_ups: list[list[Any]] = [[2, 1, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list, rows=5,
-                                           unbreakable=unbreakable)
+                                           unbreakable=unbreakable,
+                                           power_ups=power_ups)
 
             case Levels.LevelName.MODERN_UNBREAKABLE_2:
                 unbreakable = [(2, 2), (3, 2), (7, 2), (8, 2),
                                   (2, 3), (3, 3), (7, 3), (8, 3)]
+                power_ups: list[list[Any]] = [[2, 1, PowerUpType.EXTRA_LIFE]]
                 Levels.generate_grid_level(gw_list=gw_list, rows=5,
                                            use_random_imgs=True,
-                                           unbreakable=unbreakable)
+                                           unbreakable=unbreakable,
+                                           power_ups=power_ups)
 
             case Levels.LevelName.CLASSIC_MIXED_2:
                 colors = [constants.PURPLE, constants.ORANGE, constants.LIGHT_BLUE,
@@ -321,7 +336,8 @@ class Levels:
                             row_img_colors: list[pygame.image] = None,
                             skip_positions: list[tuple[int, int]] = None,
                             strong_bricks: list[tuple[int, int]] = None,
-                            unbreakable: list[tuple[int, int]] = None
+                            unbreakable: list[tuple[int, int]] = None,
+                            power_ups: list[list[Any]] = None
                             ):
         """
         Generates a grid of bricks with optional skip positions, strong brick positions,
@@ -332,6 +348,7 @@ class Levels:
         2. Strong
         3. Unbreakable
 
+        :param power_ups:
         :param gw_list: list[WorldObject]
         :param rows: Number of rows for the grid
         :param row_colors: List of colors for each row (if none use random row colors)
@@ -414,10 +431,22 @@ class Levels:
                         gw_list.append(Obstacle(brk_rect, constants.GRAY, text="X X X"))
                 # all other bricks
                 else:
+
+                    # does this grid position have a power-up?
+                    power_up = PowerUpType.NO_TYPE
+                    if power_ups is not None:
+                        for pwup in power_ups:
+                            if pwup[0] == i and pwup[1] == j:
+                                power_up = pwup[2]
+                                break
+
+                    # apply the power-up type to this Brick as it's added to the GW
                     if row_img_colors is not None:
                         scaled_image = pygame.transform.scale(
                             row_img_colors[j], (brk_width, brk_height))
                         gw_list.append(Brick(brk_rect, row_color,
-                                             value=value, image=scaled_image))
+                                             value=value, image=scaled_image,
+                                             power_up=power_up))
                     else:
-                        gw_list.append(Brick(brk_rect, row_color, value=value))
+                        gw_list.append(Brick(brk_rect, row_color, value=value,
+                                             power_up=power_up))

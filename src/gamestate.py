@@ -51,6 +51,8 @@ class GameState:
         self.ball_speed_increased_ratio: float = 1.0 # used to adjust the key-control paddle speed according to ball speed
         self.last_mouse_pos_x: int = 0
 
+        self.level_cleared: bool = False
+
         self.shake_screen_brick: bool = False
         self.shake_offset_x = 1
         self.shake_offset_y = 1
