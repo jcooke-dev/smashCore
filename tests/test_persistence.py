@@ -32,6 +32,8 @@ def test_find_game_data_path_default(mock_platform_system):
     assert persistence.GAME_DATA_PATH == os.path.join(GAME_NAME + '_settings/')
 
 
+def mock_find_path_side_effect():
+    persistence.GAME_DATA_PATH = "some/file/path"
 
 @patch('os.makedirs')
 @patch('builtins.open', new_callable=mock_open)
@@ -39,18 +41,27 @@ def test_find_game_data_path_default(mock_platform_system):
 def test_store_object(mock_pickle, mock_file, mock_os_makedirs):
     test_object = {"key": "value"}
     filename = "test.pkl"
-    persistence.store_object(test_object, filename)
-    mock_file.assert_called_once_with(os.path.join(persistence.GAME_DATA_PATH, filename), 'wb')
-    mock_pickle.assert_called_once_with(test_object, mock_file())
+    p = persistence
+    p.GAME_DATA_PATH = None
+    with patch.object(p, "find_game_data_path", side_effect=mock_find_path_side_effect) as mock_find_path:
+        p.store_object(test_object, filename)
+        mock_file.assert_called_once_with(os.path.join(persistence.GAME_DATA_PATH, filename), 'wb')
+        mock_pickle.assert_called_once_with(test_object, mock_file())
+        mock_find_path.assert_called_once()
 
 
 def test_read_object_success():
     test_object = {"key": "value"}
     filename = "test.pkl"
-    with patch('builtins.open', mock_open(read_data=pickle.dumps(test_object))) as mocked_file, patch('os.path.getsize', return_value=10):
+    p = persistence
+    p.GAME_DATA_PATH = None
+    with patch.object(p, "find_game_data_path", side_effect=mock_find_path_side_effect) as mock_find_path, \
+            patch('builtins.open', mock_open(read_data=pickle.dumps(test_object))) as mocked_file, \
+            patch('os.path.getsize', return_value=10):
         result = persistence.read_object(filename)
         mocked_file.assert_called_once_with(os.path.join(persistence.GAME_DATA_PATH, filename), 'rb')
         assert result == test_object
+        mock_find_path.assert_called_once()
 
 
 @patch('os.path.getsize', side_effect=FileNotFoundError)
