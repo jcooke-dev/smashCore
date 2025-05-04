@@ -190,7 +190,7 @@ def test_play_music_bgm_sound_off(starting_ge):
     """
     ge, mock_pygame = starting_ge
 
-    #Set GameState background sounds to False
+    # Set GameState background sounds to False
     ge.gset.bgm_sounds = False
 
     # Play Music
@@ -240,14 +240,3 @@ def test_play_music_no_music_path(starting_ge):
 
     mock_pygame['mixer.music'].stop.assert_called_once()
     assert ge.current_music_path is None
-
-
-
-
-
-
-
-
-
-
-
