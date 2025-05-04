@@ -27,6 +27,7 @@ def mock_pygame():
          patch("pygame.mixer.init") as mock_mixer_init, \
          patch("pygame.mixer.music") as mock_mixer_music, \
          patch("pygame.mixer.find_channel") as mock_mixer_find_channel, \
+         patch.object(pygame.mixer, "set_num_channels"), \
          patch("pygame.mixer.Sound") as mock_mixer_sound, \
          patch("pygame.mouse.get_pos", return_value=[4, 4]) as mock_mouse_pos, \
          patch("pygame.mouse.set_pos") as mouse_pos_set, \
