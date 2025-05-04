@@ -313,72 +313,98 @@ class GameEngine:
             case GameState.GameStateName.SETTINGS:
                 self.ui.draw_settings_screen(self.gset)
                 pygame.mouse.set_visible(True)
-				
+
                 old_sfx_vol = self.gset.sfx_volume
 
                 for event in events:
                     if event.type == pygame.MOUSEBUTTONDOWN:
+                        ##########################
+                        # Mute/Unmute background music
+                        ##########################
                         if self.ui.vol_bgm_btn_rect.collidepoint(event.pos):
-                            self.gset.bgm_sounds = not self.gset.bgm_sounds
+                            self.gset.bgm_sounds = not self.gset.bgm_sounds  # toggle music on/off
                             if self.gset.bgm_sounds:
                                 self.gset.music_volume = MUSIC_VOLUME_STEP
                             else:
                                 self.gset.music_volume = 0.0
                             pygame.mixer.music.set_volume(self.gset.music_volume)
+                        ##########################
+                        # Mute/Unmute sound effects
+                        ##########################
                         elif self.ui.vol_sfx_btn_rect.collidepoint(event.pos):
-                            self.gset.sfx_sounds = not self.gset.sfx_sounds
+                            self.gset.sfx_sounds = not self.gset.sfx_sounds  # toggle sound effects on/off
                             if self.gset.sfx_sounds:
                                 self.gset.sfx_volume = SFX_VOLUME_STEP
                             else:
                                 self.gset.sfx_volume = 0.0
+                        ##########################
+                        # Return to the main menu
+                        ##########################
                         elif self.ui.back_button_rect.collidepoint(event.pos):
                             self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+                        ##########################
+                        # Prepare to adjust background music with slider
+                        ##########################
                         elif self.ui.knob_bg_rect.collidepoint(event.pos):
                             self.dragging_bgm_slider = True
+                        ##########################
+                        # Prepare to adjust sounds effects with slider
+                        ##########################
                         elif self.ui.knob_sf_rect.collidepoint(event.pos):
                             self.dragging_sfx_slider = True
+                        # #########################
+                        # Toggle paddle control
+                        # auto -> mouse -> auto -> keyboard -> repeat
+                        # #########################
                         elif self.ui.pad_btn_rect.collidepoint(event.pos):
                             if not self.gset.paddle_under_auto_control:
                                 self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
                             else:
                                 self.gset.paddle_under_mouse_control = not self.gset.paddle_under_mouse_control
                                 self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+                        # #########################
+                        # Toggle fullscreen/windowed
+                        # #########################
                         elif self.ui.graphics_btn_rect.collidepoint(event.pos):
                             self.gset.is_fullscreen = not self.gset.is_fullscreen
                             self.set_graphics_mode()
 
+                    ##########################
+                    # Adjust background music and sounds effects using slider
+                    ##########################
                     elif event.type == pygame.MOUSEMOTION:
                         if self.dragging_bgm_slider:
-                            slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75
-                            new_vol = (event.pos[0] - (
-                                        slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                            self.gset.music_volume = max(0.0, min(1.0, round(
-                                new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                            slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75  # where the slider bar begins
+                            new_vol = (event.pos[0] - (slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
+                            self.gset.music_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
                             pygame.mixer.music.set_volume(self.gset.music_volume)
-								
+
                             # you have to set this mute toggle based on the dragged volume setting, otherwise
                             # once muted with an icon press, you can ONLY unmute with another press - the slider
                             # is locked at the mute position
                             self.gset.bgm_sounds = False if abs(self.gset.music_volume) < CLOSE_TO_ZERO else True
-								
+
                         if self.dragging_sfx_slider:
-                            slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75
-                            new_vol = (event.pos[0] - (
-                                        slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                            self.gset.sfx_volume = max(0.0, min(1.0, round(
-                                new_vol / SFX_VOLUME_STEP) * SFX_VOLUME_STEP))
-								
+                            slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75  # where the slider bar begins
+                            new_vol = (event.pos[0] - (slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
+                            self.gset.sfx_volume = max(0.0, min(1.0, round(new_vol / SFX_VOLUME_STEP) * SFX_VOLUME_STEP))
+
                             # you have to set this mute toggle based on the dragged volume setting, otherwise
                             # once muted with an icon press, you can ONLY unmute with another press - the slider
                             # is locked at the mute position
                             self.gset.sfx_sounds = False if abs(self.gset.sfx_volume) < CLOSE_TO_ZERO else True
-							
+
+                    ##########################
+                    # Reset slider checks to False
+                    ##########################
                     elif event.type == pygame.MOUSEBUTTONUP:
                         self.dragging_bgm_slider = False
                         self.dragging_sfx_slider = False
-						
+
+                ##########################
                 # check for a changed SFX volume, if so, play a sample sound
-                if( abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO ):
+                ##########################
+                if abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO:
                     snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
                     snd.set_volume(self.gset.sfx_volume)
                     pygame.mixer.find_channel(True).play(snd)
