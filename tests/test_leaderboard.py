@@ -13,13 +13,13 @@ from unittest import mock
 from score import Score
 from leaderboard import Leaderboard
 from playerstate import PlayerState
+import persistence
 
 
 @pytest.fixture
 def leaderboard_partial():
     """
     Set up partially full leaderboard
-    :return:
     """
     score_list: list[Score] = [Score(50, 1, "ddd"),
                                Score(100, 1, "ccc"),
@@ -34,7 +34,6 @@ def leaderboard_partial():
 def leaderboard_full():
     """
     Set up full leaderboard
-    :return:
     """
     score_list: list[Score] = [
         Score(50, 1, "iii"),
@@ -56,8 +55,6 @@ def leaderboard_full():
 def test_is_high_score(leaderboard_partial):
     """
     Test that score of 1000 is within partial high score leaderboard
-    :param leaderboard_partial:
-    :return:
     """
     assert leaderboard_partial.is_high_score(1000)
 
@@ -65,8 +62,6 @@ def test_is_high_score(leaderboard_partial):
 def test_is_high_score_without_full_list(leaderboard_partial):
     """
     Test that score of 30 is within partial high score leaderboard
-    :param leaderboard_partial:
-    :return:
     """
     assert leaderboard_partial.is_high_score(30)
 
@@ -74,8 +69,6 @@ def test_is_high_score_without_full_list(leaderboard_partial):
 def test_is_high_score_without_full_list_same_low_score(leaderboard_partial):
     """
     Test that 50 is within partial high score leaderboard
-    :param leaderboard_partial:
-    :return:
     """
     assert leaderboard_partial.is_high_score(50)
 
@@ -83,8 +76,6 @@ def test_is_high_score_without_full_list_same_low_score(leaderboard_partial):
 def test_is_not_high_score_with_full_list(leaderboard_full):
     """
     Test that 30 is not within full high score leaderboard
-    :param leaderboard_full:
-    :return:
     """
     assert leaderboard_full.is_high_score(30) is False
 
@@ -92,8 +83,6 @@ def test_is_not_high_score_with_full_list(leaderboard_full):
 def test_is_not_high_score_with_full_list_same_min_score(leaderboard_full):
     """
     Test that 50 is not within full high score leaderboard
-    :param leaderboard_full:
-    :return:
     """
     assert leaderboard_full.is_high_score(50) is False
 
@@ -101,8 +90,6 @@ def test_is_not_high_score_with_full_list_same_min_score(leaderboard_full):
 def test_is_high_score_with_full_list(leaderboard_full):
     """
     Test that 400 is within full high score leaderboard
-    :param leaderboard_full:
-    :return:
     """
     assert leaderboard_full.is_high_score(400)
 
@@ -110,8 +97,6 @@ def test_is_high_score_with_full_list(leaderboard_full):
 def test_add_score_to_parial_list(leaderboard_partial):
     """
     Test that score is added to a partial list
-    :param leaderboard_partial:
-    :return:
     """
     ps = PlayerState()
     ps.score = 400
@@ -133,8 +118,6 @@ def test_add_score_to_parial_list(leaderboard_partial):
 def test_add_score_to_full_list(leaderboard_full):
     """
     Test that score is added to a full list and lowest score is no longer present in the list
-    :param leaderboard_full:
-    :return:
     """
     ps = PlayerState()
     ps.score = 400
@@ -157,3 +140,30 @@ def test_add_score_to_full_list(leaderboard_full):
     ]
     assert leaderboard_full.l_top_scores == expected_list
 
+
+def test_create_persisted_object_new_file():
+    with mock.patch.object(Leaderboard, "load", return_value=None) as mock_load, mock.patch('persistence.LEADERBOARD_FILENAME', "xyz"):
+        result = Leaderboard.create_persisted_object()
+        mock_load.assert_called_with("xyz")
+        assert isinstance(result, Leaderboard)
+
+
+def test_create_persisted_object_existing_file():
+    dummy_lb = Leaderboard()
+    with mock.patch.object(Leaderboard, "load", return_value=dummy_lb) as mock_load, mock.patch('persistence.LEADERBOARD_FILENAME', "xyz"):
+        result = Leaderboard.create_persisted_object()
+        mock_load.assert_called_with("xyz")
+        assert result is dummy_lb
+
+
+def test_load():
+    with mock.patch.object(persistence, "read_object") as mock_read:
+        Leaderboard.load("xyz")
+        mock_read.assert_called_with("xyz")
+
+
+def test_store():
+    lb = Leaderboard()
+    with mock.patch.object(persistence, "store_object") as mock_store:
+        lb.store("xyz")
+        mock_store.assert_called_with(lb, "xyz")

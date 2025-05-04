@@ -314,72 +314,98 @@ class GameEngine:
             case GameState.GameStateName.SETTINGS:
                 self.ui.draw_settings_screen(self.gset)
                 pygame.mouse.set_visible(True)
-				
+
                 old_sfx_vol = self.gset.sfx_volume
 
                 for event in events:
                     if event.type == pygame.MOUSEBUTTONDOWN:
+                        ##########################
+                        # Mute/Unmute background music
+                        ##########################
                         if self.ui.vol_bgm_btn_rect.collidepoint(event.pos):
-                            self.gset.bgm_sounds = not self.gset.bgm_sounds
+                            self.gset.bgm_sounds = not self.gset.bgm_sounds  # toggle music on/off
                             if self.gset.bgm_sounds:
                                 self.gset.music_volume = MUSIC_VOLUME_STEP
                             else:
                                 self.gset.music_volume = 0.0
                             pygame.mixer.music.set_volume(self.gset.music_volume)
+                        ##########################
+                        # Mute/Unmute sound effects
+                        ##########################
                         elif self.ui.vol_sfx_btn_rect.collidepoint(event.pos):
-                            self.gset.sfx_sounds = not self.gset.sfx_sounds
+                            self.gset.sfx_sounds = not self.gset.sfx_sounds  # toggle sound effects on/off
                             if self.gset.sfx_sounds:
                                 self.gset.sfx_volume = SFX_VOLUME_STEP
                             else:
                                 self.gset.sfx_volume = 0.0
+                        ##########################
+                        # Return to the main menu
+                        ##########################
                         elif self.ui.back_button_rect.collidepoint(event.pos):
                             self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+                        ##########################
+                        # Prepare to adjust background music with slider
+                        ##########################
                         elif self.ui.knob_bg_rect.collidepoint(event.pos):
                             self.dragging_bgm_slider = True
+                        ##########################
+                        # Prepare to adjust sounds effects with slider
+                        ##########################
                         elif self.ui.knob_sf_rect.collidepoint(event.pos):
                             self.dragging_sfx_slider = True
+                        # #########################
+                        # Toggle paddle control
+                        # auto -> mouse -> auto -> keyboard -> repeat
+                        # #########################
                         elif self.ui.pad_btn_rect.collidepoint(event.pos):
                             if not self.gset.paddle_under_auto_control:
                                 self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
                             else:
                                 self.gset.paddle_under_mouse_control = not self.gset.paddle_under_mouse_control
                                 self.gset.paddle_under_auto_control = not self.gset.paddle_under_auto_control
+                        # #########################
+                        # Toggle fullscreen/windowed
+                        # #########################
                         elif self.ui.graphics_btn_rect.collidepoint(event.pos):
                             self.gset.is_fullscreen = not self.gset.is_fullscreen
                             self.set_graphics_mode()
 
+                    ##########################
+                    # Adjust background music and sounds effects using slider
+                    ##########################
                     elif event.type == pygame.MOUSEMOTION:
                         if self.dragging_bgm_slider:
-                            slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75
-                            new_vol = (event.pos[0] - (
-                                        slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                            self.gset.music_volume = max(0.0, min(1.0, round(
-                                new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
+                            slider_bg_x = self.ui.vol_bgm_btn_rect.centerx + 75  # where the slider bar begins
+                            new_vol = (event.pos[0] - (slider_bg_x - KNOB_RADIUS)) / SLIDER_WIDTH
+                            self.gset.music_volume = max(0.0, min(1.0, round(new_vol / MUSIC_VOLUME_STEP) * MUSIC_VOLUME_STEP))
                             pygame.mixer.music.set_volume(self.gset.music_volume)
-								
+
                             # you have to set this mute toggle based on the dragged volume setting, otherwise
                             # once muted with an icon press, you can ONLY unmute with another press - the slider
                             # is locked at the mute position
                             self.gset.bgm_sounds = False if abs(self.gset.music_volume) < CLOSE_TO_ZERO else True
-								
+
                         if self.dragging_sfx_slider:
-                            slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75
-                            new_vol = (event.pos[0] - (
-                                        slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
-                            self.gset.sfx_volume = max(0.0, min(1.0, round(
-                                new_vol / SFX_VOLUME_STEP) * SFX_VOLUME_STEP))
-								
+                            slider_sf_x = self.ui.vol_sfx_btn_rect.centerx + 75  # where the slider bar begins
+                            new_vol = (event.pos[0] - (slider_sf_x - KNOB_RADIUS)) / SLIDER_WIDTH
+                            self.gset.sfx_volume = max(0.0, min(1.0, round(new_vol / SFX_VOLUME_STEP) * SFX_VOLUME_STEP))
+
                             # you have to set this mute toggle based on the dragged volume setting, otherwise
                             # once muted with an icon press, you can ONLY unmute with another press - the slider
                             # is locked at the mute position
                             self.gset.sfx_sounds = False if abs(self.gset.sfx_volume) < CLOSE_TO_ZERO else True
-							
+
+                    ##########################
+                    # Reset slider checks to False
+                    ##########################
                     elif event.type == pygame.MOUSEBUTTONUP:
                         self.dragging_bgm_slider = False
                         self.dragging_sfx_slider = False
-						
+
+                ##########################
                 # check for a changed SFX volume, if so, play a sample sound
-                if( abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO ):
+                ##########################
+                if abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO:
                     snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
                     snd.set_volume(self.gset.sfx_volume)
                     pygame.mixer.find_channel(True).play(snd)
@@ -544,6 +570,167 @@ class GameEngine:
             # not colliding now, it resets the latch or 'primed for collision' flag
             other_wo.prime_for_collision()
 
+    def handle_events(self, events):
+        ##############################################################
+        # event handling
+        ##############################################################
+        for event in events:
+            if event.type == pygame.QUIT:
+                self.clean_shutdown()
+
+            if event.type == pygame.KEYDOWN:
+                # toggle PAUSE GameState with ESCAPE key press
+                if event.key == pygame.K_ESCAPE:
+                    if (self.gs.cur_state == GameState.GameStateName.PLAYING or
+                            self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH):
+                        self.prev_state = self.gs.cur_state
+                        self.gs.cur_state = GameState.GameStateName.PAUSED
+                        self.mouse_pos = pygame.mouse.get_pos()
+                        pygame.mouse.set_visible(True)
+                    elif self.gs.cur_state == GameState.GameStateName.PAUSED:
+                        self.gs.cur_state = self.prev_state
+                        pygame.mouse.set_pos(self.mouse_pos)
+                        pygame.mouse.set_visible(False)
+
+                if event.key == pygame.K_SPACE:
+                    if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
+                        self.gs.cur_state = GameState.GameStateName.PLAYING
+
+                # detect the CTRL+d key combo to toggle the dev overlay
+                # calculation and display
+                if event.key == pygame.K_d:
+                    if event.mod & pygame.KMOD_CTRL:
+                        self.gs.show_dev_overlay = not self.gs.show_dev_overlay
+
+                # detect the CTRL+a key combo to toggle the AUTO-PLAY mode
+                # on and off
+                if event.key == pygame.K_a:
+                    if event.mod & pygame.KMOD_CTRL:
+                        self.gs.auto_play = not self.gs.auto_play
+
+                # detect the CTRL+p and CTRL+SHIFT+p key combos to
+                # increase/decrease the PADDLE_IMPULSE
+                if event.key == pygame.K_p:
+                    if event.mod & pygame.KMOD_CTRL:
+                        if event.mod & pygame.KMOD_SHIFT:
+                            self.gs.paddle_impulse_vel_length -= PADDLE_IMPULSE_INCREMENT
+                            if self.gs.paddle_impulse_vel_length < 0.0:
+                                self.gs.paddle_impulse_vel_length = 0.0
+                        else:
+                            self.gs.paddle_impulse_vel_length += PADDLE_IMPULSE_INCREMENT
+
+                # detect the CTRL+g and CTRL+SHIFT+g key combos to
+                # increase/decrease the WORLD_GRAVITY_ACC
+                if event.key == pygame.K_g:
+                    if event.mod & pygame.KMOD_CTRL:
+                        if event.mod & pygame.KMOD_SHIFT:
+                            self.gs.gravity_acc_length -= WORLD_GRAVITY_ACC_INCREMENT
+                            if self.gs.gravity_acc_length < 0.0:
+                                self.gs.gravity_acc_length = 0.0
+                            self.gs.v_gravity_acc = self.gs.v_gravity_unit * self.gs.gravity_acc_length
+                        else:
+                            self.gs.gravity_acc_length += WORLD_GRAVITY_ACC_INCREMENT
+                            self.gs.v_gravity_acc = self.gs.v_gravity_unit * self.gs.gravity_acc_length
+
+                # detect the CTRL+s and CTRL+SHIFT+s key combos to
+                # increase/decrease the BALL_SPEED_STEP
+                if event.key == pygame.K_s:
+                    if event.mod & pygame.KMOD_CTRL:
+                        if event.mod & pygame.KMOD_SHIFT:
+                            self.gs.ball_speed_step -= BALL_SPEED_STEP_INCREMENT
+                        else:
+                            self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
+
+                # detect the CTRL+m key combo to cycle through the various motion models
+                if event.key == pygame.K_m:
+                    if event.mod & pygame.KMOD_CTRL:
+                        match self.gs.motion_model:
+                            case MotionModels.SIMPLE_1:
+                                self.gs.motion_model = MotionModels.VECTOR_1
+                            case MotionModels.VECTOR_1:
+                                self.gs.motion_model = MotionModels.SIMPLE_1
+
+                # detect the CTRL+'=' and CTRL+'-' key combos to adjust music volume
+                if event.key == pygame.K_EQUALS:
+                    if event.mod & pygame.KMOD_CTRL:
+                        if event.mod & pygame.KMOD_SHIFT:
+
+                            old_sfx_vol = self.gset.sfx_volume
+
+                            self.gset.sfx_sounds = True
+                            self.gset.sfx_volume += SFX_VOLUME_STEP
+                            self.gset.sfx_volume = min(self.gset.sfx_volume, 1.0)
+
+                            # check for a changed SFX volume, if so, play a sample sound
+                            if (self.gs.cur_state == GameState.GameStateName.SETTINGS) and (abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO):
+                                snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
+                                snd.set_volume(self.gset.sfx_volume)
+                                pygame.mixer.find_channel(True).play(snd)
+
+                        else:
+                            self.gset.bgm_sounds = True
+                            self.gset.music_volume += MUSIC_VOLUME_STEP
+                            self.gset.music_volume = min(self.gset.music_volume, 1.0)
+                            pygame.mixer.music.set_volume(self.gset.music_volume)
+
+                # detect the CTRL+'+' and CTRL+'-' key combos to adjust music volume
+                if event.key == pygame.K_MINUS:
+                    if event.mod & pygame.KMOD_CTRL:
+                        if event.mod & pygame.KMOD_SHIFT:
+
+                            old_sfx_vol = self.gset.sfx_volume
+
+                            self.gset.sfx_volume -= SFX_VOLUME_STEP
+                            self.gset.sfx_volume = max(self.gset.sfx_volume, 0.0)
+                            if abs(self.gset.sfx_volume) < CLOSE_TO_ZERO:
+                                self.gset.sfx_sounds = False
+
+                            # check for a changed SFX volume, if so, play a sample sound
+                            if (self.gs.cur_state == GameState.GameStateName.SETTINGS) and (abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO):
+                                snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
+                                snd.set_volume(self.gset.sfx_volume)
+                                pygame.mixer.find_channel(True).play(snd)
+
+                        else:
+                            self.gset.music_volume -= MUSIC_VOLUME_STEP
+                            self.gset.music_volume = max(self.gset.music_volume, 0.0)
+                            if abs(self.gset.music_volume) < CLOSE_TO_ZERO:
+                                self.gset.bgm_sounds = False
+                            pygame.mixer.music.set_volume(self.gset.music_volume)
+
+                # detect the CTRL+l to force-load next level in sequence
+                if event.key == pygame.K_l:
+                    if event.mod & pygame.KMOD_CTRL:
+                        self.ps.level += 1
+                        self.next_level()
+
+                # handle initials textbox input
+                if self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE:
+                    if (event.key == pygame.K_RETURN) or (event.key == pygame.K_KP_ENTER):
+                        self.lb.add_score(self.ps, self.ui)
+                        self.gs.cur_state = GameState.GameStateName.GAME_OVER
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.ui.tb_initials_text = self.ui.tb_initials_text[:-1]
+                    elif len(self.ui.tb_initials_text) < SCORE_INITIALS_MAX:
+                        self.ui.tb_initials_text += event.unicode
+
+            # the actual button press checks from the returned rects above
+            if (event.type == pygame.MOUSEBUTTONDOWN and
+                    ((self.gs.cur_state == GameState.GameStateName.PAUSED) or
+                     (self.gs.cur_state == GameState.GameStateName.GAME_OVER))):
+                if self.restart_game_button.collidepoint(event.pos):
+                    self.reset_game()
+                if self.quit_game_button.collidepoint(event.pos):
+                    self.clean_shutdown()
+                if self.main_menu_button.collidepoint(event.pos):
+                    self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
+            if (event.type == pygame.MOUSEBUTTONDOWN and
+                    (self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE)):
+                if self.high_score_enter_btn.collidepoint(event.pos):
+                    self.lb.add_score(self.ps, self.ui)
+                    self.gs.cur_state = GameState.GameStateName.GAME_OVER
+
     def run_loop(self) -> None:
         """
         Runs the main game loop
@@ -561,166 +748,7 @@ class GameEngine:
 
             self.handle_gamestate(events)
 
-            ##############################################################
-            # event handling
-            ##############################################################
-
-            for event in events:
-                if event.type == pygame.QUIT:
-                    self.clean_shutdown()
-
-                if event.type == pygame.KEYDOWN:
-                    # toggle PAUSE GameState with ESCAPE key press
-                    if event.key == pygame.K_ESCAPE:
-                        if (self.gs.cur_state == GameState.GameStateName.PLAYING or
-                                self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH):
-                            self.prev_state = self.gs.cur_state
-                            self.gs.cur_state = GameState.GameStateName.PAUSED
-                            self.mouse_pos = pygame.mouse.get_pos()
-                            pygame.mouse.set_visible(True)
-                        elif self.gs.cur_state == GameState.GameStateName.PAUSED:
-                            self.gs.cur_state = self.prev_state
-                            pygame.mouse.set_pos(self.mouse_pos)
-                            pygame.mouse.set_visible(False)
-
-                    if event.key == pygame.K_SPACE:
-                        if self.gs.cur_state == GameState.GameStateName.READY_TO_LAUNCH:
-                            self.gs.cur_state = GameState.GameStateName.PLAYING
-
-                    # detect the CTRL+d key combo to toggle the dev overlay
-                    # calculation and display
-                    if event.key == pygame.K_d:
-                        if event.mod & pygame.KMOD_CTRL:
-                            self.gs.show_dev_overlay = not self.gs.show_dev_overlay
-
-                    # detect the CTRL+a key combo to toggle the AUTO-PLAY mode
-                    # on and off
-                    if event.key == pygame.K_a:
-                        if event.mod & pygame.KMOD_CTRL:
-                            self.gs.auto_play = not self.gs.auto_play
-
-                    # detect the CTRL+p and CTRL+SHIFT+p key combos to
-                    # increase/decrease the PADDLE_IMPULSE
-                    if event.key == pygame.K_p:
-                        if event.mod & pygame.KMOD_CTRL:
-                            if event.mod & pygame.KMOD_SHIFT:
-                                self.gs.paddle_impulse_vel_length -= PADDLE_IMPULSE_INCREMENT
-                                if self.gs.paddle_impulse_vel_length < 0.0:
-                                    self.gs.paddle_impulse_vel_length = 0.0
-                            else:
-                                self.gs.paddle_impulse_vel_length += PADDLE_IMPULSE_INCREMENT
-
-                    # detect the CTRL+g and CTRL+SHIFT+g key combos to
-                    # increase/decrease the WORLD_GRAVITY_ACC
-                    if event.key == pygame.K_g:
-                        if event.mod & pygame.KMOD_CTRL:
-                            if event.mod & pygame.KMOD_SHIFT:
-                                self.gs.gravity_acc_length -= WORLD_GRAVITY_ACC_INCREMENT
-                                if self.gs.gravity_acc_length < 0.0:
-                                    self.gs.gravity_acc_length = 0.0
-                                self.gs.v_gravity_acc = self.gs.v_gravity_unit * self.gs.gravity_acc_length
-                            else:
-                                self.gs.gravity_acc_length += WORLD_GRAVITY_ACC_INCREMENT
-                                self.gs.v_gravity_acc = self.gs.v_gravity_unit * self.gs.gravity_acc_length
-
-                    # detect the CTRL+s and CTRL+SHIFT+s key combos to
-                    # increase/decrease the BALL_SPEED_STEP
-                    if event.key == pygame.K_s:
-                        if event.mod & pygame.KMOD_CTRL:
-                            if event.mod & pygame.KMOD_SHIFT:
-                                self.gs.ball_speed_step -= BALL_SPEED_STEP_INCREMENT
-                            else:
-                                self.gs.ball_speed_step += BALL_SPEED_STEP_INCREMENT
-
-                    # detect the CTRL+m key combo to cycle through the various motion models
-                    if event.key == pygame.K_m:
-                        if event.mod & pygame.KMOD_CTRL:
-                            match self.gs.motion_model:
-                                case MotionModels.SIMPLE_1:
-                                    self.gs.motion_model = MotionModels.VECTOR_1
-                                case MotionModels.VECTOR_1:
-                                    self.gs.motion_model = MotionModels.SIMPLE_1
-
-                    # detect the CTRL+'=' and CTRL+'-' key combos to adjust music volume
-                    if event.key == pygame.K_EQUALS:
-                        if event.mod & pygame.KMOD_CTRL:
-                            if event.mod & pygame.KMOD_SHIFT:
-
-                                old_sfx_vol = self.gset.sfx_volume
-
-                                self.gset.sfx_sounds = True
-                                self.gset.sfx_volume += SFX_VOLUME_STEP
-                                self.gset.sfx_volume = min(self.gset.sfx_volume, 1.0)
-
-                                # check for a changed SFX volume, if so, play a sample sound
-                                if (self.gs.cur_state == GameState.GameStateName.SETTINGS) and (abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO):
-                                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
-                                    snd.set_volume(self.gset.sfx_volume)
-                                    pygame.mixer.find_channel(True).play(snd)
-
-                            else:
-                                self.gset.bgm_sounds = True
-                                self.gset.music_volume += MUSIC_VOLUME_STEP
-                                self.gset.music_volume = min(self.gset.music_volume, 1.0)
-                                pygame.mixer.music.set_volume(self.gset.music_volume)
-
-                    # detect the CTRL+'+' and CTRL+'-' key combos to adjust music volume
-                    if event.key == pygame.K_MINUS:
-                        if event.mod & pygame.KMOD_CTRL:
-                            if event.mod & pygame.KMOD_SHIFT:
-
-                                old_sfx_vol = self.gset.sfx_volume
-
-                                self.gset.sfx_volume -= SFX_VOLUME_STEP
-                                self.gset.sfx_volume = max(self.gset.sfx_volume, 0.0)
-                                if abs(self.gset.sfx_volume) < CLOSE_TO_ZERO:
-                                    self.gset.sfx_sounds = False
-
-                                # check for a changed SFX volume, if so, play a sample sound
-                                if (self.gs.cur_state == GameState.GameStateName.SETTINGS) and (abs(self.gset.sfx_volume - old_sfx_vol) > CLOSE_TO_ZERO):
-                                    snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.PADDLE_SFX)
-                                    snd.set_volume(self.gset.sfx_volume)
-                                    pygame.mixer.find_channel(True).play(snd)
-
-                            else:
-                                self.gset.music_volume -= MUSIC_VOLUME_STEP
-                                self.gset.music_volume = max(self.gset.music_volume, 0.0)
-                                if abs(self.gset.music_volume) < CLOSE_TO_ZERO:
-                                    self.gset.bgm_sounds = False
-                                pygame.mixer.music.set_volume(self.gset.music_volume)
-
-                    # detect the CTRL+l to force-load next level in sequence
-                    if event.key == pygame.K_l:
-                        if event.mod & pygame.KMOD_CTRL:
-                            self.ps.level += 1
-                            self.next_level()
-
-                    # handle initials textbox input
-                    if self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE:
-                        if (event.key == pygame.K_RETURN) or (event.key == pygame.K_KP_ENTER):
-                            self.lb.add_score(self.ps, self.ui)
-                            self.gs.cur_state = GameState.GameStateName.GAME_OVER
-                        elif event.key == pygame.K_BACKSPACE:
-                            self.ui.tb_initials_text = self.ui.tb_initials_text[:-1]
-                        elif len(self.ui.tb_initials_text) < SCORE_INITIALS_MAX:
-                            self.ui.tb_initials_text += event.unicode
-
-                # the actual button press checks from the returned rects above
-                if (event.type == pygame.MOUSEBUTTONDOWN and
-                        ((self.gs.cur_state == GameState.GameStateName.PAUSED) or
-                         (self.gs.cur_state == GameState.GameStateName.GAME_OVER))):
-                    if self.restart_game_button.collidepoint(event.pos):
-                        self.reset_game()
-                    if self.quit_game_button.collidepoint(event.pos):
-                        self.clean_shutdown()
-                    if self.main_menu_button.collidepoint(event.pos):
-                        self.gs.cur_state = GameState.GameStateName.MENU_SCREEN
-
-                if (event.type == pygame.MOUSEBUTTONDOWN and
-                        (self.gs.cur_state == GameState.GameStateName.GET_HIGH_SCORE)):
-                    if self.high_score_enter_btn.collidepoint(event.pos):
-                        self.lb.add_score(self.ps, self.ui)
-                        self.gs.cur_state = GameState.GameStateName.GAME_OVER
+            self.handle_events(events)
 
             # get the continuously pressed keys, rather than single key press events
             pressed_keys = pygame.key.get_pressed()

@@ -19,26 +19,21 @@ from ball import Ball
 from constants import BALL_RADIUS, BALL_SPEED_SIMPLE, WIDTH, HEIGHT, WHITE
 from gamestate import GameState
 from motionmodels import MotionModels
-from leaderboard import Leaderboard
 
 
 @pytest.fixture
 def ball():
     """
     Create a ball to be used for testing
-    :return:
     """
-    pygame.init()
     ball = Ball(x=10, y=10)
     yield ball
-    pygame.quit()
 
 
 @pytest.fixture
 def paddle():
     """
     Create paddle to be used in testing
-    :return:
     """
     a_paddle = Paddle(WHITE, 100, 50)
     a_paddle.rect = pygame.Rect(90, 90, 10, 10)
@@ -49,7 +44,6 @@ def paddle():
 def playerstate():
     """
     Set up a playerstate for tests
-    :return:
     """
     class PlayerState:
         def __init__(self):
@@ -62,11 +56,11 @@ def playerstate():
 def gamestate():
     """
     Set up gamestate for tests
-    :return:
     """
     class GameState:
         class GameStateName(Enum):
             PLAYING: Enum = auto()
+
         def __init__(self):
             self.cur_state = GameState.GameStateName.PLAYING
             self.motion_model = MotionModels.SIMPLE_1
@@ -76,6 +70,7 @@ def gamestate():
             self.cur_ball_x = 0
             self.level_cleared = False
     return GameState()
+
 
 @pytest.fixture
 def gamesettings():

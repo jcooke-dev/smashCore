@@ -240,7 +240,7 @@ def test_generate_grid_level_with_skipped_positions():
         assert pos not in skipped_bricks
 
 
-@patch ("pygame.transform.scale")
+@patch("pygame.transform.scale")
 @patch("pygame.font.Font")
 def test_generate_grid_level_with_strong_bricks(mock_font, mock_scaled_image):
     """

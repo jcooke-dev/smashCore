@@ -23,7 +23,7 @@ class Leaderboard:
     @classmethod
     def create_persisted_object(cls):
         """
-        Creates a leaderbard file if none exist
+        Creates a leaderboard file if none exist
         :return:
         """
         lb = cls.load(persistence.LEADERBOARD_FILENAME)

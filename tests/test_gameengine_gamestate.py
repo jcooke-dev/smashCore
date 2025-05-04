@@ -28,10 +28,9 @@ from leaderboard import Leaderboard
 from ball import Ball
 from brick import Brick
 from paddle import Paddle
-from worldobject import WorldObject
 from animation import Animation
-from worldobject import WorldObject
 import utils
+
 
 @pytest.fixture
 def mock_pygame():
@@ -40,6 +39,8 @@ def mock_pygame():
     """
     with mock.patch("pygame.mixer.init") as mock_mixer_init, \
          mock.patch("pygame.mixer.music") as mock_mixer_music, \
+         mock.patch.object(pygame.mixer, "Sound") as mock_mixer_sound, \
+         mock.patch.object(pygame.mixer, "find_channel") as mock_mixer_find_channel, \
          mock.patch("pygame.mouse.set_visible") as mock_mouse_set_visible, \
          mock.patch("pygame.mouse.get_pos", return_value=[4]) as mock_mouse_pos, \
          mock.patch("pygame.time.get_ticks", return_value=123456) as mock_get_ticks, \
@@ -55,6 +56,8 @@ def mock_pygame():
         yield {
             "mixer_init": mock_mixer_init,
             "mixer.music": mock_mixer_music,
+            "mixer.sound": mock_mixer_sound,
+            "mixer.find_channel": mock_mixer_find_channel,
             "set_mode": mock_set_mode,
             "get_ticks": mock_get_ticks,
             "font": mock_font,
@@ -76,6 +79,9 @@ def starting_ge(mock_pygame):
         gset = mock.MagicMock(GameSettings)
         gset.paddle_under_auto_control = True
         gset.paddle_under_mouse_control = True
+        gset.sfx_volume = 0.5
+        gset.music_volume = 0.5
+
         gs = GameState()
         gw = mock.MagicMock(GameWorld)
         gw.world_objects = []
@@ -94,6 +100,8 @@ def starting_ge_main_menu(starting_ge):
     Set up the buttons as if the main menu is displayed
     """
     ge, mock_pygame = starting_ge
+    ge.gs.cur_state = GameState.GameStateName.MENU_SCREEN
+
     ge.ui.start_classic_button_rect = pygame.Rect(100, 100, 100, 50)
     ge.ui.start_modern_button_rect = pygame.Rect(100, 200, 100, 50)
     ge.ui.how_to_play_button_rect = pygame.Rect(100, 300, 100, 50)
@@ -103,6 +111,37 @@ def starting_ge_main_menu(starting_ge):
     ge.ui.quit_button_start_rect = pygame.Rect(100, 700, 100, 50)
     return ge, mock_pygame
 
+
+@pytest.fixture
+def starting_ge_settings(starting_ge):
+    """
+    Set up the buttons as if settings screen
+    """
+    ge, mock_pygame = starting_ge
+    ge.gs.cur_state = GameState.GameStateName.SETTINGS
+
+    ge.ui.vol_bgm_btn_rect = mock.MagicMock(pygame.Rect)
+    ge.ui.vol_bgm_btn_rect.collidepoint.return_value = False
+
+    ge.ui.vol_sfx_btn_rect = mock.MagicMock(pygame.Rect)
+    ge.ui.vol_sfx_btn_rect.collidepoint.return_value = False
+
+    ge.ui.back_button_rect = mock.MagicMock(pygame.Rect)
+    ge.ui.back_button_rect.collidepoint.return_value = False
+
+    ge.ui.knob_bg_rect = mock.MagicMock(pygame.Rect)
+    ge.ui.knob_bg_rect.collidepoint.return_value = False
+
+    ge.ui.knob_sf_rect = mock.MagicMock(pygame.Rect)
+    ge.ui.knob_sf_rect.collidepoint.return_value = False
+
+    ge.ui.pad_btn_rect = mock.MagicMock(pygame.Rect)
+    ge.ui.pad_btn_rect.collidepoint.return_value = False
+
+    ge.ui.graphics_btn_rect = mock.MagicMock(pygame.Rect)
+    ge.ui.graphics_btn_rect.collidepoint.return_value = False
+
+    return ge, mock_pygame
 
 
 def test_gamestate_splash(starting_ge_main_menu):
@@ -129,7 +168,6 @@ def test_gamestate_menu_play_btn(position, theme, starting_ge_main_menu):
     Tests that reset_game was called
     """
     ge, mock_pygame = starting_ge_main_menu
-    ge.gs.cur_state = GameState.GameStateName.MENU_SCREEN
     ge.ps.theme = LevelTheme.NO_THEME
     event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=position)
 
@@ -147,7 +185,6 @@ def test_gamestate_menu_quit_btn(starting_ge_main_menu):
     Tests quit button is pressed and clean_shutdown is called
     """
     ge, mock_pygame = starting_ge_main_menu
-    ge.gs.cur_state = GameState.GameStateName.MENU_SCREEN
     event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=(150, 725))
 
     with patch.object(ge, 'clean_shutdown') as mock_clean_shutdown:
@@ -165,7 +202,6 @@ def test_gamestate_menu_click_remaining_btns(position, game_state, starting_ge_m
     Tests remaining buttons are clicked: How to play, settings, leaderboard, credits
     """
     ge, mock_pygame = starting_ge_main_menu
-    ge.gs.cur_state = GameState.GameStateName.MENU_SCREEN
     event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=position)
     ge.handle_gamestate([event])
     assert ge.gs.cur_state == game_state
@@ -537,3 +573,260 @@ def test_handle_collisions_no_effect_on_disallowed_collision(starting_ge):
     other_wo.add_collision.assert_not_called()
     other_wo.trigger_destruction_effect.assert_not_called()
     assert other_wo in ge.gw.world_objects
+
+
+def test_settings_initialization(starting_ge_settings):
+    """
+    Test GameState is SETTNGS, mouse is visible, draw_settings_screen was called
+    """
+    ge, mock_pygame = starting_ge_settings
+
+    ge.handle_gamestate([])
+
+    ge.ui.draw_settings_screen.assert_called_once_with(ge.gset)
+    mock_pygame["mouse_set_visible"].assert_called_with(True)
+
+
+@pytest.mark.parametrize('bgm_sound, bgm_volume', [(True, 0.5), (False, 0.0), (False, 0.5)])
+def test_settings_toggle_bgm(bgm_sound, bgm_volume, starting_ge_settings):
+    """
+    Toggles background music off and on
+    """
+    ge, mock_pygame = starting_ge_settings
+    ge.gset.bgm_sounds = bgm_sound
+    ge.gset.music_volume = bgm_volume
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEBUTTONDOWN
+
+    # button being tested
+    ge.ui.vol_bgm_btn_rect.collidepoint.return_value = True
+
+    ge.handle_gamestate([event])
+
+    if bgm_sound:  # previous had sound, should now be mute
+        assert not ge.gset.bgm_sounds
+        assert ge.gset.music_volume <= 0
+    else:  # was previously mute, now has sound
+        assert ge.gset.bgm_sounds
+        assert ge.gset.music_volume == constants.MUSIC_VOLUME_STEP
+
+    mock_pygame['mixer.music'].set_volume.assert_called_with(ge.gset.music_volume)
+    assert ge.gs.cur_state == GameState.GameStateName.SETTINGS
+
+
+@pytest.mark.parametrize('sfx_sound, sfx_volume', [(True, 0.5), (False, 0.0), (False, 0.5)])
+def test_settings_toggle_sfx(sfx_sound, sfx_volume, starting_ge_settings):
+    """
+    Toggles sound effects off and on
+    """
+    ge, mock_pygame = starting_ge_settings
+    ge.gset.sfx_sounds = sfx_sound
+    ge.gset.sfx_volume = sfx_volume
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEBUTTONDOWN
+
+    # button being tested
+    ge.ui.vol_sfx_btn_rect.collidepoint.return_value = True
+
+    ge.handle_gamestate([event])
+
+    if sfx_sound:  # previous had sound effects, should now be mute
+        assert not ge.gset.sfx_sounds
+        assert ge.gset.sfx_volume <= 0
+    else:  # sound effects were previously mute, now have sound
+        assert ge.gset.sfx_sounds
+        assert ge.gset.sfx_volume == constants.SFX_VOLUME_STEP
+
+    assert ge.gs.cur_state == GameState.GameStateName.SETTINGS
+
+
+def test_settings_main_menu_btn_clicked(starting_ge_settings):
+    """
+    Tests the GameState changes to MENU_SCREEN when the back button is clicked
+    """
+    ge, mock_pygame = starting_ge_settings
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEBUTTONDOWN
+
+    # button being tested
+    ge.ui.back_button_rect.collidepoint.return_value = True
+
+    ge.handle_gamestate([event])
+
+    assert ge.gs.cur_state == GameState.GameStateName.MENU_SCREEN
+
+
+def test_settings_prep_music_slider(starting_ge_settings):
+    """
+    get the background music slider ready to be moved
+    """
+    ge, mock_pygame = starting_ge_settings
+    ge.dragging_bgm_slider = False
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEBUTTONDOWN
+
+    # button being tested
+    ge.ui.knob_bg_rect.collidepoint.return_value = True
+
+    ge.handle_gamestate([event])
+
+    assert ge.dragging_bgm_slider
+
+
+def test_settings_prep_sfx_slider(starting_ge_settings):
+    """
+    get the sfx slider ready to be moved
+    """
+    ge, mock_pygame = starting_ge_settings
+    ge.dragging_sfx_slider = False
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEBUTTONDOWN
+
+    ge.gset.paddle_under_auto_control = True
+    ge.gset.paddle_under_mouse_control = True
+
+    # button being tested
+    ge.ui.knob_sf_rect.collidepoint.return_value = True
+
+    ge.handle_gamestate([event])
+
+    assert ge.dragging_sfx_slider
+
+
+@pytest.mark.parametrize("starting_auto_state, starting_mouse_state, ending_auto_state, ending_mouse_state",
+                         [(True, True, False, False),  # starting paddle is auto, will result in keyboard
+                          (True, False, False, True),  # starting paddle is auto, will result in mouse
+                          (False, False, True, False),  # starting paddle is keyboard, will result in auto
+                          (False, True,  True, True),  # starting paddle is mouse, will result in auto
+                          ])
+def test_settings_paddle_control_toggle(starting_auto_state, starting_mouse_state, ending_auto_state, ending_mouse_state, starting_ge_settings):
+    """
+    for auto detection auto_control is T, mouse_control is T or F
+    for mouse control, auto_control is F and mouse_control is T
+    for keyboard control, auto_control is F and mouse_control is F
+
+    Tests that ge.gset.paddle_under_auto_control and ge.gset.paddle_under_mouse_control are set based correctly
+    """
+    ge, mock_pygame = starting_ge_settings
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEBUTTONDOWN
+
+    # button being tested
+    ge.ui.pad_btn_rect.collidepoint.return_value = True
+    ge.gset.paddle_under_auto_control = starting_auto_state
+    ge.gset.paddle_under_mouse_control = starting_mouse_state
+
+    ge.handle_gamestate([event])
+
+    assert ge.gs.cur_state == GameState.GameStateName.SETTINGS
+    assert ge.gset.paddle_under_auto_control is ending_auto_state
+    assert ge.gset.paddle_under_mouse_control is ending_mouse_state
+
+
+@pytest.mark.parametrize("screen_mode", [True, False])
+def test_settings_toggle_fullscreen_windowed(screen_mode, starting_ge_settings):
+    """
+    Tests that screen size toggles between full and window
+    """
+    ge, mock_pygame = starting_ge_settings
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEBUTTONDOWN
+
+    # button being tested
+    ge.ui.graphics_btn_rect.collidepoint.return_value = True
+    ge.gset.is_fullscreen = screen_mode
+
+    with patch.object(ge, 'set_graphics_mode') as set_graphics_mode:
+        ge.handle_gamestate([event])
+
+        assert ge.gset.is_fullscreen is not screen_mode
+        set_graphics_mode.assert_called()
+        assert ge.gs.cur_state == GameState.GameStateName.SETTINGS
+
+
+@pytest.mark.parametrize("old_volume, new_x_position, expected_new_volume",
+                         [(0.75, 772, 0.625),
+                          (0.875, 856, 0.75),
+                          (0.625, 770, 0.625),
+                          (1, 1000, 1),
+                          (0, 10, 0)])
+def test_settings_adjust_music_slider(old_volume, new_x_position, expected_new_volume, starting_ge_settings):
+    """
+    Tests background music settings are adjusted based on the slider x position
+    """
+    ge, mock_pygame = starting_ge_settings
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEMOTION
+    event.pos = [new_x_position]
+
+    ge.dragging_bgm_slider = True
+    ge.ui.vol_bgm_btn_rect.centerx = 237
+
+    ge.handle_gamestate([event])
+
+    assert ge.gset.music_volume == expected_new_volume
+    mock_pygame['mixer.music'].set_volume.assert_called_with(ge.gset.music_volume)
+    if expected_new_volume == 0:
+        assert not ge.gset.bgm_sounds  # volume is 0, bgm_sound is off
+    else:
+        assert ge.gset.bgm_sounds  # volume is > 0, bgm_sound is on
+
+
+@pytest.mark.parametrize("old_volume, new_x_position, expected_new_volume",
+                         [(0.75, 772, 0.625),
+                          (0.875, 856, 0.75),
+                          (0.625, 770, 0.625),
+                          (1, 1000, 1),
+                          (0, 10, 0)])
+def test_settings_adjust_sfx_slider(old_volume, new_x_position, expected_new_volume, starting_ge_settings):
+    """
+    Tests sound effect settings are adjusted based on the slider x position
+    """
+    ge, mock_pygame = starting_ge_settings
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEMOTION
+    event.pos = [new_x_position]
+
+    ge.dragging_sfx_slider = True
+    ge.ui.vol_sfx_btn_rect.centerx = 237
+
+    ge.handle_gamestate([event])
+
+    assert ge.gset.sfx_volume == expected_new_volume
+    if expected_new_volume == 0:
+        assert not ge.gset.sfx_sounds  # volume is 0, bgm_sound is off
+    else:
+        assert ge.gset.sfx_sounds  # volume is > 0, bgm_sound is on
+
+
+def test_settings_reset_slider_checks(starting_ge_settings):
+    """
+    Tests sliders are set to falase on MOUSEBUTTONUP
+    """
+    ge, mock_pygame = starting_ge_settings
+
+    event = mock.MagicMock()
+    event.type = pygame.MOUSEBUTTONUP
+
+    ge.dragging_bgm_slider = True
+    ge.dragging_sfx_slider = True
+
+    ge.handle_gamestate([event])
+
+    assert not ge.dragging_bgm_slider
+    assert not ge.dragging_sfx_slider
+
+
+
+
+
+
