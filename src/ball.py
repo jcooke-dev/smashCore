@@ -13,6 +13,7 @@ import random as rnd
 import pygame
 
 import constants
+import obstacle
 import paddle
 import assets
 from constants import HEIGHT
@@ -276,6 +277,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                 if wo.delta_x * self.dx < 0:
                     self.dx = -self.dx
 
+            if isinstance(wo, obstacle.Obstacle):
+                snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.BRICK_BOUNCE_SFX)
+                snd.set_volume(gset.sfx_volume)
+                pygame.mixer.find_channel(True).play(snd)
+
         ##############################################################
         # determine how/which direction to bounce after collision under
         # the VECTOR models
@@ -323,6 +329,11 @@ class Ball(WorldObject, pygame.sprite.Sprite):
                 if wo.delta_x * self.v_vel_unit.x < 0:
                     self.v_vel_unit.x = -self.v_vel_unit.x
                     self.v_vel.x = -self.v_vel.x
+
+            if isinstance(wo, obstacle.Obstacle):
+                snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.BRICK_BOUNCE_SFX)
+                snd.set_volume(gset.sfx_volume)
+                pygame.mixer.find_channel(True).play(snd)
 
     def move_to_x(self, pos_x: int) -> None:
         """
