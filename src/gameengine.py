@@ -82,6 +82,7 @@ class GameEngine:
 
         # Initialize game music and paths
         pygame.mixer.init()
+        pygame.mixer.set_num_channels(14)
         self.current_music_path = None
         self.dragging_bgm_slider = False
         self.dragging_sfx_slider = False
@@ -540,7 +541,7 @@ class GameEngine:
                 # determining in which direction
                 # to bounce, based on approach
                 current_wo.detect_collision(other_wo, self.gs, self.gset)
-                other_wo.add_collision()
+                other_wo.add_collision(self.gset)
                 if other_wo.should_score():
                     self.ps.score += other_wo.value
                 if other_wo.should_remove():

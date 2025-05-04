@@ -45,6 +45,7 @@ def mock_pygame():
          mock.patch("pygame.mouse.get_pos", return_value=[4]) as mock_mouse_pos, \
          mock.patch("pygame.time.get_ticks", return_value=123456) as mock_get_ticks, \
          mock.patch("pygame.display.set_mode") as mock_set_mode, \
+         mock.patch.object(pygame.mixer, "set_num_channels"), \
          mock.patch("pygame.draw.line") as mock_draw_line, \
          mock.patch("pygame.font") as mock_font:
 

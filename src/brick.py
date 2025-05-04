@@ -96,13 +96,17 @@ class Brick(WorldObject, pygame.sprite.Sprite):
         if self.bonus > 0:
             self._add_strength_indicator(screen)
 
-    def add_collision(self) -> None:
+    def add_collision(self, gset: GameSettings) -> None:
         """
         Reduces the brick's strength when it's hit.
 
         :return:
         """
         self.strength -= 1
+        if self.strength > 0:
+            snd: pygame.mixer.Sound = pygame.mixer.Sound(assets.BRICK_BOUNCE_SFX)
+            snd.set_volume(gset.sfx_volume)
+            pygame.mixer.find_channel(True).play(snd)
 
     def should_score(self) -> bool:
         return True
