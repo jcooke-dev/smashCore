@@ -34,6 +34,9 @@
                     <a class="variable" href="#GAME_NAME">GAME_NAME</a>
             </li>
             <li>
+                    <a class="variable" href="#CLOSE_TO_ZERO">CLOSE_TO_ZERO</a>
+            </li>
+            <li>
                     <a class="variable" href="#INITIAL_FPS_SIMPLE">INITIAL_FPS_SIMPLE</a>
             </li>
             <li>
@@ -88,13 +91,19 @@
                     <a class="variable" href="#GRAY">GRAY</a>
             </li>
             <li>
-                    <a class="variable" href="#DARKBLUE">DARKBLUE</a>
+                    <a class="variable" href="#LIGHT_GRAY">LIGHT_GRAY</a>
             </li>
             <li>
-                    <a class="variable" href="#LIGHTBLUE">LIGHTBLUE</a>
+                    <a class="variable" href="#DARK_BLUE">DARK_BLUE</a>
+            </li>
+            <li>
+                    <a class="variable" href="#LIGHT_BLUE">LIGHT_BLUE</a>
             </li>
             <li>
                     <a class="variable" href="#RED">RED</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DARK_RED">DARK_RED</a>
             </li>
             <li>
                     <a class="variable" href="#ORANGE">ORANGE</a>
@@ -103,13 +112,22 @@
                     <a class="variable" href="#YELLOW">YELLOW</a>
             </li>
             <li>
+                    <a class="variable" href="#DARK_YELLOW">DARK_YELLOW</a>
+            </li>
+            <li>
                     <a class="variable" href="#GREEN">GREEN</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DARK_GREEN">DARK_GREEN</a>
             </li>
             <li>
                     <a class="variable" href="#PURPLE">PURPLE</a>
             </li>
             <li>
                     <a class="variable" href="#PINK">PINK</a>
+            </li>
+            <li>
+                    <a class="variable" href="#BRICK_SOLIDS">BRICK_SOLIDS</a>
             </li>
             <li>
                     <a class="variable" href="#START_SCORE">START_SCORE</a>
@@ -140,6 +158,45 @@
             </li>
             <li>
                     <a class="variable" href="#MUSIC_VOLUME_STEP">MUSIC_VOLUME_STEP</a>
+            </li>
+            <li>
+                    <a class="variable" href="#SFX_VOLUME_STEP">SFX_VOLUME_STEP</a>
+            </li>
+            <li>
+                    <a class="variable" href="#SHAKE_STRENGTH_THRESHOLD">SHAKE_STRENGTH_THRESHOLD</a>
+            </li>
+            <li>
+                    <a class="variable" href="#SHAKE_OFFSET_BASE">SHAKE_OFFSET_BASE</a>
+            </li>
+            <li>
+                    <a class="variable" href="#EFFECT_BRICK_PLAIN_DESTROY_DURATION">EFFECT_BRICK_PLAIN_DESTROY_DURATION</a>
+            </li>
+            <li>
+                    <a class="variable" href="#EFFECT_BRICK_PLAIN_DESTROY_INFLATION">EFFECT_BRICK_PLAIN_DESTROY_INFLATION</a>
+            </li>
+            <li>
+                    <a class="variable" href="#EFFECT_BRICK_PLAIN_DESTROY_FADE">EFFECT_BRICK_PLAIN_DESTROY_FADE</a>
+            </li>
+            <li>
+                    <a class="variable" href="#EFFECT_BRICK_IMAGE_DESTROY_DURATION">EFFECT_BRICK_IMAGE_DESTROY_DURATION</a>
+            </li>
+            <li>
+                    <a class="variable" href="#EFFECT_BRICK_IMAGE_DESTROY_INFLATION">EFFECT_BRICK_IMAGE_DESTROY_INFLATION</a>
+            </li>
+            <li>
+                    <a class="variable" href="#EFFECT_BRICK_IMAGE_DESTROY_FADE">EFFECT_BRICK_IMAGE_DESTROY_FADE</a>
+            </li>
+            <li>
+                    <a class="variable" href="#EFFECT_POWER_UP_DURATION">EFFECT_POWER_UP_DURATION</a>
+            </li>
+            <li>
+                    <a class="variable" href="#EFFECT_POWER_UP_DROP_ACC_Y">EFFECT_POWER_UP_DROP_ACC_Y</a>
+            </li>
+            <li>
+                    <a class="variable" href="#LEVEL_CLEARED_DURATION">LEVEL_CLEARED_DURATION</a>
+            </li>
+            <li>
+                    <a class="variable" href="#LEVEL_CLEARED_SHAKE_MAGNITUDE">LEVEL_CLEARED_SHAKE_MAGNITUDE</a>
             </li>
     </ul>
 
@@ -184,55 +241,81 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="n">GAME_NAME</span> <span class="o">=</span> <span class="s2">&quot;SmashCore&quot;</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="c1"># width and height of game board</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="n">WIDTH</span><span class="p">,</span> <span class="n">HEIGHT</span> <span class="o">=</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">800</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="n">INITIAL_FPS_SIMPLE</span> <span class="o">=</span> <span class="mi">60</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="n">MAX_FPS_VECTOR</span> <span class="o">=</span> <span class="mi">250</span> <span class="c1"># note this should work out to a whole number of clock.tick ms for the loop</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="n">SPLASH_TIME_SECS</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="n">CLOSE_TO_ZERO</span> <span class="o">=</span> <span class="mf">0.00001</span> <span class="c1"># for float comparisons to zero</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="c1"># width and height of game board</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="n">WIDTH</span><span class="p">,</span> <span class="n">HEIGHT</span> <span class="o">=</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">800</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="n">INITIAL_FPS_SIMPLE</span> <span class="o">=</span> <span class="mi">60</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="n">MAX_FPS_VECTOR</span> <span class="o">=</span> <span class="mi">250</span> <span class="c1"># note this should work out to a whole number of clock.tick ms for the loop</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="n">PAD_WIDTH</span><span class="p">,</span> <span class="n">PAD_HEIGHT</span> <span class="o">=</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">20</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="n">PADDLE_START_POSITION_OFFSET</span> <span class="o">=</span> <span class="mi">10</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="n">PADDLE_KEY_SPEED</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="c1"># base arrow key-control paddle speed</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="n">BALL_RADIUS</span> <span class="o">=</span> <span class="mi">15</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="n">BALL_SPEED_SIMPLE</span> <span class="o">=</span> <span class="mi">6</span> <span class="c1"># initial speed for SIMPLE_1 model</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="n">BALL_SPEED_VECTOR</span> <span class="o">=</span> <span class="mf">0.55</span> <span class="c1"># initial speed for VECTOR_1 model</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="n">BALL_SPEED_LEVEL_INCREMENT</span> <span class="o">=</span> <span class="mf">0.10</span> <span class="c1"># incremental factor for initial ball speed upon level clear</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="n">SPLASH_TIME_SECS</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="n">PAD_WIDTH</span><span class="p">,</span> <span class="n">PAD_HEIGHT</span> <span class="o">=</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">20</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="n">PADDLE_START_POSITION_OFFSET</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="n">PADDLE_KEY_SPEED</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="c1"># base arrow key-control paddle speed</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="n">BALL_RADIUS</span> <span class="o">=</span> <span class="mi">15</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="n">BALL_SPEED_SIMPLE</span> <span class="o">=</span> <span class="mi">6</span> <span class="c1"># initial speed for SIMPLE_1 model</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="n">BALL_SPEED_VECTOR</span> <span class="o">=</span> <span class="mf">0.55</span> <span class="c1"># initial speed for VECTOR_1 model</span>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="n">BALL_SPEED_STEP</span> <span class="o">=</span> <span class="mf">0.012</span> <span class="c1"># the speed added to the ball for brick breaks</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="n">BALL_SPEED_STEP_INCREMENT</span> <span class="o">=</span> <span class="mf">0.006</span> <span class="c1"># the BALL_SPEED_STEP increment controlled and shown via dev overlay and keys</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="n">WORLD_GRAVITY_ACC</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># the magnitude of gravityAcc vector</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="n">WORLD_GRAVITY_ACC_INCREMENT</span> <span class="o">=</span> <span class="mf">0.00005</span> <span class="c1"># the WORLD_GRAVITY_ACC increment controlled and shown via dev overlay and keys</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="n">PADDLE_IMPULSE</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># the magnitude of the vertical &#39;push&#39; vel vector the paddle imparts to the ball</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="n">PADDLE_IMPULSE_INCREMENT</span> <span class="o">=</span> <span class="mf">0.02</span> <span class="c1"># the PADDLE_IMPULSE increment controlled and shown via dev overlay and keys</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="n">BLACK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="n">WHITE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="n">GRAY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="n">DARKBLUE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">190</span><span class="p">)</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="n">LIGHTBLUE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">176</span><span class="p">,</span> <span class="mi">240</span><span class="p">)</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="n">RED</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="n">ORANGE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="n">YELLOW</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="n">GREEN</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="n">PURPLE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">102</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">153</span><span class="p">)</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="n">PINK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">254</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">)</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="n">START_SCORE</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="n">START_LIVES</span> <span class="o">=</span> <span class="mi">3</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="n">LEADERBOARD_SIZE</span> <span class="o">=</span> <span class="mi">10</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="n">SCORE_INITIALS_MAX</span> <span class="o">=</span> <span class="mi">3</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="n">SLIDER_WIDTH</span> <span class="o">=</span> <span class="mi">700</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="n">SLIDER_HEIGHT</span> <span class="o">=</span> <span class="mi">15</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="n">KNOB_RADIUS</span> <span class="o">=</span> <span class="mi">20</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="n">MUSIC_VOLUME_INITIAL</span> <span class="o">=</span> <span class="mf">1.0</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="n">SFX_VOLUME_INITIAL</span> <span class="o">=</span> <span class="mf">1.0</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="n">MUSIC_VOLUME_STEP</span> <span class="o">=</span> <span class="mf">0.2</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="n">BALL_SPEED_LEVEL_INCREMENT</span> <span class="o">=</span> <span class="mf">0.10</span> <span class="c1"># incremental factor for initial ball speed upon level clear</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="n">BALL_SPEED_STEP</span> <span class="o">=</span> <span class="mf">0.012</span> <span class="c1"># the speed added to the ball for brick breaks</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="n">BALL_SPEED_STEP_INCREMENT</span> <span class="o">=</span> <span class="mf">0.006</span> <span class="c1"># the BALL_SPEED_STEP increment controlled and shown via dev overlay and keys</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="n">WORLD_GRAVITY_ACC</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># the magnitude of gravityAcc vector</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="n">WORLD_GRAVITY_ACC_INCREMENT</span> <span class="o">=</span> <span class="mf">0.00005</span> <span class="c1"># the WORLD_GRAVITY_ACC increment controlled and shown via dev overlay and keys</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="n">PADDLE_IMPULSE</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># the magnitude of the vertical &#39;push&#39; vel vector the paddle imparts to the ball</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="n">PADDLE_IMPULSE_INCREMENT</span> <span class="o">=</span> <span class="mf">0.02</span> <span class="c1"># the PADDLE_IMPULSE increment controlled and shown via dev overlay and keys</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="n">BLACK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="n">WHITE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="n">GRAY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="n">LIGHT_GRAY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="n">DARK_BLUE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">190</span><span class="p">)</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="n">LIGHT_BLUE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">176</span><span class="p">,</span> <span class="mi">240</span><span class="p">)</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="n">RED</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="n">DARK_RED</span> <span class="o">=</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="n">ORANGE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="n">YELLOW</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="n">DARK_YELLOW</span> <span class="o">=</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="n">GREEN</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="n">DARK_GREEN</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="n">PURPLE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">102</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">153</span><span class="p">)</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="n">PINK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">254</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="n">BRICK_SOLIDS</span> <span class="o">=</span> <span class="p">[</span><span class="n">DARK_BLUE</span><span class="p">,</span> <span class="n">LIGHT_BLUE</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="n">ORANGE</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="n">PURPLE</span><span class="p">,</span> <span class="n">PINK</span><span class="p">]</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="n">START_SCORE</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="n">START_LIVES</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="n">LEADERBOARD_SIZE</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="n">SCORE_INITIALS_MAX</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="n">SLIDER_WIDTH</span> <span class="o">=</span> <span class="mi">700</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a><span class="n">SLIDER_HEIGHT</span> <span class="o">=</span> <span class="mi">15</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="n">KNOB_RADIUS</span> <span class="o">=</span> <span class="mi">20</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a><span class="n">MUSIC_VOLUME_INITIAL</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a><span class="n">SFX_VOLUME_INITIAL</span> <span class="o">=</span> <span class="mf">0.5</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="n">MUSIC_VOLUME_STEP</span> <span class="o">=</span> <span class="mf">0.125</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a><span class="n">SFX_VOLUME_STEP</span> <span class="o">=</span> <span class="mf">0.125</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a><span class="n">SHAKE_STRENGTH_THRESHOLD</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># brick initial strength &gt;= this threshold triggers the screen shake</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a><span class="n">SHAKE_OFFSET_BASE</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># the offset shake effect multiplier</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a><span class="n">EFFECT_BRICK_PLAIN_DESTROY_DURATION</span> <span class="o">=</span> <span class="mi">40</span> <span class="c1"># lifetime of fading plain Brick after destruction, in ms</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a><span class="n">EFFECT_BRICK_PLAIN_DESTROY_INFLATION</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="c1"># rect inflation of fading plain Brick after destruction</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a><span class="n">EFFECT_BRICK_PLAIN_DESTROY_FADE</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># fade the destroyed Brick?</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a><span class="n">EFFECT_BRICK_IMAGE_DESTROY_DURATION</span> <span class="o">=</span> <span class="mi">160</span> <span class="c1"># lifetime of animating image Brick after destruction, in ms</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a><span class="n">EFFECT_BRICK_IMAGE_DESTROY_INFLATION</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># rect inflation of image Brick after destruction</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a><span class="n">EFFECT_BRICK_IMAGE_DESTROY_FADE</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># fade the destroyed Brick?</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a><span class="n">EFFECT_POWER_UP_DURATION</span> <span class="o">=</span> <span class="mi">2000</span> <span class="c1"># lifetime of fading power-up image, in ms</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a><span class="n">EFFECT_POWER_UP_DROP_ACC_Y</span> <span class="o">=</span> <span class="mf">0.00025</span> <span class="c1"># y-comp of power-up image dropping acceleration</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a><span class="n">LEVEL_CLEARED_DURATION</span> <span class="o">=</span> <span class="mi">3500</span> <span class="c1"># how long to display the fading &#39;Level Cleared&#39; message</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a><span class="n">LEVEL_CLEARED_SHAKE_MAGNITUDE</span> <span class="o">=</span> <span class="mi">40</span> <span class="c1"># how much of a final shake to trigger</span>
 </span></pre></div>
 
 
@@ -245,6 +328,18 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
         
     </div>
     <a class="headerlink" href="#GAME_NAME"></a>
+    
+    
+
+                </section>
+                <section id="CLOSE_TO_ZERO">
+                    <div class="attr variable">
+            <span class="name">CLOSE_TO_ZERO</span>        =
+<span class="default_value">1e-05</span>
+
+        
+    </div>
+    <a class="headerlink" href="#CLOSE_TO_ZERO"></a>
     
     
 
@@ -300,7 +395,7 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
                 <section id="PADDLE_KEY_SPEED">
                     <div class="attr variable">
             <span class="name">PADDLE_KEY_SPEED</span>        =
-<span class="default_value">2.0</span>
+<span class="default_value">1.0</span>
 
         
     </div>
@@ -465,26 +560,38 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
     
 
                 </section>
-                <section id="DARKBLUE">
+                <section id="LIGHT_GRAY">
                     <div class="attr variable">
-            <span class="name">DARKBLUE</span>        =
-<span class="default_value">(36, 90, 190)</span>
+            <span class="name">LIGHT_GRAY</span>        =
+<span class="default_value">(100, 100, 100)</span>
 
         
     </div>
-    <a class="headerlink" href="#DARKBLUE"></a>
+    <a class="headerlink" href="#LIGHT_GRAY"></a>
     
     
 
                 </section>
-                <section id="LIGHTBLUE">
+                <section id="DARK_BLUE">
                     <div class="attr variable">
-            <span class="name">LIGHTBLUE</span>        =
+            <span class="name">DARK_BLUE</span>        =
+<span class="default_value">(36, 90, 190)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DARK_BLUE"></a>
+    
+    
+
+                </section>
+                <section id="LIGHT_BLUE">
+                    <div class="attr variable">
+            <span class="name">LIGHT_BLUE</span>        =
 <span class="default_value">(0, 176, 240)</span>
 
         
     </div>
-    <a class="headerlink" href="#LIGHTBLUE"></a>
+    <a class="headerlink" href="#LIGHT_BLUE"></a>
     
     
 
@@ -497,6 +604,18 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
         
     </div>
     <a class="headerlink" href="#RED"></a>
+    
+    
+
+                </section>
+                <section id="DARK_RED">
+                    <div class="attr variable">
+            <span class="name">DARK_RED</span>        =
+<span class="default_value">(200, 0, 0)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DARK_RED"></a>
     
     
 
@@ -525,6 +644,18 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
     
 
                 </section>
+                <section id="DARK_YELLOW">
+                    <div class="attr variable">
+            <span class="name">DARK_YELLOW</span>        =
+<span class="default_value">(200, 200, 0)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DARK_YELLOW"></a>
+    
+    
+
+                </section>
                 <section id="GREEN">
                     <div class="attr variable">
             <span class="name">GREEN</span>        =
@@ -533,6 +664,18 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
         
     </div>
     <a class="headerlink" href="#GREEN"></a>
+    
+    
+
+                </section>
+                <section id="DARK_GREEN">
+                    <div class="attr variable">
+            <span class="name">DARK_GREEN</span>        =
+<span class="default_value">(0, 200, 0)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DARK_GREEN"></a>
     
     
 
@@ -557,6 +700,19 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
         
     </div>
     <a class="headerlink" href="#PINK"></a>
+    
+    
+
+                </section>
+                <section id="BRICK_SOLIDS">
+                    <div class="attr variable">
+            <span class="name">BRICK_SOLIDS</span>        =
+<input id="BRICK_SOLIDS-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="BRICK_SOLIDS-view-value"></label><span class="default_value">[(36, 90, 190), (0, 176, 240), (255, 0, 0), (255, 100, 0), (255, 255, 0), (0, 255, 0), (102, 51, 153), (254, 0, 127)]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#BRICK_SOLIDS"></a>
     
     
 
@@ -660,7 +816,7 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
                 <section id="SFX_VOLUME_INITIAL">
                     <div class="attr variable">
             <span class="name">SFX_VOLUME_INITIAL</span>        =
-<span class="default_value">1.0</span>
+<span class="default_value">0.5</span>
 
         
     </div>
@@ -672,11 +828,167 @@ Authors: Justin Cooke, Ann Rauscher, Camila Roxo, Justin Smith, Rex Vargas</p>
                 <section id="MUSIC_VOLUME_STEP">
                     <div class="attr variable">
             <span class="name">MUSIC_VOLUME_STEP</span>        =
-<span class="default_value">0.2</span>
+<span class="default_value">0.125</span>
 
         
     </div>
     <a class="headerlink" href="#MUSIC_VOLUME_STEP"></a>
+    
+    
+
+                </section>
+                <section id="SFX_VOLUME_STEP">
+                    <div class="attr variable">
+            <span class="name">SFX_VOLUME_STEP</span>        =
+<span class="default_value">0.125</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SFX_VOLUME_STEP"></a>
+    
+    
+
+                </section>
+                <section id="SHAKE_STRENGTH_THRESHOLD">
+                    <div class="attr variable">
+            <span class="name">SHAKE_STRENGTH_THRESHOLD</span>        =
+<span class="default_value">2</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SHAKE_STRENGTH_THRESHOLD"></a>
+    
+    
+
+                </section>
+                <section id="SHAKE_OFFSET_BASE">
+                    <div class="attr variable">
+            <span class="name">SHAKE_OFFSET_BASE</span>        =
+<span class="default_value">2</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SHAKE_OFFSET_BASE"></a>
+    
+    
+
+                </section>
+                <section id="EFFECT_BRICK_PLAIN_DESTROY_DURATION">
+                    <div class="attr variable">
+            <span class="name">EFFECT_BRICK_PLAIN_DESTROY_DURATION</span>        =
+<span class="default_value">40</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EFFECT_BRICK_PLAIN_DESTROY_DURATION"></a>
+    
+    
+
+                </section>
+                <section id="EFFECT_BRICK_PLAIN_DESTROY_INFLATION">
+                    <div class="attr variable">
+            <span class="name">EFFECT_BRICK_PLAIN_DESTROY_INFLATION</span>        =
+<span class="default_value">0.25</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EFFECT_BRICK_PLAIN_DESTROY_INFLATION"></a>
+    
+    
+
+                </section>
+                <section id="EFFECT_BRICK_PLAIN_DESTROY_FADE">
+                    <div class="attr variable">
+            <span class="name">EFFECT_BRICK_PLAIN_DESTROY_FADE</span>        =
+<span class="default_value">True</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EFFECT_BRICK_PLAIN_DESTROY_FADE"></a>
+    
+    
+
+                </section>
+                <section id="EFFECT_BRICK_IMAGE_DESTROY_DURATION">
+                    <div class="attr variable">
+            <span class="name">EFFECT_BRICK_IMAGE_DESTROY_DURATION</span>        =
+<span class="default_value">160</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EFFECT_BRICK_IMAGE_DESTROY_DURATION"></a>
+    
+    
+
+                </section>
+                <section id="EFFECT_BRICK_IMAGE_DESTROY_INFLATION">
+                    <div class="attr variable">
+            <span class="name">EFFECT_BRICK_IMAGE_DESTROY_INFLATION</span>        =
+<span class="default_value">0.0</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EFFECT_BRICK_IMAGE_DESTROY_INFLATION"></a>
+    
+    
+
+                </section>
+                <section id="EFFECT_BRICK_IMAGE_DESTROY_FADE">
+                    <div class="attr variable">
+            <span class="name">EFFECT_BRICK_IMAGE_DESTROY_FADE</span>        =
+<span class="default_value">False</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EFFECT_BRICK_IMAGE_DESTROY_FADE"></a>
+    
+    
+
+                </section>
+                <section id="EFFECT_POWER_UP_DURATION">
+                    <div class="attr variable">
+            <span class="name">EFFECT_POWER_UP_DURATION</span>        =
+<span class="default_value">2000</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EFFECT_POWER_UP_DURATION"></a>
+    
+    
+
+                </section>
+                <section id="EFFECT_POWER_UP_DROP_ACC_Y">
+                    <div class="attr variable">
+            <span class="name">EFFECT_POWER_UP_DROP_ACC_Y</span>        =
+<span class="default_value">0.00025</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EFFECT_POWER_UP_DROP_ACC_Y"></a>
+    
+    
+
+                </section>
+                <section id="LEVEL_CLEARED_DURATION">
+                    <div class="attr variable">
+            <span class="name">LEVEL_CLEARED_DURATION</span>        =
+<span class="default_value">3500</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LEVEL_CLEARED_DURATION"></a>
+    
+    
+
+                </section>
+                <section id="LEVEL_CLEARED_SHAKE_MAGNITUDE">
+                    <div class="attr variable">
+            <span class="name">LEVEL_CLEARED_SHAKE_MAGNITUDE</span>        =
+<span class="default_value">40</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LEVEL_CLEARED_SHAKE_MAGNITUDE"></a>
     
     
 

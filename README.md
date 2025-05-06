@@ -10,7 +10,7 @@ Rex Vargas
 
 ## Gameplay and Testing Considerations and Features
 > [!NOTE]
-To play SmashCore, you must **install Python (tested with 3.13.2) and the pygame library (tested with 2.6.0)**.  We've installed and used many more libraries, but those are only needed when developing this game (and are described below).
+To play SmashCore, you must either **install Python (tested with 3.13.2) and the pygame library (tested with 2.6.0)** or grab an executable for your OS from https://smashcore-project.itch.io/smashcore or https://github.com/jcooke-dev/smashCore/releases.  We've installed and used many more libraries, but those are only needed when developing this game (and are described below).
 
 Player interaction with SmashCore is straightforward and requires both the mouse and keyboard at this stage of development.  In standard play, the player clicks buttons to choose from Click to Play, Restart Game, Try Again, Quit Game, etc.  The player must also launch the ball by pressing the Spacebar and can pause/unpause the game with the ESC key.  During gameplay, the paddle is controlled by horizontal mouse movement.  Keep the ball from falling below/past the paddle!
 
@@ -51,7 +51,6 @@ We're developing SmashCore in Python, intending to target releases to Windows, m
 * **bandit 1.8.3** - tool to scan all Python source files and generate a security report (https://pypi.org/project/bandit/)
 * **pickle** - library to support Python object serialization (https://docs.python.org/3/library/pickle.html)
 * **PyInstaller 6.12.0** - a tool that helps package and distribute a Python application for desktop execution (https://pyinstaller.org/)
-* **pygbag 0.9.2** - tool that packages Python/pygame applications for running in a web browser (https://pypi.org/project/pygbag/)
 
 ## Configuration/Setup Instructions for Specific Libraries and Tools
 
@@ -105,20 +104,23 @@ SmashCore's code base is organized into separate folders for source code (\\src\
 ## Source Code API/Documentation
 You can view the source code API, automatically generated with pdoc, here: https://jcooke-dev.github.io/smashCore/src.html 
 
-
 ## Credits
+
+**Music:**
+* Free music created by [DOS88](https://dos88.itch.io/) and obtained from [DOS-88 Synthwave Music Library on itch.io](https://dos88.itch.io/dos-88-music-library)  
 
 **Sound Effects:**
 * Free sound effects obtained from [Mixkit](https://mixkit.co/free-sound-effects/game/).
+* Most gameplay sounds designed by Justin Smith
 
 **Game Logo:**
 * Designed by Camila Roxo
  
-**Volume Botton Layout:**
+**Volume Button Layout:**
 * Designed by Rex Vargas
 
 **Game Art:**
-* Designed by Justin Smith
+* Designed by Justin Smith and Ann Rauscher
 
 **Level Design:**
 * Designed by all members of SmashCore team
